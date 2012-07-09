@@ -1,0 +1,12 @@
+Todos
+-----
+* O2 Analysis and Display during logging
+* EEPROM Mgmt (Save/Load/Burn/Fetch)
+* Realtime Data Display
+
+* Add a realtime-mode (ala ecmspy mono)
+
+Configurations
+--------------
+*  System
+  - Exhaust Valve actuator error mask

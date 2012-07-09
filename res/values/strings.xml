@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="ecm_type">ECM Type:</string>
+    <string name="app_name">EcmDroid</string>
+    <string name="protocol">Protocol</string>
+    <string name="choose_protocol">Choose Protocol</string>
+
+    <string-array name="protocols">
+        <item>Stock / P&amp;A</item>
+        <!-- <item>Factory Race</item> -->
+    </string-array>
+
+    <string name="active_tests">Active Tests</string>
+    <string name="tps_reset">TPS Reset</string>
+    <string name="run_device_test">Choose Device Test</string>
+    <string name="start">Start</string>
+    <string name="data_channels">Data Channels</string>
+    <string name="eeprom_pages">EEPROM Pages:</string>
+    <string name="rt_data_size">RT Data Size:</string>
+    <string name="connect">Connect</string>
+    <string name="logfile">Log file:</string>
+    <string name="logStatus">Status:</string>
+    <string name="tps">TPS:</string>
+    <string name="rpm">RPM:</string>
+    <string name="clt">CLT:</string>
+    <string name="log_data">Log ECM Data</string>
+    <string name="start_recording">Start Recording</string>
+    <string name="status_idle">Idle</string>
+    <string name="current_errors">Current Errors</string>
+    <string name="stored_errors">Stored Errors</string>
+    <string name="read_errors">Read Errors</string>
+    <string name="clear_errors">Clear Errors</string>
+    <string name="trouble_codes">Trouble Codes</string>
+    <string name="eeprom_size">EEPROM Size:</string>
+    <string name="tps_reset_notice">Please follow the Service Manual for performing a TPS reset on DDFI3 ECMs.</string>
+    <string name="tps_reset_instructions">Back out idle adjuster. Open and snap shut throttle control grip 2–3 times. Ensure that throttle plate is completly closed ("sticks" in throttle body). Press the "OK" button. Open the throttle for 5–6° and set idle to 1050–1100 rpm.</string>
+    <string name="none">[none]</string>
+    <string name="stop_recording">Stop recording</string>
+    <string name="log_status" formatted="false">Recording… (%d records, %d KB)</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connected">CONNECTED</string>
+    <string name="bluetooth_is_not_available">Bluetooth is not available</string>
+    <string name="paired_devices">Paired Devices</string>
+    <string name="logfile_closed">Logfile closed.</string>
+    <string name="no_ext_storage">External storage not available.</string>
+    <string name="dash">-</string>
+    <string name="fetching_trouble_codes">Fetching Trouble Codes…</string>
+    <string name="no_errors">No Errors</string>
+    <string name="clearing_trouble_codes">Clearing Trouble Codes…</string>
+    <string name="clear_all_errors">OK to permanently clear all errors?</string>
+    <string name="resetting_tps">Resetting TPS…</string>
+    <string name="reset">Reset</string>
+    <string name="recording_started">Recording ECM data</string>
+    <string name="info">Info</string>
+    <string name="active_tests_short">Tests</string>
+    <string name="view_data">View Data</string>
+    <string name="log">Log</string>
+    <string name="eeprom_db">EEPROM DB</string>
+    <string name="log_interval">Log Interval:</string>
+    <string name="main">EcmDroid</string>
+    <string name="log_recorder">Log Recorder</string>
+    <string name="ecm_id">ECM ID:</string>
+    <string name="ecm_serial_no">ECM Serial No.:</string>
+    <string name="ecm_mfg_date">ECM Mfg. Date:</string>
+    <string name="choose_variable">Choose Variable</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_eeprom">EEPROM Data</string>
+    <string name="eeprom">EEPROM</string>
+
+</resources>

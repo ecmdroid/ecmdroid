@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/main"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/info"
+        android:icon="@drawable/action_info">
+    </item>
+    <item android:id="@+id/troublecodes"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/trouble_codes"
+        android:icon="@drawable/action_errors">
+    </item>
+    <item android:id="@+id/tests"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/active_tests"
+        android:icon="@android:drawable/ic_menu_manage">
+    </item>
+    <item android:id="@+id/data"
+        android:showAsAction="ifRoom|withText"
+        android:visible="true"
+        android:title="@string/view_data"
+        android:icon="@drawable/action_data"
+        >
+    </item>
+    <item android:id="@+id/log"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/log"
+        android:icon="@drawable/action_record">
+    </item>
+    
+    <item android:id="@+id/eeprom"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/eeprom"
+        android:icon="@drawable/action_eeprom" />
+        
+    <item android:id="@+id/database"
+        android:visible="false"
+        android:title="@string/eeprom_db">
+    </item>
+</menu>
