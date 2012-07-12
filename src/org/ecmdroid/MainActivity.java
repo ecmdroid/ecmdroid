@@ -111,8 +111,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			setText(R.id.eepromSizeValue, "" + eeprom.length());
 			setText(R.id.eepromPagesValue, "" + eeprom.getPageCount());
 			setText(R.id.ecmTypeValue, ecm.getType().toString());
-			setText(R.id.ecmSerialValue, ecm.getSerialNo());
-			setText(R.id.ecmMfgDateValue, ecm.getMfgDate());
+			if (eeprom.isEepromRead()) {
+				setText(R.id.ecmSerialValue, ecm.getSerialNo());
+				setText(R.id.ecmMfgDateValue, ecm.getMfgDate());
+			}
 		}
 	}
 
@@ -211,7 +213,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 	}
 	private class RefreshTask extends AsyncTask<Void, String, IOException>
 	{
-		private String v, sz, p;
 		private ProgressDialog mProgress;
 
 		@Override
@@ -223,7 +224,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		protected IOException doInBackground(Void... arg0) {
 			Log.d(TAG, "Refreshing ECM Information...");
 			try {
-				v = ecm.getVersion();
+				ecm.getVersion();
 				publishProgress();
 				if (ecm.getEEPROM() != null) {
 					EEPROM eeprom = ecm.getEEPROM();
@@ -253,6 +254,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			if (exception != null) {
 				Toast.makeText(MainActivity.this, "I/O error. " + exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 				return;
+			} else {
+				update();
 			}
 		}
 	}
