@@ -37,7 +37,6 @@ import android.widget.ToggleButton;
 public class DataChannelActivity extends BaseActivity {
 
 	private static final String TAG = "DataChannels";
-	private static final boolean D = false;
 	private static Variable[] channels = new Variable[4];
 	private ECM ecm = ECM.getInstance(this);
 	private VariableProvider provider = VariableProvider.getInstance(this);
@@ -59,14 +58,6 @@ public class DataChannelActivity extends BaseActivity {
 		Log.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.datachannels);
-		if(D) {
-			ecm.setEEPROM(EEPROM.get("BUEIB", this));
-			byte[] rt = new byte[200];
-			rt[53] = 0x04; rt[52] = (byte) 0x80;
-			rt[31] = 0x0a; rt[30] = (byte) 0x98;
-			ecm.setRealtimeData(rt);
-		}
-
 
 		if (!Utils.isEmpty(ecm.getId())) {
 			SharedPreferences prefs = getPreferences(MODE_PRIVATE);
@@ -156,17 +147,11 @@ public class DataChannelActivity extends BaseActivity {
 		}
 		@Override
 		protected Void doInBackground(Void... params) {
-			while(!this.isCancelled() && (D || ecm.isConnected() && !ecm.isRecording())) {
+			while(!this.isCancelled() && ecm.isConnected() && !ecm.isRecording()) {
 				try {
 					ecm.readRTData();
 				} catch (IOException e) {
-					if (D) {
-						byte[] data = ecm.getRealtimeData();
-						data[52] = (byte) (Math.random() * 50);
-						data[30] = (byte) (Math.random() * 50);
-						data[12] = (byte) (Math.random() * 50);
-						data[25] = (byte) (Math.random() * 255);
-					}
+					// OK for now
 				}
 				try {
 					Thread.sleep(100);
