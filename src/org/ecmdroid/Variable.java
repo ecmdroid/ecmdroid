@@ -223,11 +223,12 @@ public class Variable implements Cloneable {
 	}
 
 	public Variable refreshValue(byte[] tmp) {
-		if (tmp != null && this.offset + this.width <= tmp.length) {
+		int co = offset < 0 ? tmp.length + offset : offset;
+		if (tmp != null && co >= 0 && co + this.width <= tmp.length) {
 			int value = 0;
 			for (int i = this.width; i >0; i--) {
 				value <<= 8;
-				value |= (tmp[offset + i - 1] & 0xff);
+				value |= (tmp[co + i - 1] & 0xff);
 			}
 			if (cls == Class.BITS || cls == Class.BITFIELD) {
 				String bs = Integer.toBinaryString(value);

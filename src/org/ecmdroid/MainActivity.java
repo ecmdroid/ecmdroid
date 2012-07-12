@@ -232,6 +232,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 						publishProgress("Reading EEPROM data (" + pg.nr() +"/" + eeprom.getPageCount() + ")...");
 						ecm.readEEPromPage(pg);
 					}
+					eeprom.setEepromRead(true);
 				}
 			} catch (IOException e) {
 				return e;

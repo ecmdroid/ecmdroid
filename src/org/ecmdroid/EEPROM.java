@@ -20,36 +20,23 @@ package org.ecmdroid;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
+import org.ecmdroid.ECM.Type;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 public class EEPROM {
 
-	private static Map<String, EEPROM> eeproms = new HashMap<String, EEPROM>();
-
-	static {
-		eeproms.put ("BUEIA", new EEPROM("BUEIA", ECM.Type.DDFI1, 256, 256, 32, 256, 256));
-		eeproms.put ("BUEGC", new EEPROM("BUEGC", ECM.Type.DDFI1, 256, 256, 76, 256, 256));
-		eeproms.put ("BUEKA", new EEPROM("BUEKA", ECM.Type.DDFI1, 256, 256, 48, 256, 256));
-		eeproms.put ("BUECB", new EEPROM("BUECB", ECM.Type.DDFI2, 256, 256, 90, 256, 256, 24));
-		eeproms.put ("BUEGB", new EEPROM("BUEGB", ECM.Type.DDFI2, 256, 256, 150, 256, 256, 24));
-		eeproms.put ("BUEIB", new EEPROM("BUEIB", ECM.Type.DDFI2, 256, 256, 158, 256, 256, 24));
-		eeproms.put ("B2RIB", new EEPROM("B2RIB", ECM.Type.DDFI2, 256, 256, 158, 256, 256, 24));
-		eeproms.put ("BUE1D", new EEPROM("BUE1D", ECM.Type.DDFI3, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 76));
-		eeproms.put ("BUE2D", new EEPROM("BUE2D", ECM.Type.DDFI3, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 172));
-		eeproms.put ("BUE3D", new EEPROM("BUE3D", ECM.Type.DDFI3, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 44));
-		eeproms.put ("BUEOD", new EEPROM("BUEOD", ECM.Type.DDFI3, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 228));
-		eeproms.put ("BUEWD", new EEPROM("BUEWD", ECM.Type.DDFI3, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 44));
-		eeproms.put ("BUEYD", new EEPROM("BUEYD", ECM.Type.DDFI3, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 160));
-		eeproms.put ("BUEZD", new EEPROM("BUEZD", ECM.Type.DDFI3, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 44));
-	}
-
+	private static final String TAG = "EEPROM";
 	private ECM.Type type;
 	private String id;
 	private String version;
 	private ArrayList<Page> pages;
 	private int length = 0;
 	private byte[] data;
+	private boolean eepromRead;
 
 	private EEPROM(String id, ECM.Type type, Integer... pagesizes)
 	{
@@ -65,6 +52,9 @@ public class EEPROM {
 			length += ps.intValue();
 		}
 		data = new byte[length];
+	}
+
+	private EEPROM() {
 	}
 
 	public int length() {
@@ -90,6 +80,59 @@ public class EEPROM {
 	@Override
 	public String toString() {
 		return "EEPROM[id: " + id + ", type: " + type + ", version: " + version +", length: " + length + ", number of pages: " + pages.size() + "]";
+	}
+
+	public static EEPROM get(String name, Context ctx) {
+		if (name == null) {
+			return null;
+		}
+		if (name.length() > 5) {
+			name = name.substring(0, 5);
+		}
+		DBHelper helper = new DBHelper(ctx);
+		EEPROM eeprom = null;
+		SQLiteDatabase db = helper.getReadableDatabase();
+		Cursor c = null;
+		try {
+			String query = "SELECT xsize, type, page, pages.size as pgsize" +
+					" FROM eeprom, pages" +
+					" WHERE pages.category = eeprom.category" +
+					" AND name = '" + name + "'" +
+					" ORDER BY page";
+			// Log.d(TAG, query);
+			c = db.rawQuery(query, null);
+			if (c.getCount() == 0) {
+				return null;
+			}
+			eeprom = new EEPROM();
+			eeprom.id = name;
+			eeprom.pages = new ArrayList<EEPROM.Page>();
+			int pc = 0;
+			while(c.moveToNext()) {
+				if (eeprom.length == 0) {
+					eeprom.length = c.getInt(c.getColumnIndex("xsize"));
+					eeprom.type = Type.getType(c.getString(c.getColumnIndex("type")));
+					eeprom.data = new byte[eeprom.length];
+				}
+				int pnr = c.getInt(c.getColumnIndex("page"));
+				int sz  = c.getInt(c.getColumnIndex("pgsize"));
+				Page pg = eeprom.new Page(pnr, sz);
+				if (pnr == 0) {
+					pg.start = eeprom.length - pg.length;
+				} else {
+					pg.start = pc;
+					pc += pg.length;
+				}
+				pg.parent = eeprom;
+				eeprom.pages.add(pg);
+			}
+		} finally {
+			if (c != null) {
+				c.close();
+			}
+			db.close();
+		}
+		return eeprom;
 	}
 
 	public class Page {
@@ -128,13 +171,8 @@ public class EEPROM {
 		return pages.size();
 	}
 
-	public static EEPROM get(String ecmtype)
-	{
-		return eeproms.get(ecmtype == null ? "" : ecmtype.substring(0, Math.min(ecmtype.length(), 5)));
-	}
-
 	public Page getPage(int pageno) {
-		return pages.get(pageno - 1);
+		return pages.get(pageno);
 	}
 
 	public String getVersion() {
@@ -143,5 +181,13 @@ public class EEPROM {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public boolean isEepromRead() {
+		return eepromRead;
+	}
+
+	public void setEepromRead(boolean eepromRead) {
+		this.eepromRead = eepromRead;
 	}
 }

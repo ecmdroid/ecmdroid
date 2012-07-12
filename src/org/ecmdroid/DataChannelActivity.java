@@ -60,7 +60,7 @@ public class DataChannelActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.datachannels);
 		if(D) {
-			ecm.setEEPROM(EEPROM.get("BUEIB"));
+			ecm.setEEPROM(EEPROM.get("BUEIB", this));
 			byte[] rt = new byte[200];
 			rt[53] = 0x04; rt[52] = (byte) 0x80;
 			rt[31] = 0x0a; rt[30] = (byte) 0x98;

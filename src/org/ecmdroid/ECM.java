@@ -165,7 +165,7 @@ public class ECM
 		PDU response = sendPDU(PDU.getVersion());
 		String ret = new String(response.getEEPromData(), "US-ASCII");
 		Log.i(TAG, "EEPROM Version: " + ret);
-		eeprom = EEPROM.get(ret);
+		eeprom = EEPROM.get(ret, context);
 		if (eeprom != null) {
 			eeprom.setVersion(ret);
 		}
@@ -213,11 +213,15 @@ public class ECM
 	 */
 	public void readEEPromPage(Page page) throws IOException {
 		byte[] buffer = page.getParent().getBytes();
-		Log.d(TAG, "Fetching EEPROM Page " + page.nr() + ", length: " + page.length() + " to buffer at offset");
 		for (int i=0; i < page.length(); ) {
 			int dtr = Math.min(page.length() - i, 16);
-			if (D) Log.d(TAG, "Reading " + dtr + " bytes from page " + page.nr() + " to buffer at offset " + page.start() + i);
-			PDU response = sendPDU(PDU.getRequest(page.nr(), i, dtr));
+			int offset = i;
+			if (page.nr() == 0) { // Page zero is special
+				offset = 0xFF - page.length() + i + 1;
+				dtr = 1;
+			}
+			if (D) Log.d(TAG, "Reading " + dtr + " bytes from page " + page.nr() + " at offset " + offset + " to local buffer at offset " + page.start() + i);
+			PDU response = sendPDU(PDU.getRequest(page.nr(), offset, dtr));
 			System.arraycopy(response.getEEPromData(), 0, buffer, page.start() + i, dtr);
 			i += dtr;
 		}
