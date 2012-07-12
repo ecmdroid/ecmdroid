@@ -271,7 +271,17 @@ public class Variable implements Cloneable {
 	}
 
 	public int getIntValue() {
-		return (cls == Class.BITS ? ((Byte)rawValue).intValue() : cls == Class.SCALAR ? ((Double)rawValue).intValue() : 0);
-	}
+		if (cls == Class.BITFIELD || cls == Class.BITS) {
+			return ((Short)rawValue).intValue();
+		}
 
+		if (cls == Class.SCALAR || cls == Class.VALUE) {
+			if (rawValue instanceof Integer) {
+				return ((Integer)rawValue).intValue();
+			} else {
+				return ((Double)rawValue).intValue();
+			}
+		}
+		return 0;
+	}
 }
