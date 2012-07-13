@@ -60,7 +60,7 @@
     <string name="ecm_serial_no">ECM Serial No.:</string>
     <string name="ecm_mfg_date">ECM Mfg. Date:</string>
     <string name="choose_variable">Choose Variable</string>
-    <string name="title_activity_eeprom">EEPROM Data</string>
+    <string name="title_activity_eeprom">EEPROM Editor</string>
     <string name="eeprom">EEPROM</string>
 
 </resources>

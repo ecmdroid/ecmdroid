@@ -401,4 +401,8 @@ public class ECM
 		return UNKNOWN;
 	}
 
+	public boolean isEepromRead() {
+		return eeprom != null && eeprom.isEepromRead();
+	}
+
 }

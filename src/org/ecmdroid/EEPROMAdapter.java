@@ -30,21 +30,26 @@ public class EEPROMAdapter extends BaseAdapter
 {
 	private Context ctx;
 	private byte[] data = new byte[0];
+	private int cols;
 
-	public EEPROMAdapter(Context ctx, EEPROM eeprom) {
+	public EEPROMAdapter(Context ctx, EEPROM eeprom, int cols) {
 		this.ctx = ctx;
 		if (eeprom != null && eeprom.getBytes() != null) {
 			data = eeprom.getBytes();
 		}
+		this.cols = cols;
 	}
 
 	public int getCount() {
-		return data.length;
+		return data.length + data.length / cols + 1;
 	}
 
 	public Object getItem(int pos) {
-		String ret = (pos > 0x0F ? "" : "0") + Integer.toHexString(data[pos]&0xff);
-		return ret;
+		if (pos % cols == 0) {
+			return toHex(pos - (pos / cols), 4);
+		}
+
+		return toHex(data[fpos(pos)] & 0xff);
 	}
 
 	public View getView(int pos, View view, ViewGroup parent) {
@@ -59,11 +64,29 @@ public class EEPROMAdapter extends BaseAdapter
 			tv = (TextView) view;
 		}
 		tv.setText(getItem(pos).toString());
-		tv.setBackgroundColor(ColorMap.getColor(data[pos]));
+		if (pos % cols != 0) {
+			tv.setBackgroundColor(ColorMap.getColor(data[fpos(pos)]));
+			tv.setTextColor(Color.BLACK);
+			tv.setTag(null);
+		} else {
+			tv.setBackgroundColor(Color.BLACK);
+			tv.setTextColor(Color.GRAY);
+			tv.setTag("OFFSET");
+		}
 		return tv;
 	}
 
 	public long getItemId(int position) {
 		return 0;
+	}
+
+	private int fpos(int pos) {
+		int r = pos - (pos / cols + 1);
+		return r;
+	}
+
+	private static String toHex(int i, int... width) {
+		String fmt = "%0" + (width.length == 1 ? width[0] : 2) + "X";
+		return String.format(fmt, i);
 	}
 }
