@@ -52,7 +52,6 @@ public class DBHelper extends SQLiteOpenHelper {
 			long now = System.currentTimeMillis();
 			Log.i(TAG,"Installing Database...");
 			AssetManager assets = context.getAssets();
-			String[] raw = assets.list(".");
 			InputStream in = assets.open(DB_NAME + ".db");
 			FileOutputStream out = new FileOutputStream(db);
 			byte[] buffer = new byte[1024];

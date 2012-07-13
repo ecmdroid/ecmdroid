@@ -22,7 +22,7 @@ import android.app.Activity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class BaseActivity extends Activity {
+public abstract class BaseActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

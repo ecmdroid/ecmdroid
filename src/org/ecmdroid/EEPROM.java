@@ -29,7 +29,6 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class EEPROM {
 
-	private static final String TAG = "EEPROM";
 	private ECM.Type type;
 	private String id;
 	private String version;
