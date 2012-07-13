@@ -168,6 +168,12 @@ public class DataChannelActivity extends BaseActivity {
 			dataChannelAdapter.notifyDataSetChanged();
 		}
 		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			dataChannelAdapter.setAutoRefresh(false);
+			dataChannelAdapter.notifyDataSetChanged();
+		}
+		@Override
 		protected void onPostExecute(Void result) {
 			dataChannelAdapter.setAutoRefresh(false);
 			dataChannelAdapter.notifyDataSetChanged();
