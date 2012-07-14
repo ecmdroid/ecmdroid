@@ -18,17 +18,18 @@
  */
 package org.ecmdroid;
 
-import java.io.IOException;
-
 import org.ecmdroid.Constants.Variables;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
@@ -38,14 +39,31 @@ public class DataChannelActivity extends BaseActivity {
 
 	private static final String TAG = "DataChannels";
 	private static Variable[] channels = new Variable[4];
+
 	private ECM ecm = ECM.getInstance(this);
 	private VariableProvider provider = VariableProvider.getInstance(this);
 	private ToggleButton toggleButton;
 	private ListView listView;
 	private DataChannelAdapter dataChannelAdapter;
-	private static RefreshTask refreshTask = null;
+	private EcmDroidService ecmDroidService;
 
-	@SuppressWarnings("unused")
+	private ServiceConnection serviceConnection = new ServiceConnection() {
+
+		public void onServiceDisconnected(ComponentName name) {
+			Log.d(TAG, "Disconnected from Service");
+			ecmDroidService = null;
+			toggleButton.setEnabled(false);
+		}
+
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			Log.d(TAG, "Connected to Service");
+			ecmDroidService = ((EcmDroidService.EcmDroidBinder)service).getService();
+			toggleButton.setEnabled(ecm.isConnected());
+			toggleButton.setChecked(ecmDroidService.isReading());
+		}
+	};
+
+
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -58,6 +76,7 @@ public class DataChannelActivity extends BaseActivity {
 		Log.d(TAG,"onCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.datachannels);
+		bindService(new Intent(this, EcmDroidService.class), serviceConnection, Context.BIND_AUTO_CREATE);
 
 		if (!Utils.isEmpty(ecm.getId())) {
 			SharedPreferences prefs = getPreferences(MODE_PRIVATE);
@@ -77,23 +96,22 @@ public class DataChannelActivity extends BaseActivity {
 		listView.setAdapter(dataChannelAdapter);
 		listView.setItemsCanFocus(false);
 		listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
+
 		toggleButton = (ToggleButton) this.findViewById(R.id.toggleLiveChannels);
 		toggleButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				boolean on = ((ToggleButton)v).isChecked();
 				synchronized(DataChannelActivity.class) {
 					if (on) {
-						Log.d(TAG, "Starting Refresh Task");
-						if (refreshTask == null) {
-							refreshTask = new RefreshTask();
-						}
-						refreshTask.execute();
+						ecmDroidService.startReading();
+						dataChannelAdapter.setAutoRefresh(true);
+						registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA));
 					} else {
-						if (refreshTask != null) {
-							Log.d(TAG, "Stopping RefreshTask");
-							refreshTask.cancel(true);
-							refreshTask = null;
-						}
+						dataChannelAdapter.setAutoRefresh(false);
+						ecmDroidService.stopReading();
+						try {
+							unregisterReceiver(receiver);
+						} catch (Exception unknown){}
 					}
 				}
 			}
@@ -102,28 +120,29 @@ public class DataChannelActivity extends BaseActivity {
 
 	@Override
 	protected void onResume() {
-		Log.d(TAG, "onResume");
 		super.onResume();
-		toggleButton.setEnabled(ecm.isConnected() && !ecm.isRecording());
-		// TODO: Use the toggle button for enabling/disabling reception
-		// registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA));
+		toggleButton.setEnabled(ecmDroidService != null && ecm.isConnected());
+		toggleButton.setChecked(ecmDroidService != null && ecmDroidService.isReading());
+		if (ecmDroidService != null && ecmDroidService.isReading()) {
+			dataChannelAdapter.setAutoRefresh(true);
+			registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA));
+		}
 	}
 
 	@Override
 	protected void onPause() {
-		Log.d(TAG, "onPause");
-		// unregisterReceiver(receiver);
-		synchronized(DataChannelActivity.class) {
-			if (refreshTask != null) {
-				Log.d(TAG, "Stopping RefreshTask");
-				refreshTask.cancel(true);
-				refreshTask = null;
-			}
-		}
+		try {
+			unregisterReceiver(receiver);
+		} catch (Exception unknown){}
 		saveSettings();
 		super.onPause();
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unbindService(serviceConnection);
+	}
 	private void saveSettings() {
 		if (Utils.isEmpty(ecm.getId())) {
 			return;
@@ -137,46 +156,5 @@ public class DataChannelActivity extends BaseActivity {
 			editor.putString(key, value);
 		}
 		editor.commit();
-	}
-
-	private class RefreshTask extends AsyncTask<Void, Void, Void>
-	{
-		@Override
-		protected void onPreExecute() {
-			dataChannelAdapter.setAutoRefresh(true);
-		}
-		@Override
-		protected Void doInBackground(Void... params) {
-			while(!this.isCancelled() && ecm.isConnected() && !ecm.isRecording()) {
-				try {
-					ecm.readRTData();
-				} catch (IOException e) {
-					// OK for now
-				}
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {}
-
-				publishProgress();
-			}
-			Log.d(TAG, "Refresh Task done");
-			return null;
-		}
-		@Override
-		protected void onProgressUpdate(Void... values) {
-			// Refresh all values
-			dataChannelAdapter.notifyDataSetChanged();
-		}
-		@Override
-		protected void onCancelled() {
-			super.onCancelled();
-			dataChannelAdapter.setAutoRefresh(false);
-			dataChannelAdapter.notifyDataSetChanged();
-		}
-		@Override
-		protected void onPostExecute(Void result) {
-			dataChannelAdapter.setAutoRefresh(false);
-			dataChannelAdapter.notifyDataSetChanged();
-		}
 	}
 }

@@ -32,7 +32,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-
 public class EcmDroidService extends Service
 {
 	private static final int RECORDING_ID = 1;
@@ -41,24 +40,33 @@ public class EcmDroidService extends Service
 	public static final String RECORDING_STOPPED = "org.ecmdroid.Service.recording_stopped";
 	public static final String TAG = "EcmDroidService";
 
+	private final IBinder binder = new EcmDroidBinder();
+	private NotificationManager nm;
+
 	private boolean recording = false;
+	private int recordingInterval;
+	private long recordingStarted;
+	private boolean reading;
+	private ReaderThread readerThread;
 	private File currentLog;
-	private Thread logThread;
+	private DataOutputStream logstream;
 	private long bytesLogged;
-	private long records;
+	private long recordsLogged;
+	private long readFailures;
+	private ECM ecm;
 
 	public class EcmDroidBinder extends Binder {
 		EcmDroidService getService() {
 			return EcmDroidService.this;
 		}
 	}
-	private final IBinder binder = new EcmDroidBinder();
-	private NotificationManager nm;
-
 	@Override
 	public void onCreate() {
+		ecm = ECM.getInstance(this);
 		nm = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 		nm.cancel(RECORDING_ID); // Remove possible left-overs from a crash
+		readerThread = new ReaderThread();
+		readerThread.start();
 		Log.d(TAG, "Service created.");
 		super.onCreate();
 	}
@@ -67,6 +75,8 @@ public class EcmDroidService extends Service
 	public void onDestroy() {
 		super.onDestroy();
 		stopRecording();
+		stopReading();
+		readerThread.shutdown();
 		Log.d(TAG,"Service destroyed.");
 	}
 	@Override
@@ -80,7 +90,15 @@ public class EcmDroidService extends Service
 	}
 
 	public long getRecords() {
-		return records;
+		return recordsLogged;
+	}
+
+	public long getReadFailures() {
+		return readFailures;
+	}
+
+	public float getLogsPerSecond() {
+		return (float) (recordsLogged / (System.currentTimeMillis() - recordingStarted) * 1000.0);
 	}
 
 	public String getLogfile() {
@@ -88,86 +106,131 @@ public class EcmDroidService extends Service
 	}
 
 	public synchronized void startRecording(File log, int interval, ECM ecm) throws IOException {
+
 		if (recording) {
 			return;
 		}
+		this.recordingInterval = interval;
 		sendBroadcast(new Intent(RECORDING_STARTED));
-		bytesLogged = records = 0;
+		bytesLogged = recordsLogged = readFailures = 0;
 		currentLog = log;
-		DataOutputStream out = new DataOutputStream(new FileOutputStream(log));
+		logstream = new DataOutputStream(new FileOutputStream(log));
 		String id = "UNKWN";
 		if (ecm.getEEPROM() != null) {
 			id = ecm.getEEPROM().getId();
 		}
-		out.write(id.getBytes(), 0, 5);
-
-		Logger logger = new Logger(out, ecm, interval);
-		logThread = new Thread(logger, "EcmDroidLogger");
+		logstream.write(id.getBytes(), 0, 5);
+		synchronized(readerThread) {
+			recording = true;
+			readerThread.notify();
+		}
+		Log.i(TAG, "Recording started.");
 		ecm.setRecording(true);
-		recording = true;
-		logThread.start();
+		recordingStarted = System.currentTimeMillis();
 		showNotification(getString(R.string.app_name), getString(R.string.recording_started));
 	}
 
 	public synchronized void stopRecording() {
 		recording = false;
-		if (logThread != null) {
+		if (logstream != null) {
 			try {
-				logThread.join();
-			} catch (InterruptedException e) {
-			}
+				logstream.flush();
+				logstream.close();
+			} catch (Exception ioe) {}
+			logstream = null;
+		}
+		// Turn off notification
+		nm.cancel(RECORDING_ID);
+		Log.i(TAG, "Recording stopped.");
+		ecm.setRecording(false);
+		recordingInterval = 0;
+		sendBroadcast(new Intent(RECORDING_STOPPED));
+	}
+
+	public boolean isRecording() {
+		return recording;
+	}
+
+	public int getRecordingInterval() {
+		return recordingInterval;
+	}
+
+	public synchronized void startReading() {
+		synchronized(readerThread) {
+			reading = true;
+			readerThread.notify();
 		}
 	}
 
-	private class Logger implements Runnable {
-		private DataOutputStream out;
-		private ECM ecm;
-		private int interval;
+	public synchronized void stopReading() {
+		synchronized(readerThread) {
+			reading = false;
+			readerThread.notify();
+		}
+	}
 
-		private Logger(DataOutputStream out, ECM ecm, int interval) {
-			this.out = out;
-			this.ecm = ecm;
-			this.interval = interval;
+	private class ReaderThread extends Thread
+	{
+		private static final int DEFAULT_INTERVAL = 250;
+		private boolean running = true;
+
+		private ReaderThread() {
+			super("ECM-Reader-Thread");
 		}
 
+		@Override
 		public void run() {
-			Log.i(TAG, "Recording started.");
-			long started = System.currentTimeMillis();
 			long now = 0;
-			while (recording && ecm.isConnected()) {
-				if (interval != 0) now = System.currentTimeMillis();
-				try {
-					byte[] data = ecm.readRTData();
-					sendBroadcast(new Intent(REALTIME_DATA));
-					out.writeInt((int) (System.currentTimeMillis() - started) / 10);
-					out.write(data);
-					bytesLogged += data.length;
-					records += 1;
-				} catch (IOException e) {
-					try {
-						if (interval == 0) Thread.sleep(100);
-					} catch (InterruptedException ioe) {}
+			ECM ecm = ECM.getInstance(EcmDroidService.this);
+			while (running) {
+				Log.d(TAG, "PING, connected: " + ecm.isConnected() + ", recording: " + recording +", reading: " + reading);
+				if ( !(ecm.isConnected() && (recording || reading)) ) {
+					synchronized(this) {
+						if (! (recording || reading)) {
+							try {
+								this.wait();
+							} catch (InterruptedException e) {
+								continue;
+							}
+						}
+					}
 				}
-				if (interval != 0) {
-					long toSleep = interval - (System.currentTimeMillis() - now);
-					if (toSleep > 0) {
-						try {
-							Thread.sleep(toSleep);
-						} catch (InterruptedException e) {}
+				if (ecm.isConnected() && (recording || reading)) {
+					int i = recordingInterval;
+					now = System.currentTimeMillis();
+					try {
+						byte[] data = ecm.readRTData();
+						sendBroadcast(new Intent(REALTIME_DATA));
+						if (recording) {
+							logPacket(data);
+						}
+					} catch (Exception e) {
+						readFailures++;
+						if (i == 0) {
+							i = DEFAULT_INTERVAL;
+						}
+					}
+					if (running && i != 0) {
+						long toSleep = i - (System.currentTimeMillis() - now);
+						if (toSleep > 0) {
+							try {
+								Thread.sleep(toSleep);
+							} catch (InterruptedException e) {}
+						}
 					}
 				}
 			}
-			try {
-				out.flush();
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+			Log.d(TAG, "ReaderThread terminated.");
+		}
+
+		public void shutdown() {
+			synchronized(this) {
+				running = false;
+				this.notify();
 			}
-			// Turn off notification
-			nm.cancel(RECORDING_ID);
-			ecm.setRecording(false);
-			sendBroadcast(new Intent(RECORDING_STOPPED));
-			Log.i(TAG, "Recording stopped.");
+			try {
+				this.join();
+			} catch (InterruptedException e) {}
 		}
 	}
 
@@ -177,5 +240,17 @@ public class EcmDroidService extends Service
 		notification.setLatestEventInfo(this, label, text, contentIntent);
 		notification.flags |= Notification.FLAG_NO_CLEAR;
 		nm.notify(RECORDING_ID, notification);
+	}
+
+	private synchronized void logPacket(byte[] data) throws IOException {
+		if (logstream != null) {
+			logstream.writeInt((int) (System.currentTimeMillis() - recordingStarted) / 10);
+			bytesLogged += data.length;
+			recordsLogged++;
+		}
+	}
+
+	public boolean isReading() {
+		return reading;
 	}
 }
