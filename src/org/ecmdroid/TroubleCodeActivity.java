@@ -54,7 +54,7 @@ public class TroubleCodeActivity extends BaseActivity implements OnClickListener
 	public void onClick(View view) {
 		if (view.getId() == R.id.readErrors) {
 			// Fetch runtime data and update fields
-			new AsyncTask<Void, Void, Void>() {
+			new AsyncTask<Void, Void, Exception>() {
 				private ProgressDialog pd;
 				private Collection<Error> currentErrors;
 				private Collection<Error> storedErrors;
@@ -63,18 +63,23 @@ public class TroubleCodeActivity extends BaseActivity implements OnClickListener
 					pd = ProgressDialog.show(TroubleCodeActivity.this, "", getString(R.string.fetching_trouble_codes), true);
 				};
 				@Override
-				protected Void doInBackground(Void... args) {
+				protected Exception doInBackground(Void... args) {
 					try {
 						ecm.readRTData();
 						currentErrors = ecm.getErrors(ErrorType.CURRENT);
 						storedErrors = ecm.getErrors(ErrorType.STORED);
 					} catch (IOException e) {
+						return e;
 					}
 					return null;
 				}
 				@Override
-				protected void onPostExecute(Void result) {
+				protected void onPostExecute(Exception result) {
 					pd.dismiss();
+					if (result != null) {
+						Toast.makeText(TroubleCodeActivity.this, "Error fetching trouble codes. " + result.getMessage(), Toast.LENGTH_LONG).show();
+						return;
+					}
 					EditText ce = (EditText) findViewById(R.id.currentErrors);
 					ce.setText(errors2str(currentErrors));
 					EditText se = (EditText) findViewById(R.id.storedErrors);
