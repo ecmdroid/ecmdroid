@@ -275,7 +275,7 @@ public class Variable implements Cloneable {
 			return ((Short)rawValue).intValue();
 		}
 
-		if (cls == Class.SCALAR || cls == Class.VALUE) {
+		if ((cls == Class.SCALAR || cls == Class.VALUE) && rawValue != null) {
 			if (rawValue instanceof Integer) {
 				return ((Integer)rawValue).intValue();
 			} else {
