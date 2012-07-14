@@ -29,6 +29,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -127,17 +129,24 @@ public class LogActivity extends BaseActivity implements OnClickListener
 		registerReceiver(receiver, new IntentFilter(EcmDroidService.RECORDING_STARTED));
 		registerReceiver(receiver, new IntentFilter(EcmDroidService.RECORDING_STOPPED));
 		registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA));
-		View spinner = findViewById(R.id.logInterval);
+		Spinner spinner = (Spinner) findViewById(R.id.logInterval);
 		if (ecmDroidService != null && ecm.isRecording()) {
 			spinner.setEnabled(false);
 		} else {
 			spinner.setEnabled(true);
 		}
+		SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+		spinner.setSelection(prefs.getInt("delay", 0));
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
+		SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+		Spinner spinner = (Spinner) findViewById(R.id.logInterval);
+		Editor editor = prefs.edit();
+		editor.putInt("delay", spinner.getSelectedItemPosition());
+		editor.commit();
 		unregisterReceiver(receiver);
 	}
 
