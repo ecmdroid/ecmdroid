@@ -146,5 +146,6 @@ public class DataChannelAdapter extends ArrayAdapter<Variable> {
 	}
 	public void setAutoRefresh(boolean autoRefresh) {
 		this.autoRefresh = autoRefresh;
+		notifyDataSetChanged();
 	}
 }
