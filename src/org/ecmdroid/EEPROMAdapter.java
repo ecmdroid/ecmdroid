@@ -24,32 +24,59 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-public class EEPROMAdapter extends BaseAdapter
+public class EEPROMAdapter extends BaseAdapter implements SectionIndexer
 {
+	private static final int SECTION_LENGTH = 8; // Number of rows per section
 	private Context ctx;
 	private byte[] data = new byte[0];
 	private int cols;
+
+	private class Section {
+		int pos;
+		String name;
+		public Section(int pos, String name) {
+			this.pos = pos;
+			this.name = name;
+		}
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+	private Section[] sections;
+	private int count;
+
+
 
 	public EEPROMAdapter(Context ctx, EEPROM eeprom, int cols) {
 		this.ctx = ctx;
 		if (eeprom != null && eeprom.getBytes() != null) {
 			data = eeprom.getBytes();
 		}
+
 		this.cols = cols;
+
+		count = data.length + (data.length / (cols -1)) + (data.length % (cols-1) != 0 ? 1 : 0);
+		int sd = SECTION_LENGTH * cols;
+		sections = new Section[count / sd];
+		for (int i=0; i < sections.length; i++) {
+			sections[i] = new Section(i * sd, Utils.toHex(fpos(i * sd + 1), 3));
+		}
 	}
 
 	public int getCount() {
-		return data.length + data.length / cols + 1;
+		return count;
 	}
 
 	public Object getItem(int pos) {
 		if (pos % cols == 0) {
-			return toHex(pos - (pos / cols), 4);
+			return Utils.toHex(pos - (pos / cols), 4);
 		}
 
-		return toHex(data[fpos(pos)] & 0xff);
+		return Utils.toHex(data[fpos(pos)] & 0xff);
 	}
 
 	public View getView(int pos, View view, ViewGroup parent) {
@@ -59,16 +86,17 @@ public class EEPROMAdapter extends BaseAdapter
 			tv = new TextView(ctx);
 			tv.setTextColor(Color.BLACK);
 			tv.setGravity(Gravity.CENTER);
-			tv.setHeight(60);
+			tv.setHeight(50);
 		} else {
 			tv = (TextView) view;
 		}
 		tv.setText(getItem(pos).toString());
+
 		if (pos % cols != 0) {
 			tv.setBackgroundColor(ColorMap.getColor(data[fpos(pos)]));
 			tv.setTextColor(Color.BLACK);
 			tv.setTag(null);
-		} else {
+		} else  {
 			tv.setBackgroundColor(Color.BLACK);
 			tv.setTextColor(Color.GRAY);
 			tv.setTag("OFFSET");
@@ -85,8 +113,15 @@ public class EEPROMAdapter extends BaseAdapter
 		return r;
 	}
 
-	private static String toHex(int i, int... width) {
-		String fmt = "%0" + (width.length == 1 ? width[0] : 2) + "X";
-		return String.format(fmt, i);
+	public int getPositionForSection(int section) {
+		return sections[section].pos;
+	}
+
+	public int getSectionForPosition(int pos) {
+		return 0;
+	}
+
+	public Object[] getSections() {
+		return sections;
 	}
 }

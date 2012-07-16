@@ -118,4 +118,9 @@ public abstract class Utils
 	public static boolean isEmpty(String str) {
 		return (str == null || "".equals(str.trim()));
 	}
+
+	static String toHex(int i, int... width) {
+		String fmt = "%0" + (width.length == 1 ? width[0] : 2) + "X";
+		return String.format(fmt, i);
+	}
 }

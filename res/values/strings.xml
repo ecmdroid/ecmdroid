@@ -62,5 +62,11 @@
     <string name="choose_variable">Choose Variable</string>
     <string name="title_activity_eeprom">EEPROM Editor</string>
     <string name="eeprom">EEPROM</string>
+    <string name="offset">Offset</string>
+    <string name="byte_value">Byte Val</string>
+    <string name="short_hi">16-Bit (Hi)</string>
+    <string name="short_lo">16-Bit (Lo)</string>
+    <string name="hex">Hex</string>
+    <string name="dec">Dec</string>
 
 </resources>

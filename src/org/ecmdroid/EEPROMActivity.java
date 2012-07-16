@@ -22,57 +22,64 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class EEPROMActivity extends BaseActivity {
 
 	private static final int COLS = 5;
 	ECM ecm = ECM.getInstance(this);
-	private TextView cellValue;
-	private EEPROMAdapter adapter;
-	private Button setButton;
+	private TextView offsetHex, offsetDec;
+	private TextView byteValHex, byteValDec;
+	private TextView hiShortHex, hiShortDec;
+	private TextView loShortHex, loShortDec;
 
+	private EEPROMAdapter adapter;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.eeprom);
-		cellValue = (TextView) findViewById(R.id.cellValue);
+		offsetHex  = (TextView) findViewById(R.id.offsetHex);
+		offsetDec  = (TextView) findViewById(R.id.offsetDec);
+		byteValHex = (TextView) findViewById(R.id.byteValHex);
+		byteValDec = (TextView) findViewById(R.id.byteValDec);
+		hiShortHex = (TextView) findViewById(R.id.hiShortHex);
+		hiShortDec = (TextView) findViewById(R.id.hiShortDec);
+		loShortHex = (TextView) findViewById(R.id.loShortHex);
+		loShortDec = (TextView) findViewById(R.id.loShortDec);
+
 		GridView gridview = (GridView) findViewById(R.id.eepromGrid);
 		adapter = new EEPROMAdapter(this, ecm.getEEPROM(), COLS);
 		gridview.setAdapter(adapter);
-		gridview.setDrawSelectorOnTop(true);
 		// TODO: Chose a nice drawable for currently selected cell
 		//gridview.setSelector(android.R.drawable.edit_text);
 
 		gridview.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-				if (position % 5 != 0) {
-					String sel = (String) parent.getItemAtPosition(position);
-					cellValue.setText(Integer.toString(Integer.parseInt(sel, 16)));
-					cellValue.setTag(Integer.valueOf(position));
-				}
-			}
-		});
+			public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
+				if (pos % COLS != 0) {
+					int offset = pos - (pos / COLS + 1);
+					byte[] bytes = ecm.getEEPROM().getBytes();
+					int val = bytes[offset] & 0xFF;
+					offsetHex.setText(Utils.toHex(offset, 3));
+					offsetDec.setText(Integer.toString(offset));
+					byteValHex.setText(Utils.toHex(val, 2));
+					byteValDec.setText(Integer.toString(val));
+					if (offset == 0) {
+						hiShortHex.setText("");
+						hiShortDec.setText("");
+					} else {
+						int hival = val << 8 | (bytes[offset -1] & 0xff);
+						hiShortHex.setText(Utils.toHex(hival, 4));
+						hiShortDec.setText(Integer.toString(hival));
+					}
 
-		setButton = (Button) findViewById(R.id.eepromSetButton);
-		if (!ecm.isEepromRead()) {
-			setButton.setEnabled(false);
-			cellValue.setEnabled(false);
-		}
-		setButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Integer pos = (Integer) cellValue.getTag();
-				if (pos != null) {
-					int r = pos - (pos / COLS + 1);
-					byte[] data = ecm.getEEPROM().getBytes();
-					adapter.notifyDataSetChanged();
-					try {
-						data[r] = (byte) (Integer.decode("" + cellValue.getText()) & 0xFF);
-					} catch (Exception e) {
-						Toast.makeText(EEPROMActivity.this, cellValue.getText() + ": Illegal Value", Toast.LENGTH_SHORT).show();
+					if (offset + 1 >= bytes.length) {
+						loShortHex.setText("");
+						loShortDec.setText("");
+					} else {
+						int loval = (bytes[offset+1] & 0xff) << 8 | val;
+						loShortHex.setText(Utils.toHex(loval, 4));
+						loShortDec.setText(Integer.toString(loval));
 					}
 				}
 			}
