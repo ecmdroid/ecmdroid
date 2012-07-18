@@ -34,11 +34,13 @@ import android.util.Log;
 
 public class EcmDroidService extends Service
 {
-	private static final int RECORDING_ID = 1;
 	public static final String REALTIME_DATA = "org.ecmdroid.Service.realtimedataevent";
 	public static final String RECORDING_STARTED = "org.ecmdroid.Service.recording_started";
 	public static final String RECORDING_STOPPED = "org.ecmdroid.Service.recording_stopped";
 	public static final String TAG = "EcmDroidService";
+
+	private static final int RECORDING_ID = 1;
+	private static final Intent INTENT = new Intent(REALTIME_DATA);
 
 	private final IBinder binder = new EcmDroidBinder();
 	private NotificationManager nm;
@@ -183,7 +185,6 @@ public class EcmDroidService extends Service
 			long now = 0;
 			ECM ecm = ECM.getInstance(EcmDroidService.this);
 			while (running) {
-				Log.d(TAG, "PING, connected: " + ecm.isConnected() + ", recording: " + recording +", reading: " + reading);
 				if ( !(ecm.isConnected() && (recording || reading)) ) {
 					synchronized(this) {
 						if (! (recording || reading)) {
@@ -200,7 +201,7 @@ public class EcmDroidService extends Service
 					now = System.currentTimeMillis();
 					try {
 						byte[] data = ecm.readRTData();
-						sendBroadcast(new Intent(REALTIME_DATA));
+						sendBroadcast(INTENT);
 						if (recording) {
 							logPacket(data);
 						}
@@ -245,7 +246,8 @@ public class EcmDroidService extends Service
 	private synchronized void logPacket(byte[] data) throws IOException {
 		if (logstream != null) {
 			logstream.writeInt((int) (System.currentTimeMillis() - recordingStarted) / 10);
-			bytesLogged += data.length;
+			logstream.write(data);
+			bytesLogged += (data.length + 4);
 			recordsLogged++;
 		}
 	}
