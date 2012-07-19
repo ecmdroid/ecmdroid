@@ -21,6 +21,7 @@ package org.ecmdroid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Collection;
@@ -68,7 +69,7 @@ public class ECM
 	private byte[] mReceiveBuffer = new byte[256];
 
 	private boolean connected;
-	private BluetoothSocket socket;
+	private Object socket;
 	private InputStream in;
 	private OutputStream out;
 	private EEPROM eeprom;
@@ -90,19 +91,21 @@ public class ECM
 	 */
 	public void connect(final BluetoothDevice bluetoothDevice) throws IOException
 	{
+		BluetoothSocket s = null;
 		try {
-			socket = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
+			s = bluetoothDevice.createRfcommSocketToServiceRecord(uuid);
 
-			if (socket != null) {
-				socket.connect();
-				in = socket.getInputStream();
-				out = socket.getOutputStream();
+			if (s != null) {
+				s.connect();
+				in = s.getInputStream();
+				out = s.getOutputStream();
+				socket = s;
 			}
 		} catch (IOException e) {
 			Log.w(TAG, "Unable to connect. ", e);
 			if (socket != null) {
 				try {
-					socket.close();
+					s.close();
 				} catch (IOException e1) {
 				}
 				socket = null;
@@ -113,12 +116,31 @@ public class ECM
 	}
 
 	/**
-	 * Disconnect from the bluetooth serial port
+	 * Connect via TCP
+	 * @param host host name
+	 * @param port port
+	 */
+	public void connect(String host, int port) throws IOException
+	{
+		Socket s = new Socket(host, port);
+		in = s.getInputStream();
+		out = s.getOutputStream();
+		socket = s;
+		connected = true;
+	}
+
+
+	/**
+	 * Disconnect from the ECM
 	 * @throws IOException
 	 */
 	public void disconnect() throws IOException {
 		if (connected && socket != null) {
-			socket.close();
+			if (socket instanceof BluetoothSocket) {
+				((BluetoothSocket)socket).close();
+			} else if (socket instanceof Socket) {
+				((Socket)socket).close();
+			}
 			socket = null;
 		}
 		connected = false;
