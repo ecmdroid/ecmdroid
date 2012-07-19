@@ -138,22 +138,35 @@ public class ECM
 		return ret;
 	}
 
-	private PDU receivePDU() throws IOException {
-
-		read(mReceiveBuffer, 0, 6, DEFAULT_TIMEOUT);
-		if (mReceiveBuffer[0] != PDU.SOH && mReceiveBuffer[4] != PDU.EOH && mReceiveBuffer[5] != PDU.SOT) {
-			throw new IOException("Invalid Header received.");
+	private PDU receivePDU() throws IOException
+	{
+		try
+		{
+			read(mReceiveBuffer, 0, 6, DEFAULT_TIMEOUT);
+			if (mReceiveBuffer[0] != PDU.SOH && mReceiveBuffer[4] != PDU.EOH && mReceiveBuffer[5] != PDU.SOT) {
+				throw new IOException("Invalid Header received.");
+			}
+			int len = mReceiveBuffer[3] & 0xff;
+			// Log.d(TAG, "Start of PDU: " + Utils.hexdump(mReceiveBuffer, 0, 6));
+			read(mReceiveBuffer, 6, len + 1, DEFAULT_TIMEOUT);
+			PDU response;
+			try {
+				response = new PDU(mReceiveBuffer,len + 7);
+			} catch (ParseException e) {
+				throw new IOException("Unable to parse incoming PDU. " + e.getLocalizedMessage());
+			}
+			if (D) Log.d(TAG, "Received: " + response);
+			return response;
+		} catch (IOException ioe) {
+			Log.e(TAG, "I/O Exception receiving PDU. " + ioe.getMessage());
+			// Drain receive buffer, we might be out-of-sync
+			try {
+				while(in.available() > 0) {
+					in.read();
+				}
+			} catch (IOException e) {}
+			throw ioe;
 		}
-		int len = mReceiveBuffer[3] & 0xff;
-		read(mReceiveBuffer, 6, len + 1, DEFAULT_TIMEOUT);
-		PDU response;
-		try {
-			response = new PDU(mReceiveBuffer,len + 7);
-		} catch (ParseException e) {
-			throw new IOException("Unable to parse incoming PDU. " + e.getLocalizedMessage());
-		}
-		if (D) Log.d(TAG, "Received: " + response);
-		return response;
 	}
 
 	/**
@@ -222,6 +235,9 @@ public class ECM
 			}
 			if (D) Log.d(TAG, "Reading " + dtr + " bytes from page " + page.nr() + " at offset " + offset + " to local buffer at offset " + page.start() + i);
 			PDU response = sendPDU(PDU.getRequest(page.nr(), offset, dtr));
+			if (response.getEEPromData().length != dtr) {
+				throw new IOException("Requested " + dtr + " bytes from ECM but received " + response.getEEPromData().length);
+			}
 			System.arraycopy(response.getEEPromData(), 0, buffer, page.start() + i, dtr);
 			i += dtr;
 		}
@@ -239,7 +255,10 @@ public class ECM
 	}
 
 	private int read(byte[] buffer, int offset, int len, int timeout) throws IOException {
-		// Log.d(TAG, "Trying to read " + len + " bytes (timeout: " + timeout + ")");
+		// Log.d(TAG, "Trying to read " + len + " bytes to buffer at offset " + offset + "(timeout: " + timeout + ")");
+		if (offset + len >= buffer.length) {
+			throw new IOException(offset + len + ": Array index out of bounds.");
+		}
 		int r = 0;
 		while (r < len && timeout > 0) {
 			if (in.available() > 0) {
@@ -248,24 +267,18 @@ public class ECM
 					try {
 						int i = in.read(buffer, r + offset, toRead);
 						if (i == -1) {
-							String msg = "EOF while reading " + toRead + "/" + len + " bytes at offset " + (r + offset);
-							Log.e(TAG, msg);
-							throw new IOException(msg);
+							throw new IOException("EOF while reading " + toRead + "/" + len + " bytes at offset " + (r + offset));
 						}
 						r += i;
 					} catch (RuntimeException rte) {
-						String msg = "Runtime Exception while reading " + toRead + " bytes at offset " + (r + offset);
-						Log.e(TAG, msg, rte);
-						throw new IOException(msg);
+						throw new IOException("Runtime Exception while reading " + toRead + " bytes at offset " + (r + offset));
 					}
 				} while (r < len && in.available() > 0);
 			} else {
 				try {
 					Thread.sleep(10);
 					timeout -= 10;
-				} catch (InterruptedException e) {
-					// Log.d(TAG, "Interrupted...");
-				}
+				} catch (InterruptedException e) {}
 			}
 		}
 		// Log.d(TAG, "Bytes read in total: " + r + ", " + Utils.hexdump(buffer, 0, r));
