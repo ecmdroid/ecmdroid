@@ -101,29 +101,7 @@ public class ActiveTestsActivity extends ListActivity implements OnClickListener
 			alert.setButton(getString(android.R.string.ok), new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface alert, int arg) {
 					alert.dismiss();
-					new AsyncTask<Void, Void, Exception>() {
-						private ProgressDialog pd;
-						@Override
-						protected void onPreExecute() {
-							pd = ProgressDialog.show(ActiveTestsActivity.this, "", getString(R.string.resetting_tps), true);
-						}
-						@Override
-						protected Exception doInBackground(Void... args) {
-							try {
-								ecm.runTest(Function.TPS_Reset);
-							} catch (IOException e) {
-								return e;
-							}
-							return null;
-						}
-						@Override
-						protected void onPostExecute(Exception result) {
-							pd.cancel();
-							if (result != null) {
-								Toast.makeText(ActiveTestsActivity.this, "I/O error while resetting TPS.", Toast.LENGTH_LONG).show();
-							}
-						}
-					}.execute();
+					new FunctionTask(Function.TPS_Reset).execute();
 				}
 			});
 			alert.show();
@@ -166,6 +144,8 @@ public class ActiveTestsActivity extends ListActivity implements OnClickListener
 		@Override
 		protected void onPreExecute() {
 			mProgress = ProgressDialog.show(ActiveTestsActivity.this, "", "Testing " + mFunction + "...", true);
+			String action = (mFunction == Function.TPS_Reset ? "Requesting " : "Testing ");
+			mProgress = ProgressDialog.show(ActiveTestsActivity.this, "", action + mFunction + "...", true);
 		}
 		@Override
 		protected IOException doInBackground(Void... arg0) {
@@ -188,6 +168,15 @@ public class ActiveTestsActivity extends ListActivity implements OnClickListener
 		@Override
 		protected void onPostExecute(IOException result) {
 			mProgress.dismiss();
+			String toast = null;
+			if (result != null) {
+				toast = "I/O error. " + result.getLocalizedMessage();
+			} else if (mFunction == Function.TPS_Reset) {
+				toast = "TPS Reset OK";
+			}
+			if (toast != null) {
+				Toast.makeText(ActiveTestsActivity.this, toast, Toast.LENGTH_LONG).show();
+			}
 		}
 	}
 }
