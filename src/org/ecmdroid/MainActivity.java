@@ -172,7 +172,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		}
 	}
 
-	private class ConnectTask extends AsyncTask<Void, Void, Exception>
+	private class ConnectTask extends AsyncTask<Void, String, IOException>
 	{
 
 		private BluetoothDevice mDevice;
@@ -188,44 +188,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			mProgress = ProgressDialog.show(MainActivity.this, "", "Connecting to " + mDevice.getName() +". Please wait...", true);
 		}
 		@Override
-		protected Exception doInBackground(Void... v) {
+		protected IOException doInBackground(Void... v) {
 			try {
 				ecm.connect(mDevice);
-			} catch (IOException e) {
-				Log.w(TAG, "Connection failed. " + e.getMessage());
-				return e;
-			}
-			return null;
-		}
-		@Override
-		protected void onPostExecute(Exception result) {
-			mProgress.dismiss();
-			connectButton.setEnabled(true);
-			if (result != null) {
-				Toast.makeText(MainActivity.this, "Connection failed. " + result.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-			} else {
-				Log.v(TAG, "Connection established.");
-				connectButton.setText(R.string.disconnect);
-				connectButton.setTag(R.string.connected);
-				new RefreshTask().execute();
-			}
-		}
-	}
-	private class RefreshTask extends AsyncTask<Void, String, IOException>
-	{
-		private ProgressDialog mProgress;
-
-		@Override
-		protected void onPreExecute() {
-			mProgress = ProgressDialog.show(MainActivity.this, "", "Fetching ECM Information...", true);
-		}
-
-		@Override
-		protected IOException doInBackground(Void... arg0) {
-			Log.d(TAG, "Refreshing ECM Information...");
-			try {
+				publishProgress("Reading ECM Identification...");
 				ecm.getVersion();
-				publishProgress();
 				if (ecm.getEEPROM() != null) {
 					EEPROM eeprom = ecm.getEEPROM();
 					ecm.readRTData();
@@ -236,26 +203,28 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 					eeprom.setEepromRead(true);
 				}
 			} catch (IOException e) {
+				Log.w(TAG, "Connection failed. " + e.getMessage());
 				return e;
 			}
 			return null;
+		}
+		@Override
+		protected void onPostExecute(IOException result) {
+			mProgress.dismiss();
+			connectButton.setEnabled(true);
+			if (result != null) {
+				Toast.makeText(MainActivity.this, "Connection failed. " + result.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+			} else {
+				Log.v(TAG, "Connection established.");
+				connectButton.setText(R.string.disconnect);
+				connectButton.setTag(R.string.connected);
+			}
 		}
 		@Override
 		protected void onProgressUpdate(String... values) {
 			update();
 			if (values.length >0) {
 				mProgress.setMessage(values[0]);
-			}
-		}
-
-		@Override
-		protected void onPostExecute(IOException exception) {
-			mProgress.dismiss();
-			if (exception != null) {
-				Toast.makeText(MainActivity.this, "I/O error. " + exception.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-				return;
-			} else {
-				update();
 			}
 		}
 	}
