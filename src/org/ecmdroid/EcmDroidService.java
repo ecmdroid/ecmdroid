@@ -162,6 +162,7 @@ public class EcmDroidService extends Service
 			reading = true;
 			readerThread.notify();
 		}
+		Log.i(TAG, "RT Data read started.");
 	}
 
 	public synchronized void stopReading() {
@@ -169,6 +170,7 @@ public class EcmDroidService extends Service
 			reading = false;
 			readerThread.notify();
 		}
+		Log.i(TAG, "RT Data read stopped.");
 	}
 
 	private class ReaderThread extends Thread
@@ -187,37 +189,33 @@ public class EcmDroidService extends Service
 			while (running) {
 				if ( !(ecm.isConnected() && (recording || reading)) ) {
 					synchronized(this) {
-						if (! (recording || reading)) {
-							try {
-								this.wait();
-							} catch (InterruptedException e) {
-								continue;
-							}
+						try {
+							this.wait();
+						} catch (InterruptedException e) {
+							continue;
 						}
 					}
 				}
-				if (ecm.isConnected() && (recording || reading)) {
-					int i = recordingInterval;
-					now = System.currentTimeMillis();
-					try {
-						byte[] data = ecm.readRTData();
-						sendBroadcast(INTENT);
-						if (recording) {
-							logPacket(data);
-						}
-					} catch (Exception e) {
-						readFailures++;
-						if (i == 0) {
-							i = DEFAULT_INTERVAL;
-						}
+				int i = recordingInterval;
+				now = System.currentTimeMillis();
+				try {
+					byte[] data = ecm.readRTData();
+					sendBroadcast(INTENT);
+					if (recording) {
+						logPacket(data);
 					}
-					if (running && i != 0) {
-						long toSleep = i - (System.currentTimeMillis() - now);
-						if (toSleep > 0) {
-							try {
-								Thread.sleep(toSleep);
-							} catch (InterruptedException e) {}
-						}
+				} catch (Exception e) {
+					readFailures++;
+					if (i == 0) {
+						i = DEFAULT_INTERVAL;
+					}
+				}
+				if (running && i != 0) {
+					long toSleep = i - (System.currentTimeMillis() - now);
+					if (toSleep > 0) {
+						try {
+							Thread.sleep(toSleep);
+						} catch (InterruptedException e) {}
 					}
 				}
 			}

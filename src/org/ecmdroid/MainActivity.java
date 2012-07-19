@@ -26,13 +26,17 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,6 +51,21 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 	private Button connectButton;
 	private DBHelper dbHelper;
 
+	protected EcmDroidService ecmDroidService;
+
+	private ServiceConnection serviceConnection = new ServiceConnection() {
+
+		public void onServiceDisconnected(ComponentName name) {
+			Log.d(TAG, "Disconnected from Service");
+			ecmDroidService = null;
+		}
+
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			Log.d(TAG, "Connected to Log Service");
+			ecmDroidService = ((EcmDroidService.EcmDroidBinder)service).getService();
+		}
+	};
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -60,6 +79,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		}
 		super.onCreate(savedInstanceState);
 
+		bindService(new Intent(this, EcmDroidService.class), serviceConnection, Context.BIND_AUTO_CREATE);
 		connectButton  = (Button) findViewById(R.id.connectButton);
 		connectButton.setOnClickListener(this);
 		startService(new Intent(this, EcmDroidService.class));
@@ -109,6 +129,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		}
 	}
 
+	@Override
+	protected void onDestroy() {
+		unbindService(serviceConnection);
+		super.onDestroy();
+	}
 	private void update() {
 		setText(R.id.ecmIdValue, ecm.getId());
 		EEPROM eeprom = ecm.getEEPROM();
@@ -134,6 +159,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			showDevices();
 		} else {
 			try {
+				if (ecmDroidService != null) {
+					ecmDroidService.stopReading();
+					ecmDroidService.stopRecording();
+				}
 				ecm.disconnect();
 			} catch (IOException ioe) {
 				Log.w(TAG, "Disconnect failed. ", ioe);
