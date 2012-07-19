@@ -21,7 +21,6 @@ package org.ecmdroid;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class DatabaseBitSetProvider extends BitSetProvider {
 
@@ -65,7 +64,7 @@ public class DatabaseBitSetProvider extends BitSetProvider {
 					bit.setType(ECM.Type.getType(c.getString(c.getColumnIndex("type"))));
 					bit.setRemark(bitdesc);
 					bit.setCode(c.getString(c.getColumnIndex("dtc" + i)));
-					Log.d(TAG, bit.toString());
+					// Log.d(TAG, bit.toString());
 					ret.add(bit);
 				}
 			}

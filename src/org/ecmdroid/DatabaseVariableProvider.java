@@ -105,7 +105,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 				ret.setDescription(cursor.getString(cursor.getColumnIndex("description")));
 				ret.setUnit(cursor.getString(cursor.getColumnIndex("units")));
 				ret.setSymbol(Units.getSymbol(ret.getUnit()));
-				Log.d(TAG, ret.toString());
+				// Log.d(TAG, ret.toString());
 			}
 			cursor.close();
 		} finally {
