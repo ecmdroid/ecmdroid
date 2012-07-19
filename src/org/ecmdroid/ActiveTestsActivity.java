@@ -26,6 +26,7 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -137,13 +138,16 @@ public class ActiveTestsActivity extends ListActivity implements OnClickListener
 	{
 		private ProgressDialog mProgress;
 		private Function mFunction;
+		private int ro;
 
 		public FunctionTask(Function function) {
 			mFunction = function;
 		}
 		@Override
 		protected void onPreExecute() {
-			mProgress = ProgressDialog.show(ActiveTestsActivity.this, "", "Testing " + mFunction + "...", true);
+			// Prevent screen rotation during progress dialog display
+			ro = getRequestedOrientation();
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 			String action = (mFunction == Function.TPS_Reset ? "Requesting " : "Testing ");
 			mProgress = ProgressDialog.show(ActiveTestsActivity.this, "", action + mFunction + "...", true);
 		}
@@ -168,6 +172,7 @@ public class ActiveTestsActivity extends ListActivity implements OnClickListener
 		@Override
 		protected void onPostExecute(IOException result) {
 			mProgress.dismiss();
+			setRequestedOrientation(ro);
 			String toast = null;
 			if (result != null) {
 				toast = "I/O error. " + result.getLocalizedMessage();

@@ -28,6 +28,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
@@ -66,9 +67,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		if (!dbHelper.isDbInstalled()) {
 			AsyncTask<Void, Void, Exception> installTask = new AsyncTask<Void, Void, Exception>() {
 				private ProgressDialog pd;
+				private int ro;
 				@Override
 				protected void onPreExecute() {
 					super.onPreExecute();
+					ro = getRequestedOrientation();
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 					pd = ProgressDialog.show(MainActivity.this, null, "Installing Database...");
 				}
 				@Override
@@ -84,6 +88,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 				@Override
 				protected void onPostExecute(Exception result) {
 					pd.cancel();
+					setRequestedOrientation(ro);
 					if (result != null) {
 						Toast.makeText(MainActivity.this, "FATAL: DB Installation failed.", Toast.LENGTH_LONG).show();
 						System.exit(0);
@@ -177,6 +182,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 		private BluetoothDevice mDevice;
 		private ProgressDialog mProgress;
+		private int ro;
 
 		public ConnectTask(BluetoothDevice device) {
 			mDevice = device;
@@ -184,6 +190,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 		@Override
 		protected void onPreExecute() {
+			// Prevent screen rotation during progress dialog display
+			ro = getRequestedOrientation();
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 			connectButton.setEnabled(false);
 			mProgress = ProgressDialog.show(MainActivity.this, "", "Connecting to " + mDevice.getName() +". Please wait...", true);
 		}
@@ -211,6 +220,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		@Override
 		protected void onPostExecute(IOException result) {
 			mProgress.dismiss();
+			setRequestedOrientation(ro);
 			connectButton.setEnabled(true);
 			if (result != null) {
 				Toast.makeText(MainActivity.this, "Connection failed. " + result.getLocalizedMessage(), Toast.LENGTH_LONG).show();

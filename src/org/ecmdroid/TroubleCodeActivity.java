@@ -26,6 +26,7 @@ import org.ecmdroid.PDU.Function;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -58,8 +59,12 @@ public class TroubleCodeActivity extends BaseActivity implements OnClickListener
 				private ProgressDialog pd;
 				private Collection<Error> currentErrors;
 				private Collection<Error> storedErrors;
+				private int ro;
 				@Override
 				protected void onPreExecute() {
+					// Prevent screen rotation during progress dialog display
+					ro = getRequestedOrientation();
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 					pd = ProgressDialog.show(TroubleCodeActivity.this, "", getString(R.string.fetching_trouble_codes), true);
 				};
 				@Override
@@ -76,6 +81,7 @@ public class TroubleCodeActivity extends BaseActivity implements OnClickListener
 				@Override
 				protected void onPostExecute(Exception result) {
 					pd.dismiss();
+					setRequestedOrientation(ro);
 					if (result != null) {
 						Toast.makeText(TroubleCodeActivity.this, "Error fetching trouble codes. " + result.getMessage(), Toast.LENGTH_LONG).show();
 						return;
@@ -110,8 +116,12 @@ public class TroubleCodeActivity extends BaseActivity implements OnClickListener
 					alert.dismiss();
 					new AsyncTask<Void, Void, Exception>() {
 						private ProgressDialog pd;
+						private int ro;
 						@Override
 						protected void onPreExecute() {
+							// Prevent screen rotation during progress dialog display
+							ro = getRequestedOrientation();
+							setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 							pd = ProgressDialog.show(TroubleCodeActivity.this, "", getString(R.string.clearing_trouble_codes), true);
 						}
 						@Override
@@ -125,7 +135,8 @@ public class TroubleCodeActivity extends BaseActivity implements OnClickListener
 						}
 						@Override
 						protected void onPostExecute(Exception result) {
-							pd.cancel();
+							pd.dismiss();
+							setRequestedOrientation(ro);
 							if (result != null) {
 								Toast.makeText(TroubleCodeActivity.this, "I/O error clearing codes.", Toast.LENGTH_LONG).show();
 							}
