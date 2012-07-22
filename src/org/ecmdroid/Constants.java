@@ -828,4 +828,9 @@ public interface Constants {
 		public static final String VS_MPH = "VS_MPH";
 		public static final String WUE = "WUE";
 	}
+
+	public static enum DataSource {
+		RUNTIME_DATA,
+		EEPROM
+	}
 }

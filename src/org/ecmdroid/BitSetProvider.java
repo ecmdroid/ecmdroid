@@ -18,6 +18,8 @@
  */
 package org.ecmdroid;
 
+import org.ecmdroid.Constants.DataSource;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -26,7 +28,7 @@ public abstract class BitSetProvider {
 	protected static final String TAG = "BitSetProvider";
 	private static BitSetProvider bitsetProvider;
 
-	public abstract BitSet getBitSet(String ecm, String name);
+	public abstract BitSet getBitSet(String ecm_id, String name, DataSource source);
 
 	public static synchronized BitSetProvider getInstance(Context ctx) {
 		if (bitsetProvider == null) {

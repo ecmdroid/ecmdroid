@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import org.ecmdroid.Constants.DataSource;
 import org.ecmdroid.Constants.Variables;
 import org.ecmdroid.EEPROM.Page;
 import org.ecmdroid.Error.ErrorType;
@@ -312,12 +313,12 @@ public class ECM
 		List<Error> errors = new LinkedList<Error>();
 		if (data != null) {
 			for (int i = 0; ; i++) {
-				BitSet bitset = bitsetProvider.getBitSet(this.eeprom.getId(), field + i);
+				BitSet bitset = bitsetProvider.getBitSet(this.eeprom.getId(), field + i, DataSource.RUNTIME_DATA);
 				if (bitset == null) {
 					break;
 				}
 				for (Bit bit : bitset) {
-					if (bit.isSet(data)) {
+					if (bit.refreshValue(data)) {
 						Error e = new Error();
 						e.setCode(bit.getCode());
 						e.setType(type);

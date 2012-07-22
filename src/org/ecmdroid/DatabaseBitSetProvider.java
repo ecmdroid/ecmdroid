@@ -18,6 +18,8 @@
  */
 package org.ecmdroid;
 
+import org.ecmdroid.Constants.DataSource;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -30,16 +32,19 @@ public class DatabaseBitSetProvider extends BitSetProvider {
 		dbHelper = new DBHelper(ctx);
 	}
 	@Override
-	public BitSet getBitSet(String ecm, String name) {
+	public BitSet getBitSet(String ecm_id, String name, DataSource source) {
 		BitSet ret = null;
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		String offset_table = (source == DataSource.EEPROM ? "eeoffsets" : "rtoffsets");
 		try {
-			String query = "SELECT * FROM rtoffsets, bits, eeprom" +
-					" WHERE rtoffsets.varname = '" + name + "'" +
-					" AND bits.varname = rtoffsets.varname" +
-					" AND eeprom.name = '" + ecm + "'" +
-					" AND rtoffsets.category = eeprom.category" +
-					" AND rtoffsets.secret = 0";
+			String query = "SELECT * FROM " + offset_table + " AS offsets, bits, eeprom" +
+					" WHERE offsets.varname = '" + name + "'" +
+					" AND bits.varname = offsets.varname" +
+					" AND eeprom.name = '" + ecm_id + "'" +
+					" AND offsets.category = eeprom.category";
+			if (source == DataSource.RUNTIME_DATA) {
+				query += " AND offsets.secret = 0";
+			}
 			// Log.d(TAG, "Query: " + query);
 			Cursor c = db.rawQuery(query, null);
 			if (c.moveToFirst()) {
@@ -58,8 +63,8 @@ public class DatabaseBitSetProvider extends BitSetProvider {
 					}
 					Bit bit = new Bit();
 					bit.setName(bitname);
-					bit.setBit(i-1);
-					bit.setByte_nr(c.getInt(c.getColumnIndex("byte")));
+					bit.setBitNr(i-1);
+					bit.setByteNr(c.getInt(c.getColumnIndex("byte")));
 					bit.setOffset(offset);
 					bit.setType(ECM.Type.getType(c.getString(c.getColumnIndex("type"))));
 					bit.setRemark(bitdesc);

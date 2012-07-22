@@ -18,9 +18,9 @@
  */
 package org.ecmdroid;
 
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 
-public class BitSet extends LinkedHashSet<Bit>
+public class BitSet extends LinkedList<Bit>
 {
 	private static final long serialVersionUID = 1L;
 
@@ -50,10 +50,14 @@ public class BitSet extends LinkedHashSet<Bit>
 	public BitSet getActiveBits(byte[] data) {
 		BitSet active = new BitSet(name,label,offset);
 		for (Bit b : this) {
-			if (b.isSet(data)) {
+			if (b.refreshValue(data)) {
 				active.add(b);
 			}
 		}
 		return active;
+	}
+
+	public Bit getBit(int bit) {
+		return this.get(bit);
 	}
 }

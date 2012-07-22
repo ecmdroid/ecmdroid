@@ -25,8 +25,8 @@ public class Bit
 	private int id;
 	private Type type;
 	private int offset;
-	private int byte_nr;
-	private int bit;
+	private int byteNr;
+	private int bitNr;
 	private String code;
 	private String name;
 	private String remark;
@@ -56,20 +56,20 @@ public class Bit
 		this.offset = offset;
 	}
 
-	public int getByte_nr() {
-		return byte_nr;
+	public int getByteNr() {
+		return byteNr;
 	}
 
-	public void setByte_nr(int byte_nr) {
-		this.byte_nr = byte_nr;
+	public void setByteNr(int byte_nr) {
+		this.byteNr = byte_nr;
 	}
 
-	public int getBit() {
-		return bit;
+	public int getBitNr() {
+		return bitNr;
 	}
 
-	public void setBit(int bit) {
-		this.bit = bit;
+	public void setBitNr(int bit) {
+		this.bitNr = bit;
 	}
 
 	public String getCode() {
@@ -100,20 +100,24 @@ public class Bit
 		return value;
 	}
 
-	public void setValue(byte value) {
-		this.value = value;
+
+	public boolean refreshValue(byte[] data) {
+		if (offset >= data.length) {
+			value = 0;
+			return false;
+		}
+		byte mask = (byte) (1 << bitNr);
+		value = (byte) ((data[offset] & 0xff) & mask);
+		return value != 0;
+	}
+
+	public boolean isSet() {
+		return value != 0;
 	}
 
 	@Override
 	public String toString() {
-		return "BitSet[name: " + name + ", remark: " + remark + ", ECM: " + type + ", offset: " + offset + ", byte: " + byte_nr + ", bit: " + bit + ", code: " + code + "]";
+		return "BitSet[name: " + name + ", remark: " + remark + ", ECM: " + type + ", offset: " + offset + ", byte: " + byteNr + ", bit: " + bitNr + ", code: " + code + "]";
 	}
 
-	public boolean isSet(byte[] data) {
-		if (offset >= data.length) {
-			return false;
-		}
-		byte mask = (byte) (1 << bit);
-		return (data[offset] & mask) != 0;
-	}
 }
