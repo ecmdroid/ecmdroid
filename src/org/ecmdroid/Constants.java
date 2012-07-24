@@ -18,6 +18,8 @@
  */
 package org.ecmdroid;
 
+import java.util.regex.Pattern;
+
 public interface Constants {
 	public interface Variables {
 		public static final String ABaro = "ABaro";
@@ -833,4 +835,6 @@ public interface Constants {
 		RUNTIME_DATA,
 		EEPROM
 	}
+
+	public static final Pattern BIT_PATTERN = Pattern.compile("^(.+)\\[([0-9,]+)\\]$");
 }

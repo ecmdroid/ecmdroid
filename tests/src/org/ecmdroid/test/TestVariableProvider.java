@@ -101,4 +101,11 @@ public class TestVariableProvider extends AndroidTestCase
 
 	}
 
+	public void testNameLookup()
+	{
+		assertNull(provider.getName("DOES_NOT_EXIST"));
+		assertEquals("System Configuration", provider.getName("KConfig"));
+		assertEquals("Open loop learn", provider.getName("KConfig[3]"));
+		assertNull(provider.getName("KConfig[10]"));
+	}
 }

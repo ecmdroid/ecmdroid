@@ -20,6 +20,7 @@ package org.ecmdroid;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.regex.Matcher;
 
 import org.ecmdroid.Variable.Class;
 
@@ -149,5 +150,43 @@ public class DatabaseVariableProvider extends VariableProvider {
 		cursor.close();
 		db.close();
 		return ret;
+	}
+
+	@Override
+	public String getName(String varname) {
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		Matcher matcher = Constants.BIT_PATTERN.matcher(varname);
+		if (matcher.matches()) {
+			String name = matcher.group(1);
+			int bit = Integer.parseInt(matcher.group(2).split(",")[0]);
+			return getName(name, bit);
+		}
+		String query = "SELECT DISTINCT name FROM names WHERE varname = '" + varname + "'";
+		Cursor c = db.rawQuery(query, null);
+		String result = null;
+		if (c.moveToFirst()) {
+			result  = c.getString(0);
+		}
+		c.close();
+		db.close();
+		return result;
+	}
+
+	@Override
+	public String getName(String varname, int bit) {
+
+		if (bit < 0 || bit > 7) {
+			return null;
+		}
+		String result = null;
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		String query  = "SELECT DISTINCT bitname" + (bit + 1) + " FROM bits WHERE varname = '" + varname + "'";
+		Cursor c = db.rawQuery(query, null);
+		if (c.moveToFirst()) {
+			result = c.getString(0);
+		}
+		c.close();
+		db.close();
+		return result;
 	}
 }

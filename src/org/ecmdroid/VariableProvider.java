@@ -32,6 +32,8 @@ public abstract class VariableProvider
 	public abstract Variable getRtVariable(String ecm, String name);
 	public abstract Collection<String> getScalarRtVariableNames(String ecm);
 	public abstract Variable getEEPROMVariable(String ecm, String name);
+	public abstract String getName(String varname);
+	public abstract String getName(String varname, int bitnumber);
 
 	public static synchronized VariableProvider getInstance(Context ctx)  {
 		if (variableProvider == null) {
