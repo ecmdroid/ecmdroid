@@ -68,5 +68,6 @@
     <string name="short_lo">16-Bit (Lo)</string>
     <string name="hex">Hex</string>
     <string name="dec">Dec</string>
+    <string name="ecm_setup">ECM Setup</string>
 
 </resources>

@@ -44,6 +44,9 @@
             android:name=".EEPROMActivity"
             android:label="@string/title_activity_eeprom" >
         </activity>
-    </application>
+        <activity
+            android:name=".SetupActivity"
+            android:label="@string/ecm_setup" />
+        </application>
 
 </manifest>

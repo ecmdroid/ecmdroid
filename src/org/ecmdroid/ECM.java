@@ -376,6 +376,17 @@ public class ECM
 		return var;
 	}
 
+
+	public Bit getEEPROMBit(String name, int bit) {
+		BitSet bitset = bitsetProvider.getBitSet(getId(), name, DataSource.EEPROM);
+		if (bitset != null) {
+			Bit b = bitset.getBit(bit);
+			b.refreshValue(eeprom.getBytes());
+			return b;
+		}
+		return null;
+	}
+
 	public Type getType() {
 		return eeprom == null ? null : eeprom.getType();
 	}
