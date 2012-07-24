@@ -78,12 +78,12 @@ public class DataChannelActivity extends BaseActivity {
 		setContentView(R.layout.datachannels);
 		bindService(new Intent(this, EcmDroidService.class), serviceConnection, Context.BIND_AUTO_CREATE);
 
-		if (!Utils.isEmpty(ecm.getId())) {
+		if (!Utils.isEmptyString(ecm.getId())) {
 			SharedPreferences prefs = getPreferences(MODE_PRIVATE);
 			int i = 0;
 			for (String defvar : new String[] {Variables.RPM, Variables.TPD,Variables.CLT,Variables.AFV}) {
 				String var = prefs.getString("channel" + (i+1), defvar);
-				if (!Utils.isEmpty(var)) {
+				if (!Utils.isEmptyString(var)) {
 					Log.d(TAG, "Looking up variable " + var);
 					channels[i] = provider.getRtVariable(ecm.getId(), var);
 				}
@@ -144,7 +144,7 @@ public class DataChannelActivity extends BaseActivity {
 		unbindService(serviceConnection);
 	}
 	private void saveSettings() {
-		if (Utils.isEmpty(ecm.getId())) {
+		if (Utils.isEmptyString(ecm.getId())) {
 			return;
 		}
 		SharedPreferences prefs = getPreferences(MODE_PRIVATE);

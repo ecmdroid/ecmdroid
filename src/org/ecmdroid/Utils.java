@@ -18,6 +18,7 @@
  */
 package org.ecmdroid;
 
+
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
@@ -115,8 +116,8 @@ public abstract class Utils
 		return hexdump(bytes, 0, bytes.length);
 	}
 
-	public static boolean isEmpty(String str) {
-		return (str == null || "".equals(str.trim()));
+	public static boolean isEmptyString(Object str) {
+		return (str == null || str.toString().trim().length() == 0);
 	}
 
 	static String toHex(int i, int... width) {

@@ -359,7 +359,7 @@ public class ECM
 			return default_value;
 		}
 		String ret = var.getFormattedValue();
-		if (Utils.isEmpty(ret)) {
+		if (Utils.isEmptyString(ret)) {
 			ret = default_value;
 		}
 		return ret;

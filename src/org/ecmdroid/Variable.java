@@ -252,7 +252,7 @@ public class Variable implements Cloneable {
 				}
 				DecimalFormat fmt = new DecimalFormat(format == null ? "0" : format);
 				formattedValue = fmt.format(rawValue);
-				if (!Utils.isEmpty(symbol)) {
+				if (!Utils.isEmptyString(symbol)) {
 					formattedValue += symbol;
 				}
 			} else {

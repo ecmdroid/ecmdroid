@@ -55,10 +55,10 @@ public class DatabaseBitSetProvider extends BitSetProvider {
 				for (int i = 1; i <= 8; i++) {
 					String bitname = c.getString(c.getColumnIndex("bitname" + i));
 					String bitdesc = c.getString(c.getColumnIndex("bit" + i));
-					if (Utils.isEmpty(bitname) && Utils.isEmpty(bitdesc)) {
+					if (Utils.isEmptyString(bitname) && Utils.isEmptyString(bitdesc)) {
 						continue;
 					}
-					if (Utils.isEmpty(bitname)) {
+					if (Utils.isEmptyString(bitname)) {
 						bitname = setname + "." + i;
 					}
 					Bit bit = new Bit();
