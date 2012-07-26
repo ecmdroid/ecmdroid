@@ -393,7 +393,7 @@ public class ECM
 		}
 		Variable var = this.variableProvider.getEEPROMVariable(getId(), name);
 		if (var != null) {
-			var.refreshValue(eeprom.getBytes()).getFormattedValue();
+			var.refreshValue(eeprom.getBytes());
 		}
 		return var;
 	}
@@ -450,6 +450,21 @@ public class ECM
 
 	public boolean isEepromRead() {
 		return eeprom != null && eeprom.isEepromRead();
+	}
+
+	public boolean setEEPROMValue(Variable var) {
+		try {
+			var.updateValue(eeprom.getBytes());
+		} catch (Exception e) {
+			Log.w(TAG, "Unable to update value. " + e.getLocalizedMessage());
+			return false;
+		}
+		return true;
+	}
+
+	public boolean setEEPROMBits(BitSet bitset) {
+		bitset.updateValue(eeprom.getBytes());
+		return true;
 	}
 
 }

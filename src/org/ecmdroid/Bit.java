@@ -100,6 +100,9 @@ public class Bit
 		return value;
 	}
 
+	public void setValue(boolean value) {
+		this.value = (byte) (value == false ? 0 : (1 << bitNr) & 0xff);
+	}
 
 	public boolean refreshValue(byte[] data) {
 		if (offset >= data.length) {

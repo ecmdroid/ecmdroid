@@ -18,6 +18,7 @@
  */
 package org.ecmdroid;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 
 import android.util.Log;
@@ -231,12 +232,6 @@ public class Variable implements Cloneable {
 				value |= (tmp[co + i - 1] & 0xff);
 			}
 			if (cls == Class.BITS || cls == Class.BITFIELD) {
-				String bs = Integer.toBinaryString(value);
-				StringBuffer sb = new StringBuffer();
-				for (int i = 0; i < ((width * 8) - bs.length()); i++) {
-					sb.append('0');
-				}
-				formattedValue = sb.append(bs).toString();
 				rawValue = new Short((short) (value & 0xffff));
 			} else if (cls == Class.SCALAR || cls == Class.VALUE) {
 				double v = value;
@@ -250,16 +245,25 @@ public class Variable implements Cloneable {
 				if ("0".equals(format)) {
 					rawValue = Integer.valueOf(((Double)rawValue).intValue());
 				}
-				DecimalFormat fmt = new DecimalFormat(format == null ? "0" : format);
-				formattedValue = fmt.format(rawValue);
-				if (!Utils.isEmptyString(symbol)) {
-					formattedValue += symbol;
-				}
 			} else {
 				Log.w(TAG, "Unsupported class " + cls);
 			}
+			formatValue();
 		}
 		return this;
+	}
+
+	private void formatValue() {
+		if (cls == Class.BITS || cls == Class.BITFIELD) {
+			Short v = (Short) rawValue();
+			formattedValue = Integer.toBinaryString(v);
+		} else if (cls == Class.SCALAR || cls == Class.VALUE) {
+			DecimalFormat fmt = new DecimalFormat(format == null ? "0" : format);
+			formattedValue = fmt.format(rawValue);
+			if (!Utils.isEmptyString(symbol)) {
+				formattedValue += symbol;
+			}
+		}
 	}
 
 	public String getFormattedValue() {
@@ -283,5 +287,57 @@ public class Variable implements Cloneable {
 			}
 		}
 		return 0;
+	}
+
+	public void updateValue(byte[] bytes) throws IOException {
+		if (rawValue == null) {
+			return;
+		}
+		int co = offset < 0 ? bytes.length + offset : offset;
+		byte[] buffer = new byte[width];
+		int value = 0;
+		if (cls == Class.BITFIELD || cls == Class.BITS) {
+			value = (Short) rawValue & 0xFFFF;
+		} else if (cls == Class.SCALAR || cls == Class.VALUE) {
+			double v = 0;
+			if (rawValue instanceof Double) {
+				v = (Double) rawValue;
+			} else {
+				v = (Integer) rawValue;
+			}
+			if (translate != 0) {
+				v -= translate;
+			}
+			if (scale != 0) {
+				v /= scale;
+			}
+			value = (int) v;
+
+		} else {
+			Log.w(TAG, "Unsupported class " + cls);
+			return;
+		}
+
+		for (int i = 0; i < width; i++) {
+			buffer[i] = (byte) (value & 0xFF);
+			value >>= 8;
+		}
+		Log.d(TAG, String.format("Setting buffer (len: %X) at offset 0x%02X (raw: 0x%02X) to %s (width: %d).", bytes.length, co, offset, Utils.hexdump(buffer), width));
+		System.arraycopy(buffer, 0, bytes, co, width);
+		Log.d(TAG, String.format("Result: " + Utils.hexdump(bytes, co, co + width)));
+	}
+
+	public void parseValue(Object value) throws NumberFormatException {
+		if (value != null) {
+			double v = Double.valueOf(value.toString()).doubleValue();
+			rawValue = Double.valueOf(v);
+
+			if ("0".equals(format)) {
+				if ("0".equals(format)) {
+					rawValue = Integer.valueOf(((Double)rawValue).intValue());
+				}
+			}
+			formatValue();
+		}
 	}
 }
