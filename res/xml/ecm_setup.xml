@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+	<PreferenceScreen android:title="@string/general_config" >
+		<PreferenceCategory android:title="@string/system" >
+			<CheckBoxPreference android:key="KConfig[0]" />
+			<CheckBoxPreference android:key="KConfig[1]" />
+			<CheckBoxPreference android:key="KConfig[2]" />
+			<CheckBoxPreference android:key="KConfig[3]" />
+			<CheckBoxPreference android:key="KConfig[4]" />
+			<CheckBoxPreference android:key="KConfig[5]" />
+		</PreferenceCategory>
+		<PreferenceCategory android:title="@string/noise_reduction" >
+		</PreferenceCategory>
+	</PreferenceScreen>
+	<PreferenceScreen android:title="@string/error_mask" >
+		<PreferenceCategory android:title="@string/sensors" >
+			<CheckBoxPreference android:key="EDiag1[6,7]" android:title="@string/air_temperature_sensor"/>
+			<CheckBoxPreference android:key="EDiag3[6,7]" android:title="@string/bank_angle_sensor"/>
+			<CheckBoxPreference android:key="EDiag8[6,7]" android:title="@string/baro_sensor"/>
+			<CheckBoxPreference android:key="EDiag1[4,5]" android:title="@string/battery_voltage"/>
+			<CheckBoxPreference android:key="EDiag0[2,3,4]" android:title="@string/o2_sensor_rear"/>
+			<CheckBoxPreference android:key="EDiag7[5,6,7]" android:title="@string/o2_sensor_front"/>
+			<CheckBoxPreference android:key="EDiag4[5,6,7]" android:title="@string/sidestand_switch"/>
+			<CheckBoxPreference android:key="EDiag0[5,6]" android:title="@string/throttle_pos_sensor"/>
+		</PreferenceCategory>
+		<PreferenceCategory android:title="@string/actuators" >
+			<CheckBoxPreference android:key="EDiag0[7]" android:title="@string/cooling_fan"/>
+			<CheckBoxPreference android:key="EDiag4_2[0,1,2,3]" android:title="@string/exhaust_valve_actuator"/>
+		</PreferenceCategory>
+	</PreferenceScreen>
+	<PreferenceScreen android:title="@string/limits" >
+		<PreferenceScreen android:title="@string/rpm_limits" android:enabled="false">
+		</PreferenceScreen>
+		<PreferenceScreen android:title="@string/temp_limits" android:enabled="false">
+		</PreferenceScreen>
+		<PreferenceScreen android:title="@string/fan_setup" >
+			<PreferenceCategory android:title="@string/fan_setup_key_off" >
+				<EditTextPreference android:key="KKey_Off_Fan_Time" android:title="@string/max_duration_min"/>
+				<EditTextPreference android:key="KKey_Off_Min_Bat" android:title="@string/min_batt_voltg"/>
+			</PreferenceCategory>
+			<PreferenceCategory android:title="@string/fan_setup_key_on" >
+				<EditTextPreference android:key="KTemp_Fan_On" android:title="@string/on_temperature"/>
+				<EditTextPreference android:key="KTemp_Fan_Off" android:title="@string/off_temperature"/>
+			</PreferenceCategory>
+		</PreferenceScreen>
+	</PreferenceScreen>
+	<PreferenceScreen android:title="@string/afv_settings" >
+		<EditTextPreference android:key="LFuel" android:title="@string/afv_rear"/>
+		<EditTextPreference android:key="LFuel1" android:title="@string/afv_front"/>
+	</PreferenceScreen>
+	<PreferenceScreen android:title="@string/exhaust_config" >
+		<CheckBoxPreference android:key="KAMC_Config[7]" android:title="@string/exhaust_valve_enabled"/>
+		<CheckBoxPreference android:key="KAMC_Config[0]" />
+		<CheckBoxPreference android:key="KAMC_Config[1]" android:title="@string/keep_open_when_not_in_wot"/>
+		<CheckBoxPreference android:key="KAMC_Config[6]" android:title="@string/cycle_valve_at_ignition_on"/>
+		<CheckBoxPreference android:key="KAMC_Config[5]" android:title="@string/close_valve_on_amc_error"/>
+		<CheckBoxPreference android:key="KAMC_Config[2]" />
+		<CheckBoxPreference android:key="KAMC_Config[3]" />
+		<CheckBoxPreference android:key="KAMC_Config[4]" />
+	</PreferenceScreen>
+</PreferenceScreen>

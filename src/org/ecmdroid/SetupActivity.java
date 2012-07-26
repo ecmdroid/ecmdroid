@@ -18,32 +18,40 @@
  */
 package org.ecmdroid;
 
+import java.util.HashMap;
 import java.util.regex.Matcher;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.app.ProgressDialog;
+import android.content.pm.ActivityInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
-public class SetupActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener
+public class SetupActivity extends PreferenceActivity implements OnPreferenceChangeListener
 {
+	private static final String TAG = "SETUP";
 	private ECM ecm = ECM.getInstance(this);
 	private VariableProvider provider = VariableProvider.getInstance(this);
-	private static final String TAG = "SETUP";
+	private HashMap<Preference, Object> prefmap;
+
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.ecm_setup);
-		PreferenceScreen root = this.getPreferenceScreen();
-		readPrefs(root);
+		prefmap = new HashMap<Preference, Object>();
+		new RefreshTask().execute();
 	}
 
 	@Override
@@ -79,6 +87,7 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 			if (key == null) {
 				continue;
 			}
+			s.setOnPreferenceChangeListener(this);
 			String title = null;
 			Matcher m = Constants.BIT_PATTERN.matcher(key);
 			if (m.matches()) {
@@ -86,14 +95,17 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 				String bits = m.group(2);
 				int bits_set = 0, bits_unset = 0;
 				boolean bits_missing = false;
+				BitSet bitset = new BitSet(name, null, 0);
 				for (String nr : bits.split(",")) {
 					int b = Integer.parseInt(nr);
 					Bit bit = ecm.getEEPROMBit(name, b);
 					if (bit == null) {
-						Log.i(TAG, "Bit #" + b + " from bitset " + name + " not present for current ECM version.");
+						Log.i(TAG, "Bitset '" + name + "' not present in current ECM version.");
 						bits_missing = true;
 						break;
 					}
+					bitset.add(bit);
+					bitset.setOffset(bit.getOffset());
 					if (title == null) {
 						title = bit.getName();
 					}
@@ -109,6 +121,7 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 					}
 					s.setEnabled(false);
 				} else {
+					prefmap.put(s, bitset);
 					if (s instanceof CheckBoxPreference) {
 						CheckBoxPreference cb = (CheckBoxPreference) s;
 						cb.setChecked(bits_set > 0);
@@ -119,10 +132,14 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 				if (v != null) {
 					title = v.getName();
 					s.setSummary(v.getFormattedValue());
-					s.setDefaultValue(v.getRawValue());
+					if (s instanceof EditTextPreference) {
+						((EditTextPreference) s).setText(String.valueOf(v.getRawValue()));
+						((EditTextPreference) s).getEditText().setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+					}
+					prefmap.put(s, v);
 				} else {
 					s.setEnabled(false);
-					Log.i(TAG, "EEPROM Variable '" + key + "' not present for current ECM version.");
+					Log.i(TAG, "EEPROM Variable '" + key + "' not present in current ECM version.");
 				}
 			}
 			if (Utils.isEmptyString(s.getTitle())) {
@@ -134,16 +151,62 @@ public class SetupActivity extends PreferenceActivity implements OnSharedPrefere
 		}
 	}
 
-	@Override
-	public SharedPreferences getSharedPreferences(String name, int mode) {
-		Log.d(TAG, "getSharedPreferences("+name+","+mode+")");
-		SharedPreferences sp = super.getSharedPreferences(name, mode);
-		sp.registerOnSharedPreferenceChangeListener(this);
-		return sp;
+	private class RefreshTask extends AsyncTask<Void, String, Exception> {
+		private int ro;
+		private ProgressDialog mProgress;
+
+		@Override
+		protected void onPreExecute() {
+			// Prevent screen rotation during progress dialog display
+			ro = getRequestedOrientation();
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+			mProgress = ProgressDialog.show(SetupActivity.this, "", getText(R.string.refreshing_setup_values), true);
+		}
+
+		@Override
+		protected Exception doInBackground(Void... params) {
+			@SuppressWarnings("deprecation")
+			PreferenceScreen root = SetupActivity.this.getPreferenceScreen();
+			readPrefs(root);
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Exception result) {
+			mProgress.dismiss();
+			setRequestedOrientation(ro);
+		}
 	}
 
-	public void onSharedPreferenceChanged(SharedPreferences prefs, String arg) {
-		Log.d(TAG, "Changed: " + arg);
-	}
+	public boolean onPreferenceChange(Preference preference, Object newValue) {
+		// Log.d(TAG, "Pref changed: " + preference + ", val: " + newValue + " [" + newValue.getClass().getName() + "]");
+		Object var = prefmap.get(preference);
+		if (var == null) return false;
 
+		if (var instanceof Variable) {
+			Variable v = (Variable) var;
+			try {
+				v.parseValue(newValue);
+			} catch (NumberFormatException nfe) {
+				Toast.makeText(this, newValue + ": Unable to parse number.", Toast.LENGTH_LONG).show();
+				return false;
+			}
+			if (ecm.setEEPROMValue(v)) {
+				preference.setSummary(v.getFormattedValue());
+				return true;
+			} else {
+				Toast.makeText(this, "Error: Unable to set EEPROM value.", Toast.LENGTH_LONG).show();
+				return false;
+			}
+		} else if (var instanceof BitSet) {
+			BitSet bitset = (BitSet) var;
+			bitset.setAll(Boolean.TRUE.equals(newValue));
+			if (ecm.setEEPROMBits(bitset)) {
+				return true;
+			} else {
+				Toast.makeText(this, "Error: Unable to set EEPROM bits.", Toast.LENGTH_LONG).show();
+			}
+		}
+		return false;
+	}
 }
