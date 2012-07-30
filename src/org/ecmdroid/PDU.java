@@ -23,11 +23,18 @@ import java.text.ParseException;
 
 public class PDU
 {
-	private static final int CMD_SET = 0x57;
-	private static final int CMD_GET = 0x52;
-	private static final byte ACK = 0x06;
-	public static final byte SPY_ID = 0x00;
-	public static final byte ECM_ID = 0x42;
+	public static final byte CMD_RTDATA  = 0x43;
+	public static final int CMD_SET      = 0x57;
+	public static final int CMD_GET      = 0x52;
+	public static final byte CMD_VERSION = 0x56;
+	public static final byte ACK         = 0x06;
+	public static final byte DROID_ID    = 0x00;
+	public static final byte ECM_ID      = 0x42;
+	public static final byte SOH         = 0x01;
+	public static final byte EOH         = (byte) 0xFF;
+	public static final byte SOT         = 0x02;
+	public static final byte EOT         = 0x03;
+
 
 	public static enum Function {
 		ClearCodes(1, "Clear Codes"),
@@ -54,15 +61,10 @@ public class PDU
 		}
 	}
 
-	static final byte SOH = 0x01;
-	static final byte EOH = (byte) 0xFF;
-	static final byte SOT = 0x02;
-	static final byte EOT = 0x03;
-
 	private byte[] pdu;
 
-	private static final PDU GET_VERSION = new PDU(SPY_ID, ECM_ID, new byte[] {0x56});
-	private static final PDU GET_RT      = new PDU(SPY_ID, ECM_ID, new byte[] {0x43});
+	private static final PDU GET_VERSION = new PDU(DROID_ID, ECM_ID, new byte[] {0x56});
+	private static final PDU GET_RT      = new PDU(DROID_ID, ECM_ID, new byte[] {0x43});
 	private static final PDU GET_CSTATE  = PDU.getRequest(0x20, 0, 1);
 
 	/** Construct a EEPROM GET Request
@@ -78,7 +80,7 @@ public class PDU
 		payload[1] = (byte) (offset & 0xff);
 		payload[2] = (byte) (pageno & 0xff);
 		payload[3] = (byte) (len & 0xff);
-		return new PDU(SPY_ID, ECM_ID, payload);
+		return new PDU(DROID_ID, ECM_ID, payload);
 	}
 
 	/**
@@ -95,7 +97,7 @@ public class PDU
 		payload[2] = (byte) (pageno & 0xff);
 		payload[3] = (byte) (data.length & 0xff);
 		System.arraycopy(data, 0, payload, 4, data.length);
-		return new PDU(SPY_ID, ECM_ID, payload);
+		return new PDU(DROID_ID, ECM_ID, payload);
 	}
 
 	/**
@@ -103,7 +105,7 @@ public class PDU
 	 * @param function the function to trigger
 	 */
 	public static PDU commandRequest(final Function function) {
-		return new PDU(SPY_ID, ECM_ID, new byte[]{CMD_SET, 0, 0x20, function.code});
+		return new PDU(DROID_ID, ECM_ID, new byte[]{CMD_SET, 0, 0x20, function.code});
 	}
 
 	public static PDU getVersion() {

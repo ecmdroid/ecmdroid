@@ -37,23 +37,9 @@ public class EEPROM {
 	private byte[] data;
 	private boolean eepromRead;
 
-	private EEPROM(String id, ECM.Type type, Integer... pagesizes)
-	{
+	public EEPROM(String id) {
 		this.id = id;
-		this.type = type;
-		int i=1;
 		pages = new ArrayList<Page>();
-		for (Integer ps : pagesizes) {
-			Page pg = new Page(i++, ps.intValue());
-			pg.setStart(length);
-			pg.parent = this;
-			pages.add(pg);
-			length += ps.intValue();
-		}
-		data = new byte[length];
-	}
-
-	private EEPROM() {
 	}
 
 	public int length() {
@@ -65,8 +51,17 @@ public class EEPROM {
 		return data;
 	}
 
+	public void setBytes(byte[] data) {
+		this.data = data;
+		this.length = data.length;
+	}
+
 	public Collection<Page> getPages() {
 		return pages;
+	}
+
+	public void addPage(Page page) {
+		pages.add(page);
 	}
 
 	public String getId() {
@@ -103,9 +98,7 @@ public class EEPROM {
 			if (c.getCount() == 0) {
 				return null;
 			}
-			eeprom = new EEPROM();
-			eeprom.id = name;
-			eeprom.pages = new ArrayList<EEPROM.Page>();
+			eeprom = new EEPROM(name);
 			int pc = 0;
 			while(c.moveToNext()) {
 				if (eeprom.length == 0) {
@@ -122,7 +115,6 @@ public class EEPROM {
 					pg.start = pc;
 					pc += pg.length;
 				}
-				pg.parent = eeprom;
 				eeprom.pages.add(pg);
 			}
 		} finally {
@@ -138,9 +130,8 @@ public class EEPROM {
 		private int nr;
 		private int length;
 		private int start;
-		private EEPROM parent;
 
-		private Page(int nr, int length) {
+		public Page(int nr, int length) {
 			this.nr = nr;
 			this.length = length;
 		}
@@ -162,7 +153,7 @@ public class EEPROM {
 		}
 
 		public EEPROM getParent() {
-			return parent;
+			return EEPROM.this;
 		}
 	}
 
