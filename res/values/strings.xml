@@ -107,5 +107,6 @@
     <string name="prefs_bt_connection">BT</string>
     <string name="prefs_conn_type">connection_type</string>
     <string name="setup">Setup</string>
+    <string name="about">About</string>
 
 </resources>
