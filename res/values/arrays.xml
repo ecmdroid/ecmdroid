@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<array name="connectionTypes">
+		<item>Bluetooth</item>
+		<item>TCP/IP</item>
+	</array>
+	<array name="connectionValues">
+		<item>BT</item>
+		<item>TCP</item>
+	</array>
+</resources>

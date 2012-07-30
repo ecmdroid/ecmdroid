@@ -44,4 +44,9 @@
         android:visible="false"
         android:title="@string/eeprom_db">
     </item>
+    
+    <item android:id="@+id/prefs"
+        android:title="@string/preferences">
+    </item>
+        
 </menu>

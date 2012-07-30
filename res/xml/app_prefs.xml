@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+	<ListPreference android:title="Connection" 
+		android:entries="@array/connectionTypes"
+		android:entryValues="@array/connectionValues"
+		android:key="@string/prefs_conn_type"
+		android:defaultValue="@string/prefs_bt_connection"
+		/>
+	<EditTextPreference
+		android:key="tcp_host"
+		android:title="Host"
+		android:defaultValue="192.168.1.1"
+		/>
+	<EditTextPreference
+		android:key="tcp_port"
+		android:title="Port"
+		android:defaultValue="6275"
+		/>
+</PreferenceScreen>

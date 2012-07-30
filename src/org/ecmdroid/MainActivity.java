@@ -31,12 +31,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -50,6 +52,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 	private ECM ecm = ECM.getInstance(this);
 	private Button connectButton;
 	private DBHelper dbHelper;
+	private SharedPreferences prefs;
 
 	protected EcmDroidService ecmDroidService;
 
@@ -66,10 +69,13 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		}
 	};
 
+	private String connectionType;
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.main);
+		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		try {
 			PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
 			String version = pInfo.versionName;
@@ -122,6 +128,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		connectionType = prefs.getString(getString(R.string.prefs_conn_type), getString(R.string.prefs_bt_connection));
 		if (ecm.isConnected()) {
 			connectButton.setText(R.string.disconnect);
 			connectButton.setTag(R.string.connected);
@@ -151,12 +158,25 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 	public void onClick(View view) {
 		Button b = (Button) view;
 		if (b.getTag() == null) {
-			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-			if (adapter == null || !adapter.isEnabled()) {
-				Toast.makeText(this, R.string.bluetooth_is_not_available, Toast.LENGTH_LONG).show();
-				return;
+			if (getString(R.string.prefs_bt_connection).equals(connectionType)) {
+				BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+				if (adapter == null || !adapter.isEnabled()) {
+					Toast.makeText(this, R.string.bluetooth_is_not_available, Toast.LENGTH_LONG).show();
+					return;
+				}
+				showDevices();
+			} else {
+				String host = prefs.getString("tcp_host", null);
+				int port = 0;
+				try {
+					port = Integer.parseInt(prefs.getString("tcp_port", "0"));
+				} catch (NumberFormatException nfe) {}
+				if (host == null || port <= 0 || port > 0xFFFF) {
+					Toast.makeText(this, String.format("%s/%d: Illegal host/port combination.", host, port), Toast.LENGTH_LONG).show();
+					return;
+				}
+				MainActivity.this.connect(host, port);
 			}
-			showDevices();
 		} else {
 			try {
 				if (ecmDroidService != null) {
@@ -199,6 +219,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		new ConnectTask(bluetoothDevice).execute();
 	}
 
+	private void connect(String host, int port) {
+		Log.i(TAG,  "TCP Connection to " + host + ":" + port);
+		new ConnectTask(host, port).execute();
+	}
+
+
 	private void setText(int id, String text) {
 		View v = findViewById(id);
 		if (v instanceof TextView) {
@@ -208,13 +234,19 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 	private class ConnectTask extends AsyncTask<Void, String, IOException>
 	{
-
-		private BluetoothDevice mDevice;
-		private ProgressDialog mProgress;
+		private BluetoothDevice btDevice;
+		private ProgressDialog pd;
 		private int ro;
+		private String host;
+		private int port;
 
 		public ConnectTask(BluetoothDevice device) {
-			mDevice = device;
+			btDevice = device;
+		}
+
+		public ConnectTask(String host, int port) {
+			this.host = host;
+			this.port = port;
 		}
 
 		@Override
@@ -223,12 +255,22 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			ro = getRequestedOrientation();
 			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 			connectButton.setEnabled(false);
-			mProgress = ProgressDialog.show(MainActivity.this, "", "Connecting to " + mDevice.getName() +". Please wait...", true);
+			String target = null;
+			if (btDevice != null) {
+				target = btDevice.getName();
+			} else {
+				target = host + ":" + port;
+			}
+			pd = ProgressDialog.show(MainActivity.this, "", "Connecting to " + target +". Please wait...", true);
 		}
 		@Override
 		protected IOException doInBackground(Void... v) {
 			try {
-				ecm.connect(mDevice);
+				if (btDevice != null) {
+					ecm.connect(btDevice);
+				} else {
+					ecm.connect(host, port);
+				}
 				publishProgress("Reading ECM Identification...");
 				ecm.getVersion();
 				if (ecm.getEEPROM() != null) {
@@ -248,7 +290,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		}
 		@Override
 		protected void onPostExecute(IOException result) {
-			mProgress.dismiss();
+			pd.dismiss();
 			setRequestedOrientation(ro);
 			connectButton.setEnabled(true);
 			if (result != null) {
@@ -263,7 +305,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		protected void onProgressUpdate(String... values) {
 			update();
 			if (values.length >0) {
-				mProgress.setMessage(values[0]);
+				pd.setMessage(values[0]);
 			}
 		}
 	}

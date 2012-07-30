@@ -51,6 +51,8 @@ public abstract class Utils
 			id = R.id.eeprom;
 		} else if (cls == SetupActivity.class) {
 			id = R.id.setup;
+		} else if (cls == PrefsActivity.class) {
+			id = R.id.prefs;
 		}
 		if (id > 0) {
 			MenuItem item  = menu.findItem(id);
@@ -98,6 +100,11 @@ public abstract class Utils
 		case R.id.setup:
 			if (activity.getClass() != SetupActivity.class) {
 				intent = new Intent(activity, SetupActivity.class);
+			}
+			break;
+		case R.id.prefs:
+			if (activity.getClass() != PrefsActivity.class) {
+				intent = new Intent(activity, PrefsActivity.class);
 			}
 			break;
 		}

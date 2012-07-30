@@ -103,5 +103,9 @@
     <string name="fan_setup">Fan Setup</string>
     <string name="rpm_limits">RPM Limits</string>
     <string name="temp_limits">Temp. Limits</string>
+    <string name="preferences">Preferences</string>
+    <string name="prefs_bt_connection">BT</string>
+    <string name="prefs_conn_type">connection_type</string>
+    <string name="setup">Setup</string>
 
 </resources>
