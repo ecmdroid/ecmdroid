@@ -155,6 +155,12 @@ public class EEPROM {
 		public EEPROM getParent() {
 			return EEPROM.this;
 		}
+
+		public byte[] getBytes(int offset, int length, byte[] buffer, int buffer_pos) {
+			data = getParent().getBytes();
+			System.arraycopy(data, start + offset, buffer, buffer_pos, length);
+			return buffer;
+		}
 	}
 
 	public int getPageCount() {
