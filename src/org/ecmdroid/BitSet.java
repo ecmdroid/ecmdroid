@@ -18,13 +18,15 @@
  */
 package org.ecmdroid;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
-public class BitSet extends LinkedList<Bit>
+
+public class BitSet implements Iterable<Bit>
 {
 	@SuppressWarnings("unused")
 	private static final String TAG = "BitSet";
-	private static final long serialVersionUID = 1L;
+	private Bit[] bits = new Bit[8];
 
 	private String name;
 	private String label;
@@ -56,24 +58,28 @@ public class BitSet extends LinkedList<Bit>
 
 	public BitSet getActiveBits(byte[] data) {
 		BitSet active = new BitSet(name,label,offset);
-		for (Bit b : this) {
-			if (b.refreshValue(data)) {
+		for (Bit b : bits) {
+			if (b != null && b.refreshValue(data)) {
 				active.add(b);
 			}
 		}
 		return active;
 	}
 
+	public void add(Bit bit) {
+		bits[bit.getBitNr()] = bit;
+	}
+
 	public Bit getBit(int bit) {
-		return this.get(bit);
+		return bits[bit];
 	}
 
 	/**
 	 * Set / Clear all bits in this set
 	 */
 	public void setAll(boolean value) {
-		for (Bit bit : this) {
-			bit.setValue(value);
+		for (Bit bit : bits) {
+			if (bit != null) bit.setValue(value);
 		}
 	}
 
@@ -82,8 +88,10 @@ public class BitSet extends LinkedList<Bit>
 	 */
 	public byte getValue() {
 		byte result = 0;
-		for (Bit bit : this) {
-			result |= bit.getValue();
+		for (Bit bit : bits) {
+			if (bit != null) {
+				result |= bit.getValue();
+			}
 		}
 		return result;
 	}
@@ -93,8 +101,10 @@ public class BitSet extends LinkedList<Bit>
 	 */
 	public byte getMask() {
 		byte result = 0;
-		for (Bit bit : this) {
-			result |= ((1 << bit.getBitNr() & 0xFF));
+		for (Bit bit : bits) {
+			if (bit != null) {
+				result |= ((1 << bit.getBitNr() & 0xFF));
+			}
 		}
 		return result;
 	}
@@ -112,5 +122,15 @@ public class BitSet extends LinkedList<Bit>
 		val |= nval;
 		// Log.d(TAG, String.format("Setting bit set '%s', offset 0x%04X, to %s", name, co, (Integer.toBinaryString(0x100 | (val & 0xFF)).substring(1,9))));
 		bytes[co] = val;
+	}
+
+	public Iterator<Bit> iterator() {
+		LinkedList<Bit> result = new LinkedList<Bit>();
+		for (Bit b : bits) {
+			if (b != null) {
+				result.add(b);
+			}
+		}
+		return result.iterator();
 	}
 }

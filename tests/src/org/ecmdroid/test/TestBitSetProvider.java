@@ -38,7 +38,6 @@ public class TestBitSetProvider extends AndroidTestCase {
 	public void testBitSetConstructor() {
 		BitSet bits =  p.getBitSet("BUEIB", "CDiag0", DataSource.RUNTIME_DATA);
 		assertNotNull(bits);
-		assertEquals(8, bits.size());
 		assertEquals("CDiag0", bits.getName());
 		assertEquals(67, bits.getOffset());
 		int i=0;
@@ -52,7 +51,6 @@ public class TestBitSetProvider extends AndroidTestCase {
 		BitSet bitset = p.getBitSet("BUEIB", "Flags1", DataSource.RUNTIME_DATA);
 		assertNotNull(bitset);
 		BitSet active = bitset.getActiveBits(data);
-		assertEquals(1, active.size());
 		Bit b = active.iterator().next();
 		assertEquals(7, b.getBitNr());
 	}
