@@ -41,7 +41,7 @@ public class TestPDU extends AndroidTestCase {
 
 	public void testSetRequest() throws UnsupportedEncodingException {
 		byte[] payload = "TestMe".getBytes();
-		PDU pdu = PDU.setRequest(0x42, 0x24, payload);
+		PDU pdu = PDU.setRequest(0x42, 0x24, payload, 0, payload.length);
 		Log.d("TestPDU", pdu.toString());
 		assertTrue(pdu.isRequest());
 		assertFalse(pdu.isResponse());

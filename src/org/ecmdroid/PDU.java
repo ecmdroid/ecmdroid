@@ -88,15 +88,17 @@ public class PDU
 	 * @param pageno EEPROM page number to read from
 	 * @param offset offset within selected page
 	 * @param data the data to write to the EEPROM at the specified position
+	 * @param pos the offset within the data buffer
+	 * @param len the number of bytes to include in the SET request
 	 */
-	public static PDU setRequest(int pageno, int offset, byte[] data)
+	public static PDU setRequest(int pageno, int offset, byte[] data, int pos, int len)
 	{
-		byte[] payload = new byte[4 + data.length];
+		byte[] payload = new byte[4 + len];
 		payload[0] = CMD_SET;
 		payload[1] = (byte) (offset & 0xff);
 		payload[2] = (byte) (pageno & 0xff);
-		payload[3] = (byte) (data.length & 0xff);
-		System.arraycopy(data, 0, payload, 4, data.length);
+		payload[3] = (byte) (len & 0xff);
+		System.arraycopy(data, pos, payload, 4, len);
 		return new PDU(DROID_ID, ECM_ID, payload);
 	}
 
