@@ -20,7 +20,7 @@ package org.ecmdroid;
 
 import java.io.IOException;
 
-import org.ecmdroid.EEPROM.Page;
+import org.ecmdroid.tasks.FetchTask;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -232,80 +232,62 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		}
 	}
 
-	private class ConnectTask extends AsyncTask<Void, String, IOException>
+	private class ConnectTask extends FetchTask
 	{
 		private BluetoothDevice btDevice;
-		private ProgressDialog pd;
-		private int ro;
 		private String host;
 		private int port;
 
 		public ConnectTask(BluetoothDevice device) {
+			super(MainActivity.this);
 			btDevice = device;
 		}
 
 		public ConnectTask(String host, int port) {
+			super(MainActivity.this);
 			this.host = host;
 			this.port = port;
 		}
 
 		@Override
 		protected void onPreExecute() {
-			// Prevent screen rotation during progress dialog display
-			ro = getRequestedOrientation();
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 			connectButton.setEnabled(false);
+			super.onPreExecute();
+		}
+		@Override
+		protected Exception doInBackground(Void... v) {
 			String target = null;
 			if (btDevice != null) {
 				target = btDevice.getName();
 			} else {
 				target = host + ":" + port;
 			}
-			pd = ProgressDialog.show(MainActivity.this, "", "Connecting to " + target +". Please wait...", true);
-		}
-		@Override
-		protected IOException doInBackground(Void... v) {
+			publishProgress(String.format("Connecting to %1$s...", target));
 			try {
 				if (btDevice != null) {
 					ecm.connect(btDevice);
 				} else {
 					ecm.connect(host, port);
 				}
-				publishProgress("Reading ECM Identification...");
-				ecm.getVersion();
-				if (ecm.getEEPROM() != null) {
-					EEPROM eeprom = ecm.getEEPROM();
-					ecm.readRTData();
-					for (Page pg : ecm.getEEPROM().getPages()) {
-						publishProgress("Reading EEPROM data (" + pg.nr() +"/" + eeprom.getPageCount() + ")...");
-						ecm.readEEPromPage(pg);
-					}
-					eeprom.setEepromRead(true);
-				}
-			} catch (IOException e) {
-				Log.w(TAG, "Connection failed. " + e.getMessage());
+			} catch (Exception e) {
 				return e;
 			}
-			return null;
+			return super.doInBackground();
 		}
-		@Override
-		protected void onPostExecute(IOException result) {
-			pd.dismiss();
-			setRequestedOrientation(ro);
-			connectButton.setEnabled(true);
-			if (result != null) {
-				Toast.makeText(MainActivity.this, "Connection failed. " + result.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-			} else {
-				Log.v(TAG, "Connection established.");
-				connectButton.setText(R.string.disconnect);
-				connectButton.setTag(R.string.connected);
-			}
-		}
+
 		@Override
 		protected void onProgressUpdate(String... values) {
 			update();
-			if (values.length >0) {
-				pd.setMessage(values[0]);
+			super.onProgressUpdate(values);
+		}
+		@Override
+		protected void onPostExecute(Exception result) {
+			super.onPostExecute(result);
+			update();
+			connectButton.setEnabled(true);
+			if (result == null ) {
+				connectButton.setText(R.string.disconnect);
+				connectButton.setTag(R.string.connected);
 			}
 		}
 	}

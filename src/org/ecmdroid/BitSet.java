@@ -112,16 +112,18 @@ public class BitSet implements Iterable<Bit>
 
 	/**
 	 * Update bits in given byte array according to the bits in this set.
+	 * @return true if the underlying byte actually changed
 	 */
-	public void updateValue(byte[] bytes) {
+	public boolean updateValue(byte[] bytes) {
 		byte nval = getValue();
 		byte mask = getMask();
 		int co = offset < 0 ? bytes.length + offset : offset;
-		byte val = bytes[co];
-		val = (byte) ((val & ~mask) & 0xFF);
+		byte oldval = bytes[co];
+		byte val = (byte) ((oldval & ~mask) & 0xFF);
 		val |= nval;
 		// Log.d(TAG, String.format("Setting bit set '%s', offset 0x%04X, to %s", name, co, (Integer.toBinaryString(0x100 | (val & 0xFF)).substring(1,9))));
 		bytes[co] = val;
+		return val != oldval;
 	}
 
 	public Iterator<Bit> iterator() {

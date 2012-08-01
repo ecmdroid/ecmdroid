@@ -193,13 +193,12 @@ public class ECM
 	}
 
 	/**
-	 * Read out and return the version of the currently connected ECM
+	 * Read out the EEPROM and return the version of the currently connected ECM.
 	 * @return the full ECM version string (e.g. "BUEIB310 12-11-03")
 	 * @throws IOException if communicating with the ECM fails
 	 */
-	public String getVersion() throws IOException {
-		PDU response = sendPDU(PDU.getVersion());
-		String ret = new String(response.getEEPromData(), "US-ASCII");
+	public String setupEEPROM() throws IOException {
+		String ret = readVersion();
 		Log.i(TAG, "EEPROM Version: " + ret);
 		eeprom = EEPROM.get(ret, context);
 		if (eeprom != null) {
@@ -208,6 +207,20 @@ public class ECM
 		return ret;
 	}
 
+	/**
+	 * Return the current ECM version string
+	 */
+	public String getVersion() {
+		return eeprom == null ? null : eeprom.getVersion();
+	}
+
+	/**
+	 * Request the version string from the ECM
+	 */
+	public String readVersion() throws IOException {
+		PDU response = sendPDU(PDU.getVersion());
+		return new String(response.getEEPromData(), "US-ASCII");
+	}
 
 	/**
 	 * Returns the current state of the ECM (Busy/Idle)
@@ -265,6 +278,21 @@ public class ECM
 			i += dtr;
 		}
 	}
+
+	public void writeEEPromPage(Page page) throws IOException {
+		byte[] buffer = page.getParent().getBytes();
+		for (int i=0; i < page.length(); ) {
+			int dtr = Math.min(page.length() - i, 16);
+			int offset = i;
+			if (page.nr() == 0) { // Page zero is special
+				offset = 0xFF - page.length() + i + 1;
+				dtr = 1;
+			}
+			sendPDU(PDU.setRequest(page.nr(), offset, buffer, page.start() + offset, dtr));
+			i += dtr;
+		}
+	}
+
 
 	/**
 	 * Request runtime data from ECM
@@ -464,6 +492,7 @@ public class ECM
 	public boolean setEEPROMValue(Variable var) {
 		try {
 			var.updateValue(eeprom.getBytes());
+			eeprom.touch();
 		} catch (Exception e) {
 			Log.w(TAG, "Unable to update value. " + e.getLocalizedMessage());
 			return false;
@@ -472,7 +501,9 @@ public class ECM
 	}
 
 	public boolean setEEPROMBits(BitSet bitset) {
-		bitset.updateValue(eeprom.getBytes());
+		if (bitset.updateValue(eeprom.getBytes())) {
+			eeprom.touch();
+		}
 		return true;
 	}
 

@@ -36,6 +36,7 @@ public class EEPROM {
 	private int length = 0;
 	private byte[] data;
 	private boolean eepromRead;
+	private boolean touched;
 
 	public EEPROM(String id) {
 		this.id = id;
@@ -185,5 +186,17 @@ public class EEPROM {
 
 	public void setEepromRead(boolean eepromRead) {
 		this.eepromRead = eepromRead;
+	}
+
+	public void touch() {
+		touched = true;
+	}
+
+	public boolean isTouched() {
+		return touched;
+	}
+
+	public void saved() {
+		touched = false;
 	}
 }

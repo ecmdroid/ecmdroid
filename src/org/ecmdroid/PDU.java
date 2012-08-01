@@ -93,12 +93,11 @@ public class PDU
 	 */
 	public static PDU setRequest(int pageno, int offset, byte[] data, int pos, int len)
 	{
-		byte[] payload = new byte[4 + len];
+		byte[] payload = new byte[3 + len];
 		payload[0] = CMD_SET;
 		payload[1] = (byte) (offset & 0xff);
 		payload[2] = (byte) (pageno & 0xff);
-		payload[3] = (byte) (len & 0xff);
-		System.arraycopy(data, pos, payload, 4, len);
+		System.arraycopy(data, pos, payload, 3, len);
 		return new PDU(DROID_ID, ECM_ID, payload);
 	}
 
@@ -191,8 +190,8 @@ public class PDU
 	}
 
 	public byte[] getEEPromData() {
-		byte[] ret = new byte[getDataLength() - (isRequest() ? 5 : 2)];
-		System.arraycopy(pdu, isRequest() ? 10 : 7, ret, 0, ret.length);
+		byte[] ret = new byte[getDataLength() - (isRequest() ? 4 : 2)];
+		System.arraycopy(pdu, isRequest() ? 9 : 7, ret, 0, ret.length);
 		return ret;
 	}
 
