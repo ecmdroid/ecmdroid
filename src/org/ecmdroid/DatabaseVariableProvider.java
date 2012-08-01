@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 
+import org.ecmdroid.Constants.DataSource;
 import org.ecmdroid.Variable.Class;
 
 import android.content.Context;
@@ -46,6 +47,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 	public Collection<String> getScalarRtVariableNames(String ecm) {
 		return getRtVariableNames(ecm, Class.SCALAR);
 	}
+
 	private Collection<String> getRtVariableNames(String ecm, Class type) {
 		LinkedList<String> ret = new LinkedList<String>();
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -87,26 +89,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 			// TODO: Use selection Args?
 			Cursor cursor = db.rawQuery(query, null);
 			if (cursor.moveToFirst()) {
-				ret = new Variable();
-				ret.setId(cursor.getInt(cursor.getColumnIndex("uniqueid")));
-				ret.setType(ECM.Type.getType(cursor.getString(cursor.getColumnIndex("ecm_type"))));
-				ret.setName(cursor.getString(cursor.getColumnIndex("origname")));
-				ret.setCls(Class.valueOf(cursor.getString(cursor.getColumnIndex("type")).toUpperCase()));
-				ret.setWidth(cursor.getInt(cursor.getColumnIndex("size")));
-				ret.setOffset(cursor.getInt(cursor.getColumnIndex("offset")));
-				ret.setScale(cursor.getDouble(cursor.getColumnIndex("scale")));
-				ret.setTranslate(cursor.getDouble(cursor.getColumnIndex("translate")));
-				ret.setLow(cursor.getDouble(cursor.getColumnIndex("low")));
-				ret.setHigh(cursor.getDouble(cursor.getColumnIndex("high")));
-				ret.setUlow(cursor.getInt(cursor.getColumnIndex("ulow")));
-				ret.setUhigh(cursor.getInt(cursor.getColumnIndex("uhigh")));
-				ret.setFormat(cursor.getString(cursor.getColumnIndex("format")));
-				ret.setLabel(cursor.getString(cursor.getColumnIndex("name")));
-				ret.setRemarks(cursor.getString(cursor.getColumnIndex("remark")));
-				ret.setDescription(cursor.getString(cursor.getColumnIndex("description")));
-				ret.setUnit(cursor.getString(cursor.getColumnIndex("units")));
-				ret.setSymbol(Units.getSymbol(ret.getUnit()));
-				// Log.d(TAG, ret.toString());
+				ret = convert(cursor, DataSource.RUNTIME_DATA);
 			}
 			cursor.close();
 		} finally {
@@ -121,19 +104,104 @@ public class DatabaseVariableProvider extends VariableProvider {
 		if (ecm == null || name == null) {
 			return null;
 		}
+		Variable ret = null;
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		try {
+			String query = "SELECT eeoffsets.*, names.*, eeprom.type as ecm_type FROM eeoffsets, eeprom, names " +
+					" WHERE eeprom.name = '" + ecm + "' AND names.varname = '" + name + "'"+
+					" AND eeoffsets.category = eeprom.category" +
+					" AND eeoffsets.varname = names.varname";
+			Log.d(TAG, query);
+			Cursor cursor = db.rawQuery(query, null);
+			ret = convert(cursor, DataSource.EEPROM);
+			cursor.close();
+		} finally {
+			db.close();
+		}
+		return ret;
+	}
+
+	@Override
+	public Variable getNearestEEPROMVariable(String ecm, int offset)
+	{
+		if (ecm == null) {
+			return null;
+		}
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		Variable ret = null;
-		String query = "SELECT eeoffsets.*, names.*, eeprom.type as ecm_type FROM eeoffsets, eeprom, names " +
-				" WHERE eeprom.name = '" + ecm + "' AND names.varname = '" + name + "'"+
-				" AND eeoffsets.category = eeprom.category" +
-				" AND eeoffsets.varname = names.varname";
-		Log.d(TAG, query);
-		Cursor cursor = db.rawQuery(query, null);
+		try {
+			String query = "SELECT eeoffsets.*, names.*, eeprom.type as ecm_type FROM eeoffsets, eeprom, names " +
+					" WHERE eeprom.name = '" + ecm + "' AND offset <= " + offset +
+					" AND eeoffsets.category = eeprom.category" +
+					" AND eeoffsets.varname = names.varname" +
+					" ORDER BY offset DESC LIMIT 1";
+			Log.d(TAG, query);
+			Cursor cursor = db.rawQuery(query, null);
+			ret = convert(cursor, DataSource.EEPROM);
+			cursor.close();
+		} finally {
+			db.close();
+		}
+		return ret;
+	}
+
+	@Override
+	public String getName(String varname)
+	{
+		Matcher matcher = Constants.BIT_PATTERN.matcher(varname);
+		if (matcher.matches()) {
+			String name = matcher.group(1);
+			int bit = Integer.parseInt(matcher.group(2).split(",")[0]);
+			return getName(name, bit);
+		}
+		String result = null;
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		try {
+			String query = "SELECT name FROM names WHERE varname = '" + varname + "' LIMIT 1";
+			Cursor c = db.rawQuery(query, null);
+			if (c.moveToFirst()) {
+				result = c.getString(0);
+			}
+			c.close();
+		} finally {
+			db.close();
+		}
+		return result;
+	}
+
+	@Override
+	public String getName(String varname, int bit)
+	{
+
+		if (bit < 0 || bit > 7) {
+			return null;
+		}
+		String result = null;
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		try {
+			String query  = "SELECT bitname" + (bit + 1) + " FROM bits WHERE varname = '" + varname + "' LIMIT 1";
+			Cursor c = db.rawQuery(query, null);
+			if (c.moveToFirst()) {
+				result = c.getString(0);
+			}
+			c.close();
+		} finally {
+			db.close();
+		}
+		return result;
+	}
+
+	private Variable convert(Cursor cursor, DataSource runtimeData)
+	{
+		Variable ret = null;
 		if (cursor.moveToFirst()) {
 			ret = new Variable();
 			ret.setId(cursor.getInt(cursor.getColumnIndex("uniqueid")));
 			ret.setType(ECM.Type.getType(cursor.getString(cursor.getColumnIndex("ecm_type"))));
 			ret.setName(cursor.getString(cursor.getColumnIndex("origname")));
+			if (ret.getName()== null) {
+				ret.setName(cursor.getString(cursor.getColumnIndex("varname")));
+			}
 			String type = cursor.getString(cursor.getColumnIndex("type")).toUpperCase();
 			ret.setCls(Class.valueOf(type));
 			ret.setWidth(cursor.getInt(cursor.getColumnIndex("size")));
@@ -146,47 +214,14 @@ public class DatabaseVariableProvider extends VariableProvider {
 			ret.setDescription(cursor.getString(cursor.getColumnIndex("description")));
 			ret.setUnit(cursor.getString(cursor.getColumnIndex("units")));
 			ret.setSymbol(Units.getSymbol(ret.getUnit()));
+
+			if (DataSource.RUNTIME_DATA.equals(runtimeData)) {
+				ret.setLow(cursor.getDouble(cursor.getColumnIndex("low")));
+				ret.setHigh(cursor.getDouble(cursor.getColumnIndex("high")));
+				ret.setUlow(cursor.getInt(cursor.getColumnIndex("ulow")));
+				ret.setUhigh(cursor.getInt(cursor.getColumnIndex("uhigh")));
+			}
 		}
-		cursor.close();
-		db.close();
 		return ret;
-	}
-
-	@Override
-	public String getName(String varname) {
-		SQLiteDatabase db = dbHelper.getReadableDatabase();
-		Matcher matcher = Constants.BIT_PATTERN.matcher(varname);
-		if (matcher.matches()) {
-			String name = matcher.group(1);
-			int bit = Integer.parseInt(matcher.group(2).split(",")[0]);
-			return getName(name, bit);
-		}
-		String query = "SELECT DISTINCT name FROM names WHERE varname = '" + varname + "'";
-		Cursor c = db.rawQuery(query, null);
-		String result = null;
-		if (c.moveToFirst()) {
-			result  = c.getString(0);
-		}
-		c.close();
-		db.close();
-		return result;
-	}
-
-	@Override
-	public String getName(String varname, int bit) {
-
-		if (bit < 0 || bit > 7) {
-			return null;
-		}
-		String result = null;
-		SQLiteDatabase db = dbHelper.getReadableDatabase();
-		String query  = "SELECT DISTINCT bitname" + (bit + 1) + " FROM bits WHERE varname = '" + varname + "'";
-		Cursor c = db.rawQuery(query, null);
-		if (c.moveToFirst()) {
-			result = c.getString(0);
-		}
-		c.close();
-		db.close();
-		return result;
 	}
 }

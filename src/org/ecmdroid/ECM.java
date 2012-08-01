@@ -398,6 +398,15 @@ public class ECM
 		return var;
 	}
 
+	/**
+	 * Get EEPROM Variable definition at given offset or just in front of it.
+	 * @param offset the offset
+	 * @return a Variable or null if not found
+	 */
+	public Variable getEEPROMValueNearOffset(int offset) {
+		return variableProvider.getNearestEEPROMVariable(getId(), offset);
+	}
+
 
 	public Bit getEEPROMBit(String name, int bit) {
 		BitSet bitset = bitsetProvider.getBitSet(getId(), name, DataSource.EEPROM);
