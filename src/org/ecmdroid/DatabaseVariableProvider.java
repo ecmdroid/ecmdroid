@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 
 import org.ecmdroid.Constants.DataSource;
-import org.ecmdroid.Variable.Class;
+import org.ecmdroid.Variable.DataClass;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -45,10 +45,10 @@ public class DatabaseVariableProvider extends VariableProvider {
 
 	@Override
 	public Collection<String> getScalarRtVariableNames(String ecm) {
-		return getRtVariableNames(ecm, Class.SCALAR);
+		return getRtVariableNames(ecm, DataClass.SCALAR);
 	}
 
-	private Collection<String> getRtVariableNames(String ecm, Class type) {
+	private Collection<String> getRtVariableNames(String ecm, DataClass type) {
 		LinkedList<String> ret = new LinkedList<String>();
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		try {
@@ -203,7 +203,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 				ret.setName(cursor.getString(cursor.getColumnIndex("varname")));
 			}
 			String type = cursor.getString(cursor.getColumnIndex("type")).toUpperCase();
-			ret.setCls(Class.valueOf(type));
+			ret.setCls(DataClass.valueOf(type));
 			ret.setWidth(cursor.getInt(cursor.getColumnIndex("size")));
 			ret.setOffset(cursor.getInt(cursor.getColumnIndex("offset")));
 			ret.setScale(cursor.getDouble(cursor.getColumnIndex("scale")));

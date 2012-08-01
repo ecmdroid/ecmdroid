@@ -51,7 +51,7 @@ public class TestVariableProvider extends AndroidTestCase
 		assertNotNull(v);
 		assertEquals(ECM.Type.DDFI3, v.getType());
 		assertEquals("pw2", v.getName());
-		assertEquals(Variable.Class.SCALAR, v.getCls());
+		assertEquals(Variable.DataClass.SCALAR, v.getCls());
 		assertEquals(2, v.getWidth());
 		assertEquals(23, v.getOffset());
 		assertEquals("Milliseconds", v.getUnit());

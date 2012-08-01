@@ -25,8 +25,8 @@ import android.util.Log;
 
 
 public class Variable implements Cloneable {
-	public enum Class {
-		SCALAR, VALUE, BITS, BITFIELD, ARRAY, AXIS, TABLE, MAP;
+	public enum DataClass {
+		SCALAR, VALUE, BITS, BITFIELD, ARRAY, AXIS, TABLE, MAP, STRING;
 	}
 
 	private static final String TAG = "Variable";
@@ -34,7 +34,7 @@ public class Variable implements Cloneable {
 	private int id;
 	private ECM.Type type;
 	private String name;
-	private Class cls;
+	private DataClass cls;
 	private int width;
 	private int offset;
 	private String unit = "";
@@ -76,11 +76,11 @@ public class Variable implements Cloneable {
 		this.name = name;
 	}
 
-	public Class getCls() {
+	public DataClass getCls() {
 		return cls;
 	}
 
-	public void setCls(Class cls) {
+	public void setCls(DataClass cls) {
 		this.cls = cls;
 	}
 
@@ -231,9 +231,9 @@ public class Variable implements Cloneable {
 				value <<= 8;
 				value |= (tmp[co + i - 1] & 0xff);
 			}
-			if (cls == Class.BITS || cls == Class.BITFIELD) {
+			if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
 				rawValue = new Short((short) (value & 0xffff));
-			} else if (cls == Class.SCALAR || cls == Class.VALUE) {
+			} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE) {
 				double v = value;
 				if (scale != 0) {
 					v *= scale;
@@ -254,10 +254,10 @@ public class Variable implements Cloneable {
 	}
 
 	private void formatValue() {
-		if (cls == Class.BITS || cls == Class.BITFIELD) {
+		if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
 			Short v = (Short) rawValue();
 			formattedValue = Integer.toBinaryString(v);
-		} else if (cls == Class.SCALAR || cls == Class.VALUE) {
+		} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE) {
 			DecimalFormat fmt = new DecimalFormat(format == null ? "0" : format);
 			formattedValue = fmt.format(rawValue);
 			if (!Utils.isEmptyString(symbol)) {
@@ -275,11 +275,11 @@ public class Variable implements Cloneable {
 	}
 
 	public int getIntValue() {
-		if (cls == Class.BITFIELD || cls == Class.BITS) {
+		if (cls == DataClass.BITFIELD || cls == DataClass.BITS) {
 			return ((Short)rawValue).intValue();
 		}
 
-		if ((cls == Class.SCALAR || cls == Class.VALUE) && rawValue != null) {
+		if ((cls == DataClass.SCALAR || cls == DataClass.VALUE) && rawValue != null) {
 			if (rawValue instanceof Integer) {
 				return ((Integer)rawValue).intValue();
 			} else {
@@ -296,9 +296,9 @@ public class Variable implements Cloneable {
 		int co = offset < 0 ? bytes.length + offset : offset;
 		byte[] buffer = new byte[width];
 		int value = 0;
-		if (cls == Class.BITFIELD || cls == Class.BITS) {
+		if (cls == DataClass.BITFIELD || cls == DataClass.BITS) {
 			value = (Short) rawValue & 0xFFFF;
-		} else if (cls == Class.SCALAR || cls == Class.VALUE) {
+		} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE) {
 			double v = 0;
 			if (rawValue instanceof Double) {
 				v = (Double) rawValue;
