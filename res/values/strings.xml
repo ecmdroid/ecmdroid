@@ -151,6 +151,10 @@
     <string name="max_cylinder_diff_pct">Max. Cylinder Diff. (%)</string>
     <string name="active_intake">Active Intake</string>
     <string name="suppress_accel_enrichment">Suppress accel enrichment</string>
+    <string name="eeprom_fetch">Fetch</string>
+    <string name="eeprom_burn">Burn</string>
+    <string name="save_eeprom">Save</string>
+    <string name="load_eeprom">Load</string>
     <string name="cell_info">Info</string>
     <string name="reading_ecm_identification">Reading ECM Identification…</string>
     <string name="fetch_eeprom">Read EEPROM</string>

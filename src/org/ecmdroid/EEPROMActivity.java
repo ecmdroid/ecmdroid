@@ -18,14 +18,23 @@
  */
 package org.ecmdroid;
 
+import org.ecmdroid.tasks.BurnTask;
+import org.ecmdroid.tasks.FetchTask;
+
+import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 
-public class EEPROMActivity extends BaseActivity {
+public class EEPROMActivity extends Activity {
 
 	private static final int COLS = 5;
 	ECM ecm = ECM.getInstance(this);
@@ -34,8 +43,37 @@ public class EEPROMActivity extends BaseActivity {
 	private TextView hiShortHex, hiShortDec;
 	private TextView loShortHex, loShortDec;
 	private TextView cellInfo;
-
 	private EEPROMAdapter adapter;
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater mi = getMenuInflater();
+		mi.inflate(R.menu.eeprom_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(this);
+		menu.findItem(R.id.fetch).setEnabled(ecm.isConnected());
+		menu.findItem(R.id.burn).setEnabled(ecm.isConnected() && pm.getBoolean("enable_burn_eeprom", Boolean.FALSE));
+		// menu.findItem(R.id.save).setEnabled(ecm.isEepromRead());
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.fetch:
+			new FetchTask(this).start();
+			break;
+		case R.id.burn:
+			new BurnTask(this).start();
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

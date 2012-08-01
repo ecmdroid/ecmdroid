@@ -16,4 +16,8 @@
 		android:title="Port"
 		android:defaultValue="6275"
 		/>
+	<CheckBoxPreference 
+	    android:key="enable_burn_eeprom"
+	    android:title="Enable EEPROM burning"
+	    android:summaryOn="Use at your own risk!"/>
 </PreferenceScreen>
