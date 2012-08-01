@@ -33,6 +33,7 @@ public class EEPROMActivity extends BaseActivity {
 	private TextView byteValHex, byteValDec;
 	private TextView hiShortHex, hiShortDec;
 	private TextView loShortHex, loShortDec;
+	private TextView cellInfo;
 
 	private EEPROMAdapter adapter;
 	@Override
@@ -47,6 +48,7 @@ public class EEPROMActivity extends BaseActivity {
 		hiShortDec = (TextView) findViewById(R.id.hiShortDec);
 		loShortHex = (TextView) findViewById(R.id.loShortHex);
 		loShortDec = (TextView) findViewById(R.id.loShortDec);
+		cellInfo   = (TextView) findViewById(R.id.cellInfo);
 
 		GridView gridview = (GridView) findViewById(R.id.eepromGrid);
 		adapter = new EEPROMAdapter(this, ecm.getEEPROM(), COLS);
@@ -58,6 +60,9 @@ public class EEPROMActivity extends BaseActivity {
 			public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
 				if (pos % COLS != 0) {
 					int offset = pos - (pos / COLS + 1);
+					Variable var = ecm.getEEPROMValueNearOffset(offset);
+					cellInfo.setText(var == null ? "" : var.getLabel() != null ? var.getLabel() : var.getName());
+					cellInfo.setEnabled(var != null && var.getOffset() == offset);
 					byte[] bytes = ecm.getEEPROM().getBytes();
 					int val = bytes[offset] & 0xFF;
 					offsetHex.setText(Utils.toHex(offset, 3));

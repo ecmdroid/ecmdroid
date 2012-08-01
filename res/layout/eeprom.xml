@@ -40,5 +40,14 @@
             <TextView android:id="@+id/hiShortDec" android:gravity="right"/>
             <TextView android:id="@+id/loShortDec" android:gravity="right"/>
         </TableRow>
-        </TableLayout>
+        <TableRow >
+            <TextView android:text="@string/cell_info" />
+            <TextView
+                android:id="@+id/cellInfo"
+                android:layout_span="4"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:paddingLeft="10dp" />
+        </TableRow>
+    </TableLayout>
 </LinearLayout>

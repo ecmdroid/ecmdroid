@@ -151,5 +151,7 @@
     <string name="max_cylinder_diff_pct">Max. Cylinder Diff. (%)</string>
     <string name="active_intake">Active Intake</string>
     <string name="suppress_accel_enrichment">Suppress accel enrichment</string>
+    <string name="cell_info">Info</string>
+
 
 </resources>
