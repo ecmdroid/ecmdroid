@@ -102,7 +102,7 @@
     <string name="close_valve_on_amc_error">Close Valve on AMC error</string>
     <string name="fan_setup">Fan Setup</string>
     <string name="rpm_limits">RPM Limits</string>
-    <string name="temp_limits">Temp. Limits</string>
+    <string name="temp_limits">Temperature Limits</string>
     <string name="preferences">Preferences</string>
     <string name="prefs_bt_connection">BT</string>
     <string name="prefs_conn_type">connection_type</string>
@@ -149,5 +149,7 @@
     <string name="max_engine_temp_c">Max. Engine Temp (°C)</string>
     <string name="min_engine_temp_c">Min. Engine Temp (°C)</string>
     <string name="max_cylinder_diff_pct">Max. Cylinder Diff. (%)</string>
+    <string name="active_intake">Active Intake</string>
+    <string name="suppress_accel_enrichment">Suppress accel enrichment</string>
 
 </resources>

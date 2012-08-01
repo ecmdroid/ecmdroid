@@ -14,8 +14,8 @@
 			<CheckBoxPreference android:key="KRet_Config[2]" />
 			<CheckBoxPreference android:key="KRet_Config[1]" />
 			<CheckBoxPreference android:key="KRet_Config[6]" />
-			<CheckBoxPreference android:key="KRet_Config[7]" />
-			<CheckBoxPreference android:key="KAIC_Config[7]" />
+			<CheckBoxPreference android:key="KRet_Config[7]" android:title="@string/suppress_accel_enrichment"/>
+			<CheckBoxPreference android:key="KAIC_Config[7]" android:title="@string/active_intake"/>
 		</PreferenceCategory>
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/error_mask" >
@@ -90,7 +90,7 @@
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/afv_settings" >
 		<EditTextPreference android:key="LFuel" android:title="@string/afv_rear"/>
-		<EditTextPreference android:key="LFuel1" android:title="@string/afv_front"/>
+		<EditTextPreference android:key="LFuel1" android:title="@string/afv_front" android:dependency="KCL_Fuel_Config[0]"/>
 	</PreferenceScreen>
 	<PreferenceScreen android:title="@string/o2_setup">
 		<PreferenceCategory android:title="@string/o2_sensor">
