@@ -67,21 +67,23 @@ public class BurnTask extends ProgressDialogTask
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
+	}
+	@Override
+	protected Exception doInBackground(Void... params) {
 		// Check if EEPROM is compatible...
 		String id = ecm.getId();
 		String version = null;
 		try {
 			version = ecm.readVersion();
 		} catch (IOException e) {
+			return e;
 		}
 		Log.d(TAG, "Current ID: " + id + ", connected ECM version: " + version);
 		if (id == null || version == null || !version.startsWith(id)) {
 			Log.w(TAG, "EEPROM ID ('" + id + "') does not match ECM Version ('" + version + "').");
 			cancel(true);
+			return null;
 		}
-	}
-	@Override
-	protected Exception doInBackground(Void... params) {
 		try {
 			EEPROM eeprom = ecm.getEEPROM();
 			if (ecm.getEEPROM() != null) {
