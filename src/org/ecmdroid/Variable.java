@@ -30,6 +30,7 @@ public class Variable implements Cloneable {
 	}
 
 	private static final String TAG = "Variable";
+	private static final DecimalFormat DEFAULT_FORMAT = new DecimalFormat("0");
 
 	private int id;
 	private ECM.Type type;
@@ -43,6 +44,7 @@ public class Variable implements Cloneable {
 	private double translate;
 	private String label;
 	private String format;
+	private DecimalFormat formatter = DEFAULT_FORMAT;
 	private double low;
 	private double high;
 	private int ulow;
@@ -146,6 +148,9 @@ public class Variable implements Cloneable {
 
 	public void setFormat(String format) {
 		this.format = format;
+		if (format != null) {
+			formatter = new DecimalFormat(format);
+		}
 	}
 
 	public double getLow() {
@@ -258,8 +263,7 @@ public class Variable implements Cloneable {
 			Short v = (Short) rawValue();
 			formattedValue = Integer.toBinaryString(v);
 		} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE) {
-			DecimalFormat fmt = new DecimalFormat(format == null ? "0" : format);
-			formattedValue = fmt.format(rawValue);
+			formattedValue = formatter.format(rawValue);
 			if (!Utils.isEmptyString(symbol)) {
 				formattedValue += symbol;
 			}
@@ -268,6 +272,13 @@ public class Variable implements Cloneable {
 
 	public String getFormattedValue() {
 		return formattedValue;
+	}
+
+	public String getValueAsString() {
+		if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
+			return getFormattedValue();
+		}
+		return formatter.format(rawValue);
 	}
 
 	public Object rawValue() {

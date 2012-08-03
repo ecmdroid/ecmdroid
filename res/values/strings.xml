@@ -150,7 +150,7 @@
     <string name="min_engine_temp_c">Min. Engine Temp (°C)</string>
     <string name="max_cylinder_diff_pct">Max. Cylinder Diff. (%)</string>
     <string name="active_intake">Active Intake</string>
-    <string name="suppress_accel_enrichment">Suppress accel enrichment</string>
+    <string name="suppress_accel_enrichment">Suppress Accel. Enrichment</string>
     <string name="eeprom_fetch">Fetch</string>
     <string name="eeprom_burn">Burn</string>
     <string name="save_eeprom">Save</string>
@@ -164,6 +164,44 @@
     <string name="burn_warning">Warning: Burning the EEPROM might cripple your bike.\n\nAre you sure to continue?</string>
     <string name="burn_progress">Writing page %1$d of %2$d…</string>
     <string name="burn_success">EEPROM burned sucessfully</string>
+    <string name="midpoint_v">Midpoint (V)</string>
+    <string name="engine_temp_sensor">Engine Temp. Sensor</string>
+    <string name="neutral_indicator_switch">Neutral Indicator Switch</string>
+    <string name="camshaft_position">Camshaft Position</string>
+    <string name="clutch_switch">Clutch Switch</string>
+    <string name="crankshaft_position">Crankshaft Position</string>
+    <string name="fuel_pressure">Fuel Pressure</string>
+    <string name="manifold_pressure">Manifold Pressure</string>
+    <string name="velocity_sensor">Velocity Sensor</string>
+    <string name="deceleration_fuel_cut">Deceleration Fuel Cut</string>
+    <string name="idle_fuel_amp_ign_adjust">Idle Fuel &amp; Ign. Adjust.</string>
+    <string name="on_accel_condition_only">On Accel. Condition Only</string>
+    <string name="on_accel_and_wot_condition">On Accel. and WOT Condition</string>
+    <string name="on_wot_condition_only">On WOT Condition Only</string>
+    <string name="airbox_pressure_feature">Airbox Pressure Feature</string>
+    <string name="log_avg_baro_abp_corr_data">Log Avg. Baro &amp; ABP Corr. Data</string>
+    <string name="log_map_front_rear_data">Log MAP Front/Rear Data</string>
+    <string name="read_baro_at_key_on">Read Baro at Key-On</string>
+    <string name="read_sensor_continuously">Read Sensor Continuously</string>
+    <string name="skip_key_on_read_if_engine_runs">Skip Key-On Read if Engine runs</string>
+    <string name="speed_correction">Speed Correction</string>
+    <string name="use_baro_not_map_sensor">Use Baro (not MAP) Sensor</string>
+    <string name="airbox_pressure_sensor">Airbox Pressure Sensor</string>
+    <string name="shifter">Shifter</string>
+    <string name="shifter_feature">Shifter Feature</string>
+    <string name="shifter_transition_required">Shifter Transition required</string>
+    <string name="shifter_fuel_spark_cut">Shifter Fuel &amp; Spark Cut</string>
+    <string name="shift_light_feature">Shift Light Feature</string>
+    <string name="shift_light_output">Shift Light Output</string>
+    <string name="log_front_ego_fuel_data">Log Front EGO &amp; Fuel Data</string>
+    <string name="enable_closed_loop">Enable Closed Loop</string>
+    <string name="enable_independent_front_cl">Enable Independent Front CL</string>
+    <string name="maximum_afv_pct">Maximum AFV (%)</string>
+    <string name="minimum_afv_pct">Minimum AFV (%)</string>
+    <string name="ol_learn_delay_s">OL Learn Delay (s)</string>
+    <string name="increase_factor_pct">Increase Factor (%)</string>
+    <string name="decrease_factor_pct">Decrease Factor (%)</string>
+    <string name="transitions_required">Transitions required</string>
 
 
 </resources>

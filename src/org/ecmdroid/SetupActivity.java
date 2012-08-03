@@ -133,7 +133,7 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 					title = v.getName();
 					s.setSummary(v.getFormattedValue());
 					if (s instanceof EditTextPreference) {
-						((EditTextPreference) s).setText(String.valueOf(v.getRawValue()));
+						((EditTextPreference) s).setText(v.getValueAsString());
 						((EditTextPreference) s).getEditText().setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
 					}
 					prefmap.put(s, v);
