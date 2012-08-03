@@ -33,6 +33,7 @@ import android.util.Log;
 public class DatabaseVariableProvider extends VariableProvider {
 
 	private DBHelper dbHelper;
+	private static final boolean D = false;
 
 	public DatabaseVariableProvider(Context ctx) {
 		dbHelper = new DBHelper(ctx);
@@ -62,7 +63,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 				query += " AND UPPER(rtoffsets.type) = '" + type.toString().toUpperCase() + "'";
 			}
 			query += " ORDER BY UPPER(names.origname)";
-			// Log.d(TAG, "Query: " + query);
+			if (D) Log.d(TAG, "Query: " + query);
 			Cursor cursor = db.rawQuery(query, null);
 			while (cursor.moveToNext()) {
 				ret.add(cursor.getString(0));
@@ -85,7 +86,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 					" AND names.varname = rtoffsets.varname" +
 					" AND names.secret = 0" +
 					" AND rtoffsets.secret = 0";
-			// Log.d(TAG, "Query: " + query);
+			if (D) Log.d(TAG, "Query: " + query);
 			// TODO: Use selection Args?
 			Cursor cursor = db.rawQuery(query, null);
 			if (cursor.moveToFirst()) {
@@ -111,7 +112,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 					" WHERE eeprom.name = '" + ecm + "' AND names.varname = '" + name + "'"+
 					" AND eeoffsets.category = eeprom.category" +
 					" AND eeoffsets.varname = names.varname";
-			Log.d(TAG, query);
+			if (D) Log.d(TAG, query);
 			Cursor cursor = db.rawQuery(query, null);
 			ret = convert(cursor, DataSource.EEPROM);
 			cursor.close();
@@ -135,7 +136,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 					" AND eeoffsets.category = eeprom.category" +
 					" AND eeoffsets.varname = names.varname" +
 					" ORDER BY offset DESC LIMIT 1";
-			Log.d(TAG, query);
+			if (D) Log.d(TAG, query);
 			Cursor cursor = db.rawQuery(query, null);
 			ret = convert(cursor, DataSource.EEPROM);
 			cursor.close();
