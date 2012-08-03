@@ -50,7 +50,9 @@ public class ActiveTestsActivity extends ListActivity implements OnClickListener
 		Function.FrontInj,
 		Function.Rear_Inj,
 		Function.Fan,
-		Function.Exh_Valve
+		Function.Exh_Valve,
+		Function.Active_Intake,
+		Function.Shift_Light
 	};
 	private ECM ecm = ECM.getInstance(this);
 	private Button startButton;

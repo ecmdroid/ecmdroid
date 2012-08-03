@@ -46,7 +46,9 @@ public class PDU
 		Rear_Inj(7, "Rear Injector"),
 		TPS_Reset(8, "TPS Reset"),
 		Fan(9, "Fan"),
-		Exh_Valve(0x0a, "Exhaust Valve");
+		Exh_Valve(0x0a, "Exhaust Valve"),
+		Active_Intake(0x0b, "Active Intake"),
+		Shift_Light(0x0c, "Shift Light");
 
 		byte code;
 		String name;
