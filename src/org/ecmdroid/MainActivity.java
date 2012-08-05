@@ -21,9 +21,9 @@ package org.ecmdroid;
 import java.io.IOException;
 
 import org.ecmdroid.tasks.FetchTask;
+import org.ecmdroid.tasks.ProgressDialogTask;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
@@ -32,10 +32,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -91,16 +89,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		startService(new Intent(this, EcmDroidService.class));
 		dbHelper = new DBHelper(this);
 		if (!dbHelper.isDbInstalled()) {
-			AsyncTask<Void, Void, Exception> installTask = new AsyncTask<Void, Void, Exception>() {
-				private ProgressDialog pd;
-				private int ro;
-				@Override
-				protected void onPreExecute() {
-					super.onPreExecute();
-					ro = getRequestedOrientation();
-					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-					pd = ProgressDialog.show(MainActivity.this, null, "Installing Database...");
-				}
+			ProgressDialogTask installTask = new ProgressDialogTask(this, "Installing Database") {
 				@Override
 				protected Exception doInBackground(Void ...args) {
 					try {
@@ -113,8 +102,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 				@Override
 				protected void onPostExecute(Exception result) {
-					pd.cancel();
-					setRequestedOrientation(ro);
+					super.onPostExecute(result);
 					if (result != null) {
 						Toast.makeText(MainActivity.this, "FATAL: DB Installation failed.", Toast.LENGTH_LONG).show();
 						System.exit(0);

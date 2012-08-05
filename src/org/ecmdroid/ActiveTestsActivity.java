@@ -21,13 +21,11 @@ package org.ecmdroid;
 import java.io.IOException;
 
 import org.ecmdroid.PDU.Function;
+import org.ecmdroid.tasks.ProgressDialogTask;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.pm.ActivityInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -136,25 +134,17 @@ public class ActiveTestsActivity extends ListActivity implements OnClickListener
 		return true;
 	}
 
-	private class FunctionTask extends AsyncTask<Void, Void, IOException>
+	private class FunctionTask extends ProgressDialogTask
 	{
-		private ProgressDialog mProgress;
 		private Function mFunction;
-		private int ro;
-
 		public FunctionTask(Function function) {
+			super(ActiveTestsActivity.this, "");
 			mFunction = function;
 		}
 		@Override
-		protected void onPreExecute() {
-			// Prevent screen rotation during progress dialog display
-			ro = getRequestedOrientation();
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-			String action = (mFunction == Function.TPS_Reset ? "Requesting " : "Testing ");
-			mProgress = ProgressDialog.show(ActiveTestsActivity.this, "", action + mFunction + "...", true);
-		}
-		@Override
 		protected IOException doInBackground(Void... arg0) {
+			String action = (mFunction == Function.TPS_Reset ? "Requesting " : "Testing ");
+			publishProgress(action + mFunction);
 			try {
 				ecm.runTest(mFunction);
 				// Wait until the Test is through...
@@ -172,17 +162,10 @@ public class ActiveTestsActivity extends ListActivity implements OnClickListener
 			return null;
 		}
 		@Override
-		protected void onPostExecute(IOException result) {
-			mProgress.dismiss();
-			setRequestedOrientation(ro);
-			String toast = null;
-			if (result != null) {
-				toast = "I/O error. " + result.getLocalizedMessage();
-			} else if (mFunction == Function.TPS_Reset) {
-				toast = "TPS Reset OK";
-			}
-			if (toast != null) {
-				Toast.makeText(ActiveTestsActivity.this, toast, Toast.LENGTH_LONG).show();
+		protected void onPostExecute(Exception result) {
+			super.onPostExecute(result);
+			if (result == null && mFunction == Function.TPS_Reset) {
+				Toast.makeText(ActiveTestsActivity.this, "TPS Reset OK.", Toast.LENGTH_LONG).show();
 			}
 		}
 	}

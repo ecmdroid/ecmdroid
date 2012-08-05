@@ -18,9 +18,10 @@
  */
 package org.ecmdroid.tasks;
 
+import org.ecmdroid.Utils;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.pm.ActivityInfo;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -42,8 +43,7 @@ public abstract class ProgressDialogTask extends AsyncTask<Void, String, Excepti
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		ro = context.getRequestedOrientation();
-		context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+		ro = Utils.freezeOrientation(context);
 		super.onPreExecute();
 		pd = ProgressDialog.show(context, taskTitle, "");
 		pd.setCancelable(false);

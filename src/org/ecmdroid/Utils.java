@@ -21,6 +21,8 @@ package org.ecmdroid;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -143,4 +145,23 @@ public abstract class Utils
 		String fmt = "%0" + (width.length == 1 ? width[0] : 2) + "X";
 		return String.format(fmt, i);
 	}
+
+	public static int freezeOrientation(Activity context) {
+		int result = context.getRequestedOrientation();
+
+		switch (context.getResources().getConfiguration().orientation)
+		{
+		case Configuration.ORIENTATION_LANDSCAPE:
+			context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			break;
+		case Configuration.ORIENTATION_PORTRAIT:
+			context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			break;
+		default:
+			context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+		}
+		return result;
+	}
+
+
 }

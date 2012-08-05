@@ -21,9 +21,8 @@ package org.ecmdroid;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 
-import android.app.ProgressDialog;
-import android.content.pm.ActivityInfo;
-import android.os.AsyncTask;
+import org.ecmdroid.tasks.ProgressDialogTask;
+
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -151,30 +150,19 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 		}
 	}
 
-	private class RefreshTask extends AsyncTask<Void, String, Exception> {
-		private int ro;
-		private ProgressDialog mProgress;
+	private class RefreshTask extends ProgressDialogTask {
 
-		@Override
-		protected void onPreExecute() {
-			// Prevent screen rotation during progress dialog display
-			ro = getRequestedOrientation();
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-			mProgress = ProgressDialog.show(SetupActivity.this, "", getText(R.string.refreshing_setup_values), true);
+		public RefreshTask() {
+			super(SetupActivity.this, "");
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		protected Exception doInBackground(Void... params) {
-			@SuppressWarnings("deprecation")
+			publishProgress(getText(R.string.refreshing_setup_values).toString());
 			PreferenceScreen root = SetupActivity.this.getPreferenceScreen();
 			readPrefs(root);
 			return null;
-		}
-
-		@Override
-		protected void onPostExecute(Exception result) {
-			mProgress.dismiss();
-			setRequestedOrientation(ro);
 		}
 	}
 
