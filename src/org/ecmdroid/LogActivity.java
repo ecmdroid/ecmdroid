@@ -194,9 +194,8 @@ public class LogActivity extends BaseActivity implements OnClickListener
 		Spinner spinner = (Spinner) findViewById(R.id.logInterval);
 		Interval intv = (Interval) spinner.getSelectedItem();
 
-		File sdcard = Environment.getExternalStorageDirectory();
 		CharSequence fn = DateFormat.format("yyyyMMdd_kkmmss", System.currentTimeMillis());
-		File dir = new File(sdcard ,"/Android/data/org.ecmdroid/files/");
+		File dir = getApplication().getExternalFilesDir(getString(R.string.log_dir));
 		if (!dir.exists() && !dir.mkdirs()) {
 			Log.w(TAG, "Unable to create directories " + dir.getAbsolutePath());
 		}
