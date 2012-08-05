@@ -203,6 +203,14 @@
     <string name="decrease_factor_pct">Decrease Factor (%)</string>
     <string name="transitions_required">Transitions required</string>
     <string name="log_dir">log</string>
+    <string name="save_eeprom_as">Save EEPROM As…</string>
+    <string name="file_already_exists_overwrite">%1$s\n\nFile already exists. Overwrite?</string>
+    <string name="eeprom_saved">EEPROM saved.</string>
+    <string name="unrecognized_eeprom_format">Unrecognized file format.</string>
+    <string name="eeprom_size_mismatch">EEPROM size mismatch.</string>
+    <string name="unsupported_eeprom">%1$: Unsupported EEPROM.</string>
+    <string name="incompatible_version_disconnect_first">Incompatible Version. Please disconnect first.</string>
+    <string name="eeprom_dir">eeprom</string>
 
 
 </resources>

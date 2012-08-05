@@ -18,10 +18,23 @@
  */
 package org.ecmdroid;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.Arrays;
+
 import org.ecmdroid.tasks.BurnTask;
 import org.ecmdroid.tasks.FetchTask;
+import org.ecmdroid.tasks.SaveTask;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -33,10 +46,14 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class EEPROMActivity extends Activity {
 
 	private static final int COLS = 5;
+	@SuppressWarnings("unused")
+	private static final String TAG = "EEPROM";
+
 	ECM ecm = ECM.getInstance(this);
 	private TextView offsetHex, offsetDec;
 	private TextView byteValHex, byteValDec;
@@ -57,7 +74,7 @@ public class EEPROMActivity extends Activity {
 		SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(this);
 		menu.findItem(R.id.fetch).setEnabled(ecm.isConnected());
 		menu.findItem(R.id.burn).setEnabled(ecm.isConnected() && pm.getBoolean("enable_burn_eeprom", Boolean.FALSE));
-		// menu.findItem(R.id.save).setEnabled(ecm.isEepromRead());
+		menu.findItem(R.id.save).setEnabled(ecm.isEepromRead());
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -70,8 +87,36 @@ public class EEPROMActivity extends Activity {
 		case R.id.burn:
 			new BurnTask(this).start();
 			break;
+		case R.id.save:
+			new SaveTask(this, ecm.getEEPROM()).start();
+			break;
+		case R.id.load:
+			final StringBuilder result = new StringBuilder();
+			Dialog dlg = createLoadDialog(result);
+			dlg.setOnDismissListener(new OnDismissListener() {
+				public void onDismiss(DialogInterface dialog) {
+					if (result.length() > 0) {
+						if (ecm.getEEPROM().isTouched()) {
+							AlertDialog.Builder builder = new AlertDialog.Builder(EEPROMActivity.this);
+							builder.setTitle(R.string.load_eeprom)
+							.setMessage(R.string.overwrite_changes)
+							.setCancelable(true)
+							.setNegativeButton(android.R.string.cancel, null)
+							.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+									loadEEPROM(new File(result.toString()));
+								}
+							}).show();
+						} else {
+							loadEEPROM(new File(result.toString()));
+						}
+					}
+				}
+			});
+			dlg.show();
+			break;
 		}
-		return super.onOptionsItemSelected(item);
+		return true;
 	}
 
 	@Override
@@ -127,5 +172,45 @@ public class EEPROMActivity extends Activity {
 				}
 			}
 		});
+	}
+
+	private Dialog createLoadDialog(final StringBuilder result) {
+		final File dir = getApplicationContext().getExternalFilesDir(getString(R.string.eeprom_dir));
+		final String[] files = dir.list(new FilenameFilter() {
+			public boolean accept(File dir, String filename) {
+				return filename.endsWith(Constants.EEPROM_FILE_SUFFIX);
+			}
+		});
+		Arrays.sort(files);
+		Builder builder = new Builder(this);
+		builder.setItems(files, new OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				String selected = files[which];
+				if (result != null) {
+					result.setLength(0);
+					result.append(new File(dir, selected).getPath());
+				}
+			}
+		});
+		builder.setTitle(R.string.load_eeprom);
+		return builder.create();
+	}
+
+	private void loadEEPROM(File file)
+	{
+		try {
+			FileInputStream in = new FileInputStream(file);
+			EEPROM eeprom = EEPROM.load(this, in);
+			if (ecm.isConnected() && !eeprom.getId().equals(ecm.getId())) {
+				throw new IOException(getString(R.string.incompatible_version_disconnect_first));
+			}
+			ecm.setEEPROM(eeprom);
+			Toast.makeText(EEPROMActivity.this, "EEPROM loaded sucessfully", Toast.LENGTH_LONG).show();
+			GridView gridview = (GridView) findViewById(R.id.eepromGrid);
+			adapter = new EEPROMAdapter(EEPROMActivity.this, ecm.getEEPROM(), COLS);
+			gridview.setAdapter(adapter);
+		} catch (IOException e) {
+			Toast.makeText(EEPROMActivity.this, "Unable to load EEPROM. " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+		}
 	}
 }

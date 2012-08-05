@@ -17,7 +17,6 @@
         android:icon="@android:drawable/ic_menu_save">
     </item>
     <item android:id="@+id/load"
-        android:enabled="false"
         android:showAsAction="ifRoom|withText"
         android:title="@string/load_eeprom"
         android:icon="@drawable/ic_menu_open">

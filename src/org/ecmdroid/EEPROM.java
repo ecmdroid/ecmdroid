@@ -18,6 +18,10 @@
  */
 package org.ecmdroid;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -124,6 +128,35 @@ public class EEPROM {
 			}
 			db.close();
 		}
+		return eeprom;
+	}
+
+	public static EEPROM load(Context context, InputStream in) throws IOException {
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int length;
+		while ((length = in.read(buffer)) > 0){
+			bytes.write(buffer, 0, length);
+		}
+		bytes.flush();
+		in.close();
+
+		byte[] data = bytes.toByteArray();
+		String id = new String(data, 0, 5);
+		for (int c : id.toCharArray()) {
+			if (!Character.isLetter(c)) {
+				throw new IOException(context.getString(R.string.unrecognized_eeprom_format));
+			}
+		}
+		EEPROM eeprom = EEPROM.get(id, context);
+		if (eeprom == null) {
+			throw new FileNotFoundException(context.getString(R.string.unsupported_eeprom, id));
+		}
+		if (eeprom.length() != data.length - 5) {
+			throw new IOException(context.getString(R.string.eeprom_size_mismatch));
+		}
+		System.arraycopy(data, 5, eeprom.getBytes(), 0, eeprom.length());
+		eeprom.setEepromRead(true);
 		return eeprom;
 	}
 

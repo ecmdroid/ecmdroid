@@ -132,8 +132,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		if (ecm.isConnected()) {
 			connectButton.setText(R.string.disconnect);
 			connectButton.setTag(R.string.connected);
-			update();
 		}
+		update();
 	}
 
 	@Override

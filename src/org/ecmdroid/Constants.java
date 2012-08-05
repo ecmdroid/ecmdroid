@@ -837,4 +837,5 @@ public interface Constants {
 	}
 
 	public static final Pattern BIT_PATTERN = Pattern.compile("^(.+)\\[([0-9,]+)\\]$");
+	static final String EEPROM_FILE_SUFFIX = ".edp";
 }
