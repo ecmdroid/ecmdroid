@@ -19,6 +19,8 @@
 package org.ecmdroid;
 
 
+import java.lang.reflect.Field;
+
 import org.ecmdroid.activity.AboutActivity;
 import org.ecmdroid.activity.ActiveTestsActivity;
 import org.ecmdroid.activity.DataChannelActivity;
@@ -28,8 +30,11 @@ import org.ecmdroid.activity.SetupActivity;
 import org.ecmdroid.activity.TroubleCodeActivity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
@@ -171,5 +176,30 @@ public abstract class Utils
 		return result;
 	}
 
+	public static String getLocalVersion() {
+		try {
+			Class<?> cls = Class.forName("org.ecmdroid.VCS");
+			Field v = cls.getDeclaredField("LOCAL_VERSION");
+			return (String) v.get(null);
+		} catch (Exception unknown) {
+		}
+		return "";
+	}
 
+	public static String getFullVersion(Context context) {
+		String result = getAppVersion(context);
+		if (result != null) {
+			result += getLocalVersion();
+		}
+		return result;
+	}
+
+	public static String getAppVersion(Context context) {
+		String result = null;
+		try {
+			PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			result = context.getText(R.string.app_name) + " " + pInfo.versionName;
+		} catch (NameNotFoundException e1) {}
+		return result;
+	}
 }

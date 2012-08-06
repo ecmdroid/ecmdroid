@@ -18,7 +18,10 @@
  */
 package org.ecmdroid.activity;
 
+import org.ecmdroid.Utils;
+
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.webkit.WebView;
 
@@ -27,6 +30,10 @@ public class AboutActivity extends Activity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		String version = Utils.getFullVersion(this);
+		if (version != null) {
+			setTitle(version);
+		}
 		WebView webView = new WebView(this);
 		webView.loadUrl("file:///android_asset/about.html");
 		setContentView(webView);

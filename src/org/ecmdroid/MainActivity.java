@@ -33,8 +33,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -75,12 +73,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.main);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		try {
-			PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-			String version = pInfo.versionName;
-			setTitle(getText(R.string.app_name) + " " + version);
-		} catch (NameNotFoundException e1) {
-			// I don't care...
+		String version = Utils.getAppVersion(this);
+		if (version != null) {
+			setTitle(version);
 		}
 		super.onCreate(savedInstanceState);
 
