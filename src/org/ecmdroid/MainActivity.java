@@ -20,8 +20,9 @@ package org.ecmdroid;
 
 import java.io.IOException;
 
-import org.ecmdroid.tasks.FetchTask;
-import org.ecmdroid.tasks.ProgressDialogTask;
+import org.ecmdroid.activity.BaseActivity;
+import org.ecmdroid.task.FetchTask;
+import org.ecmdroid.task.ProgressDialogTask;
 
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;

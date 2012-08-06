@@ -19,6 +19,14 @@
 package org.ecmdroid;
 
 
+import org.ecmdroid.activity.AboutActivity;
+import org.ecmdroid.activity.ActiveTestsActivity;
+import org.ecmdroid.activity.DataChannelActivity;
+import org.ecmdroid.activity.EEPROMActivity;
+import org.ecmdroid.activity.PrefsActivity;
+import org.ecmdroid.activity.SetupActivity;
+import org.ecmdroid.activity.TroubleCodeActivity;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -141,7 +149,7 @@ public abstract class Utils
 		return (str == null || str.toString().trim().length() == 0);
 	}
 
-	static String toHex(int i, int... width) {
+	public static String toHex(int i, int... width) {
 		String fmt = "%0" + (width.length == 1 ? width[0] : 2) + "X";
 		return String.format(fmt, i);
 	}

@@ -58,7 +58,7 @@ public class EcmDroidService extends Service
 	private ECM ecm;
 
 	public class EcmDroidBinder extends Binder {
-		EcmDroidService getService() {
+		public EcmDroidService getService() {
 			return EcmDroidService.this;
 		}
 	}

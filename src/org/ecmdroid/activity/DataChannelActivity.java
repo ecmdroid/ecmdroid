@@ -16,9 +16,16 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.ecmdroid;
+package org.ecmdroid.activity;
 
 import org.ecmdroid.Constants.Variables;
+import org.ecmdroid.DataChannelAdapter;
+import org.ecmdroid.ECM;
+import org.ecmdroid.EcmDroidService;
+import org.ecmdroid.R;
+import org.ecmdroid.Utils;
+import org.ecmdroid.Variable;
+import org.ecmdroid.VariableProvider;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;

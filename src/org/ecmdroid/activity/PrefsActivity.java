@@ -16,13 +16,31 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.ecmdroid;
+package org.ecmdroid.activity;
 
-import android.app.Activity;
+import org.ecmdroid.R;
+import org.ecmdroid.Utils;
+
+import android.os.Bundle;
+import android.preference.EditTextPreference;
+import android.preference.PreferenceActivity;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public abstract class BaseActivity extends Activity {
+/**
+ * Application Preferences
+ */
+public class PrefsActivity extends PreferenceActivity {
+	@SuppressWarnings("deprecation")
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		addPreferencesFromResource(R.xml.app_prefs);
+		EditTextPreference port = (EditTextPreference) this.findPreference("tcp_port");
+		port.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
+
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -42,4 +60,5 @@ public abstract class BaseActivity extends Activity {
 		}
 		return true;
 	}
+
 }

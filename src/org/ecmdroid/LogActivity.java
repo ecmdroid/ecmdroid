@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.ecmdroid.Constants.Variables;
+import org.ecmdroid.activity.BaseActivity;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;

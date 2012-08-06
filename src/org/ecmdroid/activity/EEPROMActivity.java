@@ -16,7 +16,7 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.ecmdroid;
+package org.ecmdroid.activity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,9 +24,16 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.ecmdroid.tasks.BurnTask;
-import org.ecmdroid.tasks.FetchTask;
-import org.ecmdroid.tasks.SaveTask;
+import org.ecmdroid.Constants;
+import org.ecmdroid.ECM;
+import org.ecmdroid.EEPROM;
+import org.ecmdroid.EEPROMAdapter;
+import org.ecmdroid.R;
+import org.ecmdroid.Utils;
+import org.ecmdroid.Variable;
+import org.ecmdroid.task.BurnTask;
+import org.ecmdroid.task.FetchTask;
+import org.ecmdroid.task.SaveTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;

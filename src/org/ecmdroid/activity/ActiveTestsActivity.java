@@ -16,12 +16,15 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.ecmdroid;
+package org.ecmdroid.activity;
 
 import java.io.IOException;
 
+import org.ecmdroid.ECM;
 import org.ecmdroid.PDU.Function;
-import org.ecmdroid.tasks.ProgressDialogTask;
+import org.ecmdroid.R;
+import org.ecmdroid.Utils;
+import org.ecmdroid.task.ProgressDialogTask;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;

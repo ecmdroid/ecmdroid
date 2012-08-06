@@ -16,12 +16,20 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.ecmdroid;
+package org.ecmdroid.activity;
 
 import java.util.HashMap;
 import java.util.regex.Matcher;
 
-import org.ecmdroid.tasks.ProgressDialogTask;
+import org.ecmdroid.Bit;
+import org.ecmdroid.BitSet;
+import org.ecmdroid.Constants;
+import org.ecmdroid.ECM;
+import org.ecmdroid.R;
+import org.ecmdroid.Utils;
+import org.ecmdroid.Variable;
+import org.ecmdroid.VariableProvider;
+import org.ecmdroid.task.ProgressDialogTask;
 
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;

@@ -25,16 +25,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ActiveTestsActivity"
+            android:name=".activity.ActiveTestsActivity"
             android:label="@string/active_tests" />
         <activity
-            android:name=".DataChannelActivity"
+            android:name=".activity.DataChannelActivity"
             android:label="@string/data_channels" />
         <activity
             android:name=".LogActivity"
             android:label="@string/log_recorder" />
         <activity
-            android:name=".TroubleCodeActivity"
+            android:name=".activity.TroubleCodeActivity"
             android:label="@string/trouble_codes" />
 
         <service
@@ -42,17 +42,17 @@
             android:exported="false" />
 
         <activity
-            android:name=".EEPROMActivity"
+            android:name=".activity.EEPROMActivity"
             android:label="@string/title_activity_eeprom" >
         </activity>
         <activity
-            android:name=".SetupActivity"
+            android:name=".activity.SetupActivity"
             android:label="@string/ecm_setup" />
         <activity
-            android:name=".PrefsActivity"
+            android:name=".activity.PrefsActivity"
             android:label="@string/preferences" />
         <activity
-            android:name=".AboutActivity"
+            android:name=".activity.AboutActivity"
             android:label="@string/about" />
         </application>
     
