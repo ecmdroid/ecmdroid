@@ -202,7 +202,12 @@ public class EEPROM {
 	}
 
 	public Page getPage(int pageno) {
-		return pages.get(pageno);
+		for (Page page : pages) {
+			if (page.nr == pageno) {
+				return page;
+			}
+		}
+		return null;
 	}
 
 	public String getVersion() {
