@@ -161,7 +161,7 @@
     <string name="burn_eeprom">Write EEPROM</string>
     <string name="overwrite_changes">You have unsaved changes to your EEPROM that will be lost when fetching.\n\nIs it OK to Continue?</string>
     <string name="fetch_progress">Reading Page %1$d of %2$d…</string>
-    <string name="burn_warning">Warning: Burning the EEPROM might cripple your bike.\n\nAre you sure to continue?</string>
+    <string name="burn_warning">Warning: Burning the EEPROM might impair your vehicle.\n\nAre you sure to continue?</string>
     <string name="burn_progress">Writing page %1$d of %2$d…</string>
     <string name="burn_success">EEPROM burned sucessfully</string>
     <string name="midpoint_v">Midpoint (V)</string>
