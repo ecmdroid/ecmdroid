@@ -30,8 +30,11 @@ import org.ecmdroid.ECM.Type;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class EEPROM {
+
+	private static final String TAG = "EEPROM";
 
 	private ECM.Type type;
 	private String id;
@@ -131,7 +134,7 @@ public class EEPROM {
 		return eeprom;
 	}
 
-	public static EEPROM load(Context context, InputStream in) throws IOException {
+	public static EEPROM load(Context context, String currentId, InputStream in) throws IOException {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
 		int length;
@@ -142,22 +145,44 @@ public class EEPROM {
 		in.close();
 
 		byte[] data = bytes.toByteArray();
-		String id = new String(data, 0, 5);
-		for (int c : id.toCharArray()) {
-			if (!Character.isLetter(c)) {
-				throw new IOException(context.getString(R.string.unrecognized_eeprom_format));
-			}
+		String id = size2id(context, data.length);
+
+		if (id == null) {
+			throw new IOException(context.getString(R.string.unable_to_determine_ecm_type));
 		}
+		if (Constants.BUEIB.equals(id) && Constants.B2RIB.equals(currentId)){
+			id = Constants.B2RIB;
+		}
+
 		EEPROM eeprom = EEPROM.get(id, context);
 		if (eeprom == null) {
 			throw new FileNotFoundException(context.getString(R.string.unsupported_eeprom, id));
 		}
-		if (eeprom.length() != data.length - 5) {
-			throw new IOException(context.getString(R.string.eeprom_size_mismatch));
-		}
-		System.arraycopy(data, 5, eeprom.getBytes(), 0, eeprom.length());
+		eeprom.setBytes(data);
 		eeprom.setEepromRead(true);
 		return eeprom;
+	}
+
+	private static String size2id(Context context, int length)
+	{
+		DBHelper helper = new DBHelper(context);
+		SQLiteDatabase db = null;
+		Cursor c = null;
+		String name = null;
+		try {
+			db = helper.getReadableDatabase();
+			// BUEIB/B2RIB is ambiguous, prefer BUEIB (guess why...)
+			String query = "SELECT name FROM eeprom WHERE xsize = " + length + " AND name != '" + Constants.B2RIB +"' LIMIT 1";
+			c = db.rawQuery(query, null);
+			if (c.moveToFirst()) {
+				name = c.getString(c.getColumnIndex("name"));
+			}
+		} finally {
+			c.close();
+			db.close();
+		}
+		Log.d(TAG, "EEPROM ID guessed from size: " + name);
+		return name;
 	}
 
 	public class Page {

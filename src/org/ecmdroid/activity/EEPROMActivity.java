@@ -103,7 +103,7 @@ public class EEPROMActivity extends Activity {
 			dlg.setOnDismissListener(new OnDismissListener() {
 				public void onDismiss(DialogInterface dialog) {
 					if (result.length() > 0) {
-						if (ecm.getEEPROM().isTouched()) {
+						if (ecm.isEepromRead() && ecm.getEEPROM().isTouched()) {
 							AlertDialog.Builder builder = new AlertDialog.Builder(EEPROMActivity.this);
 							builder.setTitle(R.string.load_eeprom)
 							.setMessage(R.string.overwrite_changes)
@@ -207,7 +207,7 @@ public class EEPROMActivity extends Activity {
 	{
 		try {
 			FileInputStream in = new FileInputStream(file);
-			EEPROM eeprom = EEPROM.load(this, in);
+			EEPROM eeprom = EEPROM.load(this, ecm.getId(), in);
 			if (ecm.isConnected() && !eeprom.getId().equals(ecm.getId())) {
 				throw new IOException(getString(R.string.incompatible_version_disconnect_first));
 			}

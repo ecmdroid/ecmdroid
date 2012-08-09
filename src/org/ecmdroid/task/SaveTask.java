@@ -105,7 +105,6 @@ public class SaveTask extends AsyncTask<Void, Void, Exception> {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(file);
-			out.write(eeprom.getId().getBytes());
 			out.write(eeprom.getBytes());
 		} catch (Exception e) {
 			return e;
