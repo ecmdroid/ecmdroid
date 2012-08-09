@@ -47,7 +47,7 @@ public class ECM
 	public static enum Type {
 		DDFI1, DDFI2, DDFI3;
 		public static Type getType(String type) {
-			if ("DDFI-1".equals(type)) return DDFI1;
+			if ("DDFI".equals(type)) return DDFI1;
 			if ("DDFI-2".equals(type)) return DDFI2;
 			if ("DDFI-3".equals(type)) return DDFI3;
 			return null;

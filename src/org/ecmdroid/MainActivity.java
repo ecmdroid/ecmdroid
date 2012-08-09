@@ -131,7 +131,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		if (eeprom != null) {
 			setText(R.id.eepromSizeValue, "" + eeprom.length());
 			setText(R.id.eepromPagesValue, "" + eeprom.getPageCount());
-			setText(R.id.ecmTypeValue, ecm.getType().toString());
+			setText(R.id.ecmTypeValue, "" + ecm.getType());
 			if (eeprom.isEepromRead()) {
 				setText(R.id.ecmSerialValue, ecm.getSerialNo());
 				setText(R.id.ecmMfgDateValue, ecm.getMfgDate());
