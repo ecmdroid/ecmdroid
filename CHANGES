@@ -1,0 +1,10 @@
+EcmDroid Changelog
+------------------
+EcmDroid v0.5 (2012/08/11):
+	- Prevent the app from crashing upon screen rotation
+	- Switch to ECMSpys .xpr format for saving and loading EEPROM data
+	- Properly handle ECMs that don't have page zero (e.g. BUEKA)
+
+EcmDroid v0.4 (2012/08/05):
+	- First tagged release with support for reading, writing,
+	  fetching and burning EEPROM data
