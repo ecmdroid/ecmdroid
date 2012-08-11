@@ -35,6 +35,7 @@ public class AboutActivity extends Activity
 			setTitle(version);
 		}
 		WebView webView = new WebView(this);
+		webView.setBackgroundColor(Color.BLACK);
 		webView.loadUrl("file:///android_asset/about.html");
 		setContentView(webView);
 	}
