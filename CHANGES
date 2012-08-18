@@ -1,5 +1,8 @@
 EcmDroid Changelog
 ------------------
+EcmDroid v0.6 (2012/08/18):
+	- Fix readout of stored trouble codes
+
 EcmDroid v0.5 (2012/08/11):
 	- Prevent the app from crashing upon screen rotation
 	- Switch to ECMSpys .xpr format for saving and loading EEPROM data
