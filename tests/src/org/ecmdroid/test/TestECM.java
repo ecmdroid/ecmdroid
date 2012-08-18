@@ -45,11 +45,15 @@ public class TestECM extends AndroidTestCase {
 	}
 
 	public void testErrorParsing() throws IOException {
-		Collection<Error> errors = ecm.getErrors(ErrorType.CURRENT);
+		Collection<Error> errors;
+
+		errors = ecm.getErrors(ErrorType.CURRENT);
 		assertEquals(1, errors.size());
 		assertEquals("21", (errors.iterator().next()).getCode());
+
 		errors = ecm.getErrors(ErrorType.STORED);
-		assertEquals(0, errors.size());
+		assertEquals(1, errors.size());
+		assertEquals("21", (errors.iterator().next()).getCode());
 	}
 
 	public void testSerialNo() {

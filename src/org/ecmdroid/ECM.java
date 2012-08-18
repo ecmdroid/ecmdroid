@@ -355,15 +355,16 @@ public class ECM
 	}
 
 	public Collection<Error> getErrors(ErrorType type) throws IOException {
-		String field = (type == ErrorType.CURRENT ? "CDiag" : "HDiag");
+		String field = (type == ErrorType.CURRENT ? "CDiag%d" : "HDiag%d_LD");
 		if (getRealtimeData() == null) {
 			readRTData();
 		}
 		byte[] data = getRealtimeData();
+
 		List<Error> errors = new LinkedList<Error>();
 		if (data != null) {
 			for (int i = 0; ; i++) {
-				BitSet bitset = bitsetProvider.getBitSet(this.eeprom.getId(), field + i, DataSource.RUNTIME_DATA);
+				BitSet bitset = bitsetProvider.getBitSet(this.eeprom.getId(), String.format(field,i), DataSource.RUNTIME_DATA);
 				if (bitset == null) {
 					break;
 				}
