@@ -105,12 +105,15 @@ public class Bit
 	}
 
 	public boolean refreshValue(byte[] data) {
-		if (offset >= data.length) {
+		int o = offset;
+		if (o >= data.length) {
 			value = 0;
 			return false;
+		} else if (o < 0) {
+			o = data.length + o;
 		}
 		byte mask = (byte) (1 << bitNr);
-		value = (byte) ((data[offset] & 0xff) & mask);
+		value = (byte) ((data[o] & 0xff) & mask);
 		return value != 0;
 	}
 
@@ -120,7 +123,7 @@ public class Bit
 
 	@Override
 	public String toString() {
-		return "BitSet[name: " + name + ", remark: " + remark + ", ECM: " + type + ", offset: " + offset + ", byte: " + byteNr + ", bit: " + bitNr + ", code: " + code + "]";
+		return "Bit[name: " + name + ", remark: " + remark + ", ECM: " + type + ", offset: " + offset + ", byte: " + byteNr + ", bit: " + bitNr + ", code: " + code + "]";
 	}
 
 }
