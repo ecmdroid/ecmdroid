@@ -57,11 +57,13 @@ import android.widget.Toast;
 
 public class EEPROMActivity extends Activity {
 
+	public static final String ACTION_BURN = "BURN";
+
 	private static final int COLS = 5;
 	@SuppressWarnings("unused")
 	private static final String TAG = "EEPROM";
 
-	ECM ecm = ECM.getInstance(this);
+	private ECM ecm = ECM.getInstance(this);
 	private TextView offsetHex, offsetDec;
 	private TextView byteValHex, byteValDec;
 	private TextView hiShortHex, hiShortDec;
@@ -184,6 +186,10 @@ public class EEPROMActivity extends Activity {
 				}
 			}
 		});
+
+		if (ACTION_BURN.equals(getIntent().getAction())) {
+			new BurnTask(this).start();
+		}
 	}
 
 	private Dialog createLoadDialog(final StringBuilder result) {

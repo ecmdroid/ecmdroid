@@ -210,6 +210,7 @@
     <string name="incompatible_version_disconnect_first">Incompatible Version. Please disconnect first.</string>
     <string name="eeprom_dir">eeprom</string>
     <string name="unable_to_determine_ecm_type">Unable to determine ECM type</string>
+    <string name="apply_changes">Apply Changes</string>
 
 
 </resources>

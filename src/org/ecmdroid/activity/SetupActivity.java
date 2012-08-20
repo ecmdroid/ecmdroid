@@ -31,6 +31,7 @@ import org.ecmdroid.Variable;
 import org.ecmdroid.VariableProvider;
 import org.ecmdroid.task.ProgressDialogTask;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -43,6 +44,8 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 public class SetupActivity extends PreferenceActivity implements OnPreferenceChangeListener
@@ -51,16 +54,31 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 	private ECM ecm = ECM.getInstance(this);
 	private VariableProvider provider = VariableProvider.getInstance(this);
 	private HashMap<Preference, Object> prefmap;
+	private Button saveButton;
 
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.ecm_setup);
+		setContentView(R.layout.setup);
 		prefmap = new HashMap<Preference, Object>();
+		saveButton = (Button) findViewById(R.id.applyChanges);
+		saveButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				Intent intent = new Intent(SetupActivity.this, EEPROMActivity.class);
+				intent.setAction(EEPROMActivity.ACTION_BURN);
+				startActivity(intent);
+			}
+		});
 		new RefreshTask().execute();
 	}
 
+	@Override
+	protected void onResume() {
+		saveButton.setVisibility(ecm.isConnected() && ecm.getEEPROM().isTouched() ? View.VISIBLE : View.GONE);
+		super.onResume();
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return Utils.createOptionsMenu(this, menu);
@@ -189,6 +207,7 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 			}
 			if (ecm.setEEPROMValue(v)) {
 				preference.setSummary(v.getFormattedValue());
+				saveButton.setVisibility(ecm.isConnected() ? View.VISIBLE : View.GONE);
 				return true;
 			} else {
 				Toast.makeText(this, "Error: Unable to set EEPROM value.", Toast.LENGTH_LONG).show();
@@ -198,6 +217,7 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 			BitSet bitset = (BitSet) var;
 			bitset.setAll(Boolean.TRUE.equals(newValue));
 			if (ecm.setEEPROMBits(bitset)) {
+				saveButton.setVisibility(ecm.isConnected() ? View.VISIBLE : View.GONE);
 				return true;
 			} else {
 				Toast.makeText(this, "Error: Unable to set EEPROM bits.", Toast.LENGTH_LONG).show();
