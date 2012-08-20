@@ -151,6 +151,11 @@ public class EEPROMActivity extends Activity {
 				if (pos % COLS != 0) {
 					int offset = pos - (pos / COLS + 1);
 					Variable var = ecm.getEEPROMValueNearOffset(offset);
+					if ((var.getOffset() + var.getWidth() - 1) < offset) {
+						// Unknown area
+						var = null;
+					}
+
 					cellInfo.setText(var == null ? "" : var.getLabel() != null ? var.getLabel() : var.getName());
 					cellInfo.setEnabled(var != null && var.getOffset() == offset);
 					byte[] bytes = ecm.getEEPROM().getBytes();
