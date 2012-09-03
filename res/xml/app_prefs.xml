@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-	<ListPreference android:title="Connection" 
+	<ListPreference android:title="@string/ecm_connection_type"
 		android:entries="@array/connectionTypes"
 		android:entryValues="@array/connectionValues"
 		android:key="@string/prefs_conn_type"
@@ -8,16 +8,22 @@
 		/>
 	<EditTextPreference
 		android:key="tcp_host"
-		android:title="Host"
+		android:title="@string/tcp_host"
 		android:defaultValue="192.168.1.1"
 		/>
 	<EditTextPreference
 		android:key="tcp_port"
-		android:title="Port"
+		android:title="@string/tcp_port"
 		android:defaultValue="6275"
 		/>
 	<CheckBoxPreference 
-	    android:key="enable_burn_eeprom"
-	    android:title="Enable EEPROM burning"
-	    android:summaryOn="Use at your own risk!"/>
+		android:key="hide_nonexistent_vars"
+		android:title="@string/hide_eeprom_variables"
+		android:defaultValue="false"
+		android:summaryOn="@string/hide_inapplicable_eeprom_variables"
+		android:summaryOff="@string/show_inapplicable_eeprom_variables"/>
+	<CheckBoxPreference
+		android:key="enable_burn_eeprom"
+		android:title="@string/enable_eeprom_burning"
+		android:summaryOn="@string/burn_at_your_own_risk"/>
 </PreferenceScreen>

@@ -104,8 +104,9 @@
     <string name="rpm_limits">RPM Limits</string>
     <string name="temp_limits">Temperature Limits</string>
     <string name="preferences">Preferences</string>
-    <string name="prefs_bt_connection">BT</string>
     <string name="prefs_conn_type">connection_type</string>
+    <string name="prefs_bt_connection">BT</string>
+    <string name="prefs_tcp_connection">TCP</string>
     <string name="setup">Setup</string>
     <string name="about">About</string>
     <string name="fixed">Fixed</string>
@@ -211,6 +212,14 @@
     <string name="eeprom_dir">eeprom</string>
     <string name="unable_to_determine_ecm_type">Unable to determine ECM type</string>
     <string name="apply_changes">Apply Changes</string>
+    <string name="tcp_host">Host</string>
+    <string name="tcp_port">Port</string>
+    <string name="hide_eeprom_variables">Hide EEPROM variables</string>
+    <string name="hide_inapplicable_eeprom_variables">Hide inapplicable EEPROM variables</string>
+    <string name="show_inapplicable_eeprom_variables">Show inapplicable EEPROM variables</string>
+    <string name="enable_eeprom_burning">Enable EEPROM burning</string>
+    <string name="burn_at_your_own_risk">Use at your own risk!</string>
+    <string name="ecm_connection_type">ECM Connection</string>
 
 
 </resources>
