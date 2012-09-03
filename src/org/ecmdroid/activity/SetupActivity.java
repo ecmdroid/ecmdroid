@@ -32,6 +32,7 @@ import org.ecmdroid.VariableProvider;
 import org.ecmdroid.task.ProgressDialogTask;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
@@ -39,6 +40,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceGroup;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.text.InputType;
 import android.util.Log;
@@ -55,7 +57,6 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 	private VariableProvider provider = VariableProvider.getInstance(this);
 	private HashMap<Preference, Object> prefmap;
 	private Button saveButton;
-
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,13 +99,16 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 		return true;
 	}
 
-	private void readPrefs(PreferenceGroup group)
+	private int readPrefs(PreferenceGroup group, boolean hideMissing)
 	{
 		for (int i = 0; i < group.getPreferenceCount(); i++)
 		{
 			Preference s = group.getPreference(i);
 			if (s instanceof PreferenceGroup) {
-				readPrefs((PreferenceGroup) s);
+				int pc = readPrefs((PreferenceGroup) s, hideMissing);
+				if (pc < 1) {
+					group.removePreference(s);
+				}
 				continue;
 			}
 			s.setPersistent(false);
@@ -144,6 +148,12 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 					if (!bits_missing) {
 						Log.i(TAG, key +": Odd bit set detected (on: " + bits_set+", off: " + bits_unset + ").");
 					}
+					if (hideMissing) {
+						if (group.removePreference(s)) {
+							i--;
+							continue;
+						}
+					}
 					s.setEnabled(false);
 				} else {
 					prefmap.put(s, bitset);
@@ -163,8 +173,14 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 					}
 					prefmap.put(s, v);
 				} else {
-					s.setEnabled(false);
 					Log.i(TAG, "EEPROM Variable '" + key + "' not present in current ECM version.");
+					if (hideMissing) {
+						if (group.removePreference(s)) {
+							i--;
+							continue;
+						}
+					}
+					s.setEnabled(false);
 				}
 			}
 			if (Utils.isEmptyString(s.getTitle())) {
@@ -174,6 +190,7 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 				s.setTitle(title != null ? title : key);
 			}
 		}
+		return group.getPreferenceCount();
 	}
 
 	private class RefreshTask extends ProgressDialogTask {
@@ -187,13 +204,15 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 		protected Exception doInBackground(Void... params) {
 			publishProgress(getText(R.string.refreshing_setup_values).toString());
 			PreferenceScreen root = SetupActivity.this.getPreferenceScreen();
-			readPrefs(root);
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(SetupActivity.this);
+			boolean hideMissing = ecm.isEepromRead() ? prefs.getBoolean("hide_nonexistent_vars", false) : false;
+			readPrefs(root, hideMissing);
 			return null;
 		}
 	}
 
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
-		// Log.d(TAG, "Pref changed: " + preference + ", val: " + newValue + " [" + newValue.getClass().getName() + "]");
+		Log.d(TAG, "Variable '" + preference.getKey() + "' changed. val: " + newValue + " [" + newValue.getClass().getName() + "]");
 		Object var = prefmap.get(preference);
 		if (var == null) return false;
 
