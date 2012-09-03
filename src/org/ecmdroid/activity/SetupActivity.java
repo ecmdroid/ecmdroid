@@ -103,94 +103,102 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 	{
 		for (int i = 0; i < group.getPreferenceCount(); i++)
 		{
-			Preference s = group.getPreference(i);
-			if (s instanceof PreferenceGroup) {
-				int pc = readPrefs((PreferenceGroup) s, hideMissing);
+			Preference pref = group.getPreference(i);
+			if (pref instanceof PreferenceGroup) {
+				int pc = readPrefs((PreferenceGroup) pref, hideMissing);
 				if (pc < 1) {
-					group.removePreference(s);
+					group.removePreference(pref);
 				}
 				continue;
 			}
-			s.setPersistent(false);
-			String key = s.getKey();
-			if (key == null) {
-				continue;
-			}
-			s.setOnPreferenceChangeListener(this);
-			String title = null;
-			Matcher m = Constants.BIT_PATTERN.matcher(key);
-			if (m.matches()) {
-				String name = m.group(1);
-				String bits = m.group(2);
-				int bits_set = 0, bits_unset = 0;
-				boolean bits_missing = false;
-				BitSet bitset = new BitSet(name, null, 0);
-				for (String nr : bits.split(",")) {
-					int b = Integer.parseInt(nr);
-					Bit bit = ecm.getEEPROMBit(name, b);
-					if (bit == null) {
-						Log.i(TAG, "Bitset '" + name + "' not present in current ECM version.");
-						bits_missing = true;
-						break;
-					}
-					bitset.add(bit);
-					bitset.setOffset(bit.getOffset());
-					if (title == null) {
-						title = bit.getName();
-					}
-					if (bit.isSet()) {
-						bits_set++;
-					} else {
-						bits_unset++;
-					}
-				}
-				if (bits_missing || (bits_set != 0 && bits_unset != 0) ) {
-					if (!bits_missing) {
-						Log.i(TAG, key +": Odd bit set detected (on: " + bits_set+", off: " + bits_unset + ").");
-					}
-					if (hideMissing) {
-						if (group.removePreference(s)) {
-							i--;
-							continue;
-						}
-					}
-					s.setEnabled(false);
-				} else {
-					prefmap.put(s, bitset);
-					if (s instanceof CheckBoxPreference) {
-						CheckBoxPreference cb = (CheckBoxPreference) s;
-						cb.setChecked(bits_set > 0);
-					}
-				}
-			} else {
-				Variable v = ecm.getEEPROMValue(key);
-				if (v != null) {
-					title = v.getName();
-					s.setSummary(v.getFormattedValue());
-					if (s instanceof EditTextPreference) {
-						((EditTextPreference) s).setText(v.getValueAsString());
-						((EditTextPreference) s).getEditText().setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-					}
-					prefmap.put(s, v);
-				} else {
-					Log.i(TAG, "EEPROM Variable '" + key + "' not present in current ECM version.");
-					if (hideMissing) {
-						if (group.removePreference(s)) {
-							i--;
-							continue;
-						}
-					}
-					s.setEnabled(false);
+
+			pref.setPersistent(false);
+			pref.setOnPreferenceChangeListener(this);
+			boolean setup = false;
+			for (String key : pref.getKey().split(":")) {
+				pref.setKey(key.trim());
+				if (setupPreference(pref)) {
+					setup = true;
+					break;
 				}
 			}
-			if (Utils.isEmptyString(s.getTitle())) {
-				if (title == null) {
-					title = provider.getName(key);
+			if (!setup) {
+				if (hideMissing) {
+					if (group.removePreference(pref)) {
+						i--;
+						continue;
+					}
 				}
-				s.setTitle(title != null ? title : key);
+				pref.setEnabled(false);
 			}
 		}
 		return group.getPreferenceCount();
+	}
+
+	private boolean setupPreference(Preference pref) {
+		boolean result = true;
+		String title = null;
+		String key = pref.getKey();
+		Matcher m = Constants.BIT_PATTERN.matcher(key);
+		if (m.matches()) {
+			String name = m.group(1);
+			String bits = m.group(2);
+			int bits_set = 0, bits_unset = 0;
+			boolean bits_missing = false;
+			BitSet bitset = new BitSet(name, null, 0);
+			for (String nr : bits.split(",")) {
+				int b = Integer.parseInt(nr);
+				Bit bit = ecm.getEEPROMBit(name, b);
+				if (bit == null) {
+					Log.i(TAG, "Bitset '" + name + "' not present in current ECM version.");
+					bits_missing = true;
+					break;
+				}
+				bitset.add(bit);
+				bitset.setOffset(bit.getOffset());
+				if (title == null) {
+					title = bit.getName();
+				}
+				if (bit.isSet()) {
+					bits_set++;
+				} else {
+					bits_unset++;
+				}
+			}
+			if (bits_missing || (bits_set != 0 && bits_unset != 0) ) {
+				if (!bits_missing) {
+					Log.i(TAG, key +": Odd bit set detected (on: " + bits_set+", off: " + bits_unset + ").");
+				}
+				result = false;
+			} else {
+				prefmap.put(pref, bitset);
+				if (pref instanceof CheckBoxPreference) {
+					CheckBoxPreference cb = (CheckBoxPreference) pref;
+					cb.setChecked(bits_set > 0);
+				}
+			}
+		} else {
+			Variable v = ecm.getEEPROMValue(key);
+			if (v != null) {
+				title = v.getName();
+				pref.setSummary(v.getFormattedValue());
+				if (pref instanceof EditTextPreference) {
+					((EditTextPreference) pref).setText(v.getValueAsString());
+					((EditTextPreference) pref).getEditText().setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+				}
+				prefmap.put(pref, v);
+			} else {
+				Log.i(TAG, "EEPROM Variable '" + key + "' not present in current ECM version.");
+				result = false;
+			}
+		}
+		if (Utils.isEmptyString(pref.getTitle())) {
+			if (title == null) {
+				title = provider.getName(key);
+			}
+			pref.setTitle(title != null ? title : key);
+		}
+		return result;
 	}
 
 	private class RefreshTask extends ProgressDialogTask {
