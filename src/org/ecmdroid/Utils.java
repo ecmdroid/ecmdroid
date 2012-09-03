@@ -25,6 +25,8 @@ import org.ecmdroid.activity.AboutActivity;
 import org.ecmdroid.activity.ActiveTestsActivity;
 import org.ecmdroid.activity.DataChannelActivity;
 import org.ecmdroid.activity.EEPROMActivity;
+import org.ecmdroid.activity.LogActivity;
+import org.ecmdroid.activity.MainActivity;
 import org.ecmdroid.activity.PrefsActivity;
 import org.ecmdroid.activity.SetupActivity;
 import org.ecmdroid.activity.TroubleCodeActivity;

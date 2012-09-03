@@ -17,7 +17,7 @@
         android:label="@string/app_name"
         android:uiOptions="splitActionBarWhenNarrow" >
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,7 +31,7 @@
             android:name=".activity.DataChannelActivity"
             android:label="@string/data_channels" />
         <activity
-            android:name=".LogActivity"
+            android:name=".activity.LogActivity"
             android:label="@string/log_recorder" />
         <activity
             android:name=".activity.TroubleCodeActivity"
