@@ -220,6 +220,7 @@
     <string name="enable_eeprom_burning">Enable EEPROM burning</string>
     <string name="burn_at_your_own_risk">Use at your own risk!</string>
     <string name="ecm_connection_type">ECM Connection</string>
+    <string name="baro_correction_feature">Baro Correction Feature</string>
 
 
 </resources>
