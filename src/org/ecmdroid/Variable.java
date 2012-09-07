@@ -36,6 +36,7 @@ public class Variable implements Cloneable {
 	private ECM.Type type;
 	private String name;
 	private DataClass cls;
+	private int size;
 	private int width;
 	private int offset;
 	private String unit = "";
@@ -50,8 +51,8 @@ public class Variable implements Cloneable {
 	private int ulow;
 	private int uhigh;
 	private String remarks;
-	private String formattedValue;
-	private Object rawValue;
+	private Object[] rawValues;
+	private String[] formattedValues;
 	private String description;
 
 	public int getId() {
@@ -86,12 +87,24 @@ public class Variable implements Cloneable {
 		this.cls = cls;
 	}
 
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
+
 	public int getWidth() {
 		return width;
 	}
 
 	public void setWidth(int width) {
 		this.width = width;
+	}
+
+	public int getElementCount() {
+		return rawValues == null ? 0 : rawValues.length;
 	}
 
 	public int getOffset() {
@@ -108,6 +121,11 @@ public class Variable implements Cloneable {
 
 	public void setUnit(String unit) {
 		this.unit = unit;
+	}
+
+	public void init() {
+		formattedValues = new String[size / width];
+		rawValues = new Object[formattedValues.length];
 	}
 
 	public String getSymbol() {
@@ -163,7 +181,7 @@ public class Variable implements Cloneable {
 
 	public double getHigh() {
 		// If uhigh is not max, high must be translated.
-		if ((width == 1 && uhigh == 0xFF) || (width == 2 && uhigh == 0xFFFF)) {
+		if ((size == 1 && uhigh == 0xFF) || (size == 2 && uhigh == 0xFFFF)) {
 			return high * scale + translate;
 		}
 		return high;
@@ -198,11 +216,11 @@ public class Variable implements Cloneable {
 	}
 
 	public Object getRawValue() {
-		return rawValue;
+		return rawValues[0];
 	}
 
-	public void setRawValue(Object rawValue) {
-		this.rawValue = rawValue;
+	public Object getRawValueAt(int index) {
+		return rawValues[index];
 	}
 
 	public String getDescription() {
@@ -214,14 +232,14 @@ public class Variable implements Cloneable {
 	}
 
 	public void setFormattedValue(String formattedValue) {
-		this.formattedValue = formattedValue;
+		formattedValues[0] = formattedValue;
 	}
 
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer("Variable[id: ").append(id).append(", name:");sb.append(name);
 		sb.append(", ECM: ").append(type).append(", class: ").append(cls);
-		sb.append(", width: ").append(width).append(", offset: ").append(offset);
+		sb.append(", size: ").append(size).append(", offset: ").append(offset);
 		sb.append(", unit: ").append(unit).append(", scale:").append(scale);
 		sb.append(", trn: ").append(translate).append(", high: ").append(high);
 		sb.append("]");
@@ -230,91 +248,86 @@ public class Variable implements Cloneable {
 
 	public Variable refreshValue(byte[] tmp) {
 		int co = offset < 0 ? tmp.length + offset : offset;
-		if (tmp != null && co >= 0 && co + this.width <= tmp.length) {
-			int value = 0;
-			for (int i = this.width; i >0; i--) {
-				value <<= 8;
-				value |= (tmp[co + i - 1] & 0xff);
+		if (tmp != null && co >= 0 && co + size <= tmp.length) {
+			for (int s = 0; s < (size / width); s++) {
+				int value = 0;
+				for (int i = width; i >0; i--) {
+					value <<= 8;
+					value |= (tmp[co + s * width + i - 1] & 0xff);
+				}
+				if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
+					rawValues[s] = new Short((short) (value & 0xffff));
+				} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE || cls == DataClass.ARRAY  || cls == DataClass.AXIS) {
+					double v = value;
+					if (scale != 0) {
+						v *= scale;
+					}
+					if (translate != 0) {
+						v += translate;
+					}
+					rawValues[s] = Double.valueOf(v);
+					if ("0".equals(format)) {
+						rawValues[s] = Integer.valueOf(((Double)rawValues[s]).intValue());
+					}
+				} else {
+					Log.w(TAG, "Unsupported class " + cls);
+				}
+				formatValueAt(s);
 			}
-			if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
-				rawValue = new Short((short) (value & 0xffff));
-			} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE) {
-				double v = value;
-				if (scale != 0) {
-					v *= scale;
-				}
-				if (translate != 0) {
-					v += translate;
-				}
-				rawValue = Double.valueOf(v);
-				if ("0".equals(format)) {
-					rawValue = Integer.valueOf(((Double)rawValue).intValue());
-				}
-			} else {
-				Log.w(TAG, "Unsupported class " + cls);
-			}
-			formatValue();
 		}
 		return this;
 	}
 
-	private void formatValue() {
-		if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
-			Short v = (Short) rawValue();
-			formattedValue = Integer.toBinaryString(v);
-		} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE) {
-			formattedValue = formatter.format(rawValue);
-			if (!Utils.isEmptyString(symbol)) {
-				formattedValue += symbol;
-			}
-		}
+	public String getFormattedValue() {
+		return formattedValues[0];
 	}
 
-	public String getFormattedValue() {
-		return formattedValue;
+
+	public String getFormattedValueAt(int index) throws ArrayIndexOutOfBoundsException {
+		return formattedValues[index];
 	}
 
 	public String getValueAsString() {
 		if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
 			return getFormattedValue();
 		}
-		return formatter.format(rawValue);
-	}
-
-	public Object rawValue() {
-		return rawValue;
+		return formatter.format(rawValues[0]);
 	}
 
 	public int getIntValue() {
+		return getIntValueAt(0);
+	}
+
+	public int getIntValueAt(int index) {
 		if (cls == DataClass.BITFIELD || cls == DataClass.BITS) {
-			return ((Short)rawValue).intValue();
+			return ((Short)rawValues[index]).intValue();
 		}
 
-		if ((cls == DataClass.SCALAR || cls == DataClass.VALUE) && rawValue != null) {
-			if (rawValue instanceof Integer) {
-				return ((Integer)rawValue).intValue();
+		if (rawValues[index] != null) {
+			if (rawValues[index] instanceof Integer) {
+				return ((Integer)rawValues[index]).intValue();
 			} else {
-				return ((Double)rawValue).intValue();
+				return ((Double)rawValues[index]).intValue();
 			}
 		}
 		return 0;
 	}
 
 	public void updateValue(byte[] bytes) throws IOException {
-		if (rawValue == null) {
+		if (rawValues[0] == null) {
 			return;
 		}
 		int co = offset < 0 ? bytes.length + offset : offset;
-		byte[] buffer = new byte[width];
+		byte[] buffer = new byte[size];
 		int value = 0;
 		if (cls == DataClass.BITFIELD || cls == DataClass.BITS) {
-			value = (Short) rawValue & 0xFFFF;
+			value = (Short) rawValues[0] & 0xFFFF;
 		} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE) {
 			double v = 0;
-			if (rawValue instanceof Double) {
-				v = (Double) rawValue;
+			if (rawValues[0] instanceof Double) {
+				v = (Double) rawValues[0];
 			} else {
-				v = (Integer) rawValue;
+				v = (Integer) rawValues[0];
 			}
 			if (translate != 0) {
 				v -= translate;
@@ -329,26 +342,40 @@ public class Variable implements Cloneable {
 			return;
 		}
 
-		for (int i = 0; i < width; i++) {
+		for (int i = 0; i < size; i++) {
 			buffer[i] = (byte) (value & 0xFF);
 			value >>= 8;
 		}
-		Log.d(TAG, String.format("Setting buffer (len: %X) at offset 0x%02X (raw: 0x%02X) to %s (width: %d).", bytes.length, co, offset, Utils.hexdump(buffer), width));
-		System.arraycopy(buffer, 0, bytes, co, width);
-		Log.d(TAG, String.format("Result: " + Utils.hexdump(bytes, co, co + width)));
+		Log.d(TAG, String.format("Setting buffer (len: %X) at offset 0x%02X (raw: 0x%02X) to %s (width: %d).", bytes.length, co, offset, Utils.hexdump(buffer), size));
+		System.arraycopy(buffer, 0, bytes, co, size);
+		Log.d(TAG, String.format("Result: " + Utils.hexdump(bytes, co, co + size)));
 	}
 
 	public void parseValue(Object value) throws NumberFormatException {
+		parseValueAt(0, value);
+	}
+
+	public void parseValueAt(int index, Object value) throws NumberFormatException {
 		if (value != null) {
 			double v = Double.valueOf(value.toString()).doubleValue();
-			rawValue = Double.valueOf(v);
+			rawValues[index] = Double.valueOf(v);
 
 			if ("0".equals(format)) {
-				if ("0".equals(format)) {
-					rawValue = Integer.valueOf(((Double)rawValue).intValue());
-				}
+				rawValues[index] = Integer.valueOf(((Double)rawValues[index]).intValue());
 			}
-			formatValue();
+			formatValueAt(index);
+		}
+	}
+
+	private void formatValueAt(int index) {
+		if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
+			Short v = (Short) rawValues[index];
+			formattedValues[index] = Integer.toBinaryString(v);
+		} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE || cls == DataClass.ARRAY || cls == DataClass.AXIS) {
+			formattedValues[index] = formatter.format(rawValues[index]);
+			if (!Utils.isEmptyString(symbol)) {
+				formattedValues[index] += symbol;
+			}
 		}
 	}
 }

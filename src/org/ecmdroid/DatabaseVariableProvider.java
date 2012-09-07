@@ -205,7 +205,12 @@ public class DatabaseVariableProvider extends VariableProvider {
 			}
 			String type = cursor.getString(cursor.getColumnIndex("type")).toUpperCase();
 			ret.setCls(DataClass.valueOf(type));
-			ret.setWidth(cursor.getInt(cursor.getColumnIndex("size")));
+			ret.setSize(cursor.getInt(cursor.getColumnIndex("size")));
+			if (DataSource.EEPROM.equals(runtimeData)) {
+				ret.setWidth(cursor.getInt(cursor.getColumnIndex("elemsize")));
+			} else {
+				ret.setWidth(ret.getSize());
+			}
 			ret.setOffset(cursor.getInt(cursor.getColumnIndex("offset")));
 			ret.setScale(cursor.getDouble(cursor.getColumnIndex("scale")));
 			ret.setTranslate(cursor.getDouble(cursor.getColumnIndex("translate")));
@@ -222,6 +227,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 				ret.setUlow(cursor.getInt(cursor.getColumnIndex("ulow")));
 				ret.setUhigh(cursor.getInt(cursor.getColumnIndex("uhigh")));
 			}
+			ret.init();
 		}
 		return ret;
 	}

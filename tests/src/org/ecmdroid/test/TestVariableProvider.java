@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import org.ecmdroid.ECM;
 import org.ecmdroid.Variable;
+import org.ecmdroid.Variable.DataClass;
 import org.ecmdroid.VariableProvider;
 
 import android.test.AndroidTestCase;
@@ -52,7 +53,7 @@ public class TestVariableProvider extends AndroidTestCase
 		assertEquals(ECM.Type.DDFI3, v.getType());
 		assertEquals("pw2", v.getName());
 		assertEquals(Variable.DataClass.SCALAR, v.getCls());
-		assertEquals(2, v.getWidth());
+		assertEquals(2, v.getSize());
 		assertEquals(23, v.getOffset());
 		assertEquals("Milliseconds", v.getUnit());
 		assertEquals(0.001330, v.getScale());
@@ -108,4 +109,40 @@ public class TestVariableProvider extends AndroidTestCase
 		assertEquals("Open loop learn", provider.getName("KConfig[3]"));
 		assertNull(provider.getName("KConfig[10]"));
 	}
+
+	public void testAxis() throws IOException {
+		byte[] eeprom = TestUtils.readEEPROM();
+		Variable var = provider.getEEPROMVariable("BUEIB", "Tab_Fuel_Load_Ax");
+		assertNotNull(var);
+		assertEquals(var.getCls(), DataClass.AXIS);
+		var.refreshValue(eeprom);
+		assertEquals(12, var.getSize());
+		assertEquals(1, var.getWidth());
+		int[] expected = { 10, 15, 20, 30, 40, 50, 60, 80, 100, 125, 175, 255 };
+		for (int i=0; i< expected.length; i++) {
+			assertEquals(String.valueOf(expected[i]), var.getFormattedValueAt(i));
+			assertEquals(expected[i], var.getIntValueAt(i));
+		}
+		try {
+			var.getIntValueAt(expected.length);
+			fail("ArrayIndexOutOfBoundsException expected.");
+		} catch (ArrayIndexOutOfBoundsException e) {}
+
+		var = provider.getEEPROMVariable("BUEIB", "Tab_Fuel_RPM_Ax");
+		assertNotNull(var);
+		assertEquals(var.getCls(), DataClass.AXIS);
+		var.refreshValue(eeprom);
+		assertEquals(26, var.getSize());
+		assertEquals(2, var.getWidth());
+		expected = new int[]{ 8000, 7000, 6000, 5000, 4000, 3400, 2900, 2400, 1900, 1350, 1000, 800, 0 };
+		for (int i=0; i< expected.length; i++) {
+			assertEquals(String.valueOf(expected[i]), var.getFormattedValueAt(i));
+			assertEquals(expected[i], var.getIntValueAt(i));
+		}
+		try {
+			var.getIntValueAt(expected.length);
+			fail("ArrayIndexOutOfBoundsException expected.");
+		} catch (ArrayIndexOutOfBoundsException e) {}
+	}
 }
+
