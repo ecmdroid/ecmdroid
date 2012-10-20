@@ -1,5 +1,14 @@
 EcmDroid Changelog
 ------------------
+EcmDroid v0.7 (2012/10/20):
+	- EEPROM Editor: Blank the info cell on unknown areas
+	- Add a 'apply changes' button to the EEPROM setup view
+	- Preferences: New 'hide non-existent variables' option, I18N, summaries
+	- Setup: Support for multiple names for a single variable
+	- Setup: Add Baro & ABP variable names for DDFI-2
+	- Move remaining activites from base to activity package
+	- Add support for Array and Axis variables
+
 EcmDroid v0.6 (2012/08/18):
 	- Fix readout of stored trouble codes
 
