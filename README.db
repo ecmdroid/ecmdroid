@@ -1,0 +1,24 @@
+DB Conversion
+-------------
+
+Here are the steps required to convert a database dump from ecmspy.com
+to sqlite3:
+
+1. Import the ecmspy.com database backup into a new MySQL database:
+  $ unzip <name-of-backup>.zip
+  $ cat <name-of-sql>.sql | mysql -u<user> -p<password> <name-of-db>
+
+2. Convert the MySQL Database into a SQLite script:
+ $ sh scripts/mysql2sqlite.sh -u<user> -p<password> <name-of-db> > ecmdroid.sq3
+
+3. Remove all column COMMENTs from the file generated above (not supported
+   by SQLite3)
+
+4. Create a new sqlite database
+  $ sqlite3 assets/ecmdroid.db < ecmdroid.sq3
+
+5. Compress the resulting db file with gzip, replacing the current version
+  $ gzip -f assets/ecmdroid.db
+
+6. Increase the DB version field in class org.ecmdroid.DBHelper
+

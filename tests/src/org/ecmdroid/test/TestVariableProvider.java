@@ -41,7 +41,7 @@ public class TestVariableProvider extends AndroidTestCase
 
 	public void testRtVariableNames() {
 		Collection<String> vars = provider.getRtVariableNames("BUE2D");
-		assertEquals(110, vars.size());
+		assertEquals(111, vars.size());
 		assertTrue(vars.contains("RPM"));
 		assertTrue(vars.contains("TPD"));
 		assertTrue(vars.contains("CLT"));

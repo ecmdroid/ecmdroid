@@ -31,20 +31,25 @@ import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
 
+	// Increase this whenever updating the database
+	private static final int DB_VERSION = 2;
+
 	private static final String TAG = "DBHelper";
 	private static File DB_PATH = new File("/data/data/org.ecmdroid/databases/");
 	private static String DB_NAME = "ecmdroid";
+	private Context context;
 
 	public DBHelper(Context context) {
-		super(context, DB_NAME, null, 1);
+		super(context, DB_NAME, null, DB_VERSION);
+		this.context  = context;
 	}
 
 	public boolean isDbInstalled() {
 		File db = new File(DB_PATH, DB_NAME);
 		return db.exists();
 	}
+
 	public void installDB(Context context) throws IOException {
-		// File db = new File(context.getDir("Data", 0), DB_NAME);
 		File db = new File(DB_PATH, DB_NAME);
 		DB_PATH.mkdirs();
 		Log.d(TAG, "Checking if file '" + db.getAbsolutePath() + "' exists...");
@@ -72,8 +77,16 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 
 	@Override
-	public void onUpgrade(SQLiteDatabase db, int arg1, int arg2) {
-		Log.d(TAG, "onUpgrade...");
+	public void onUpgrade(SQLiteDatabase db, int ov, int nv) {
+		Log.w(TAG, "onUpgrade(" + ov + ", " + nv +")");
+		if (nv > ov) {
+			Log.i(TAG, "Installing new DB version (v" + ov + " -> v" + nv +")...");
+			context.deleteDatabase(DB_NAME);
+			try {
+				installDB(context);
+			} catch (IOException e) {
+				throw new RuntimeException("DB update failed. " + e);
+			}
+		}
 	}
-
 }
