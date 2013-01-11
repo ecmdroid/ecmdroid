@@ -1,5 +1,12 @@
 EcmDroid Changelog
 ------------------
+EcmDroid v0.8 (2012/01/11):
+	- Database Update from ecmspy.com. Most notable changes:
+	  * Additional ECMS: B3R3D, B3R2D, BUEIC, B3R1D, BUEJA
+	  * More Fuel and Spark Skip Configuration bits
+	- Don't crash if encountering an unknown ECM, display a warning instead
+	- Fix Mfg Date parsing for dates < 2000
+
 EcmDroid v0.7 (2012/10/20):
 	- EEPROM Editor: Blank the info cell on unknown areas
 	- Add a 'apply changes' button to the EEPROM setup view
