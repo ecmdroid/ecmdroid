@@ -272,7 +272,7 @@ public class ECM
 				offset = 0xFF - page.length() + i + 1;
 				dtr = 1;
 			}
-			if (D) Log.d(TAG, "Reading " + dtr + " bytes from page " + page.nr() + " at offset " + offset + " to local buffer at offset " + page.start() + i);
+			if (D) Log.d(TAG, "Reading " + dtr + " bytes from page " + page.nr() + " at offset " + offset + " to local buffer at offset " + (page.start() + i));
 			PDU response = sendPDU(PDU.getRequest(page.nr(), offset, dtr));
 			if (response.getEEPromData().length != dtr) {
 				throw new IOException("Requested " + dtr + " bytes from ECM but received " + response.getEEPromData().length);
