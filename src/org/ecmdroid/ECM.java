@@ -479,6 +479,9 @@ public class ECM
 		String day   = getFormattedEEPROMValue(Variables.KMFG_Day, null);
 		if (year != null && day != null) {
 			int y = Integer.parseInt(year) + 2000;
+			if (y >= 2090) {
+				y -= 100; // 1990..99
+			}
 			int d = Integer.parseInt(day) + 1;
 			Calendar cal = Calendar.getInstance();
 			cal.set(Calendar.YEAR, y);
