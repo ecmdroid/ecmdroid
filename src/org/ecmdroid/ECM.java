@@ -199,10 +199,13 @@ public class ECM
 	 */
 	public String setupEEPROM() throws IOException {
 		String ret = readVersion();
-		Log.i(TAG, "EEPROM Version: " + ret);
+		Log.i(TAG, "ECM Version: " + ret);
 		eeprom = EEPROM.get(ret, context);
 		if (eeprom != null) {
 			eeprom.setVersion(ret);
+		} else {
+			Log.w(TAG, "Unknown ECM ID " + ret);
+			throw new IOException("Unsupported ECM Version '" + ret + "'!");
 		}
 		return ret;
 	}
