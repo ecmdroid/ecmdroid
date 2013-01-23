@@ -82,7 +82,7 @@ public class EEPROMActivity extends Activity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(this);
 		menu.findItem(R.id.fetch).setEnabled(ecm.isConnected());
-		menu.findItem(R.id.burn).setEnabled(ecm.isConnected() && pm.getBoolean("enable_burn_eeprom", Boolean.FALSE));
+		menu.findItem(R.id.burn).setEnabled(ecm.isConnected() && pm.getBoolean(Constants.PREFS_ENABLE_BURN, Boolean.FALSE));
 		menu.findItem(R.id.save).setEnabled(ecm.isEepromRead());
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -188,7 +188,12 @@ public class EEPROMActivity extends Activity {
 		});
 
 		if (ACTION_BURN.equals(getIntent().getAction())) {
-			new BurnTask(this).start();
+			SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(this);
+			if (pm.getBoolean(Constants.PREFS_ENABLE_BURN, false)) {
+				new BurnTask(this).start();
+			} else {
+				Toast.makeText(EEPROMActivity.this, R.string.eeprom_burning_disabled_by_configuration, Toast.LENGTH_LONG).show();
+			}
 		}
 	}
 

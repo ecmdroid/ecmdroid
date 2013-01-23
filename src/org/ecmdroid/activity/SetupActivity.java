@@ -67,6 +67,11 @@ public class SetupActivity extends PreferenceActivity implements OnPreferenceCha
 		saveButton = (Button) findViewById(R.id.applyChanges);
 		saveButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				SharedPreferences pm = PreferenceManager.getDefaultSharedPreferences(SetupActivity.this);
+				if (!pm.getBoolean(Constants.PREFS_ENABLE_BURN, false)) {
+					Toast.makeText(SetupActivity.this, R.string.eeprom_burning_disabled_by_configuration, Toast.LENGTH_LONG).show();
+					return;
+				}
 				Intent intent = new Intent(SetupActivity.this, EEPROMActivity.class);
 				intent.setAction(EEPROMActivity.ACTION_BURN);
 				startActivity(intent);

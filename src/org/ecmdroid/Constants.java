@@ -840,4 +840,5 @@ public interface Constants {
 	public static final String EEPROM_FILE_SUFFIX = ".xpr";
 	public static final String B2RIB = "B2RIB";
 	public static final String BUEIB = "BUEIB";
+	public static final String PREFS_ENABLE_BURN = "enable_burn_eeprom";
 }

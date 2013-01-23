@@ -221,6 +221,7 @@
     <string name="burn_at_your_own_risk">Use at your own risk!</string>
     <string name="ecm_connection_type">ECM Connection</string>
     <string name="baro_correction_feature">Baro Correction Feature</string>
+    <string name="eeprom_burning_disabled_by_configuration">EEPROM burning disabled by configuration.</string>
 
 
 </resources>
