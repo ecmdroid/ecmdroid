@@ -18,31 +18,21 @@
  */
 package org.ecmdroid.test;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
-public class TestUtils {
-	public static byte[] readRTData() throws IOException {
-		return readResource("/org/ecmdroid/test/resources/RT_BUEIB242.bin");
-	}
-	public static byte[] readEEPROM() throws IOException {
-		return readResource("/org/ecmdroid/test/resources/BUEIB.eeprom");
-	}
+import org.ecmdroid.util.Bin2MslConverter;
 
-	public static byte[] readBinaryLog() throws IOException {
-		return readResource("/org/ecmdroid/test/resources/BUEIB_log.bin");
-	}
+import android.test.AndroidTestCase;
 
-	private static byte[] readResource(String resource) throws IOException {
-		InputStream in = TestUtils.class.getResourceAsStream(resource);
-		ByteArrayOutputStream bao = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024];
-		int length;
-		while ((length = in.read(buffer)) > 0){
-			bao.write(buffer, 0, length);
-		}
-		in.close();
-		return  bao.toByteArray();
+public class TestBin2Msl extends AndroidTestCase {
+
+	public void testConversion() throws IOException
+	{
+		ByteArrayInputStream bin = new ByteArrayInputStream(TestUtils.readBinaryLog());
+		ByteArrayOutputStream msl = new ByteArrayOutputStream(1024*1024*10);
+		Bin2MslConverter.convert(bin, msl);
+		System.out.println("Number of bytes in msl file: " + msl.size());
 	}
 }

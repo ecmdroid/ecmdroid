@@ -1,0 +1,87 @@
+778	0	0	0	Load	Scalar	1	27	8-bit	1.00000	0.000000	Load Rear	0	0	255	0	255	Load	Load for the rear cylinder (8-bit resolution)
+768	0	0	0	RPM	Scalar	2	11	RPM	1.00000	0.000000	Engine Speed	0	0	65535	0	65535	RPM	Engine Speed
+767	0	0	0	Seconds	Scalar	2	9	Seconds	1.00000	0.000000	Seconds	0	0	65535	0	65535	Seconds	Number of seconds since engine startup
+777	0	0	0	TPD	Scalar	2	25	Degrees	0.10000	0.000000	Throttle Position Degrees	0.0	0	6553.5	0	65535	TPD	Throttle position, degree
+845	0	0	1	TPP	Scalar	1	27	8-bit	0.392157	0.00000	Throttle Percentage	0.0	0	100.000035	0	255	TPP	Throttle postion, percentage
+827	0	0	0	TPS 10Bit	Scalar	2	90	10-bit ADC	1.00000	0.000000	TPS 10Bit	0	0	1023	0	1023	TPS 10Bit	Throttle position sensor unscaled input (10-bit resolution)
+828	0	0	0	TPS Voltg.	Scalar	2	90	Volt	0.004887585	0.000000	TPS Voltage	0.00	0	4.999999455	0	1023	TPS Voltg.	Throttle position sensor voltage
+803	0	0	0	BAS Voltg.	Scalar	2	65	Volt	0.004887585	0.000000	BAS Voltage	0.0	0	4.999999455	0	1023	BAS Voltg.	Bank angle sensor input  voltage
+779	0	0	0	Batt. Voltg.	Scalar	2	28	Volts	0.0100000	0.000000	Battery Voltage	0.00	0	655.35	0	65535	Batt. Voltg.	Battery voltage
+780	0	0	0	CLT	Scalar	2	30	Degree C	0.10000	-40.00000	Engine Temperature	0	-40	368	0	4080	CLT	Engine temperature, centigrade
+781	0	0	0	CLT_F	Scalar	2	30	Fahrenheit	0.18000	-40.00000	Engine Temperature Fahrenheit	0	-40	694.4	0	4080	CLT_F	Engine temperature, Fahrenheit
+782	0	0	0	MAT	Scalar	2	32	Degree C	0.10000	-40.00000	Air Temperature	0	-40	368	0	4080	MAT	Air temperature, centigrade
+783	0	0	0	MAT_F	Scalar	2	32	Fahrenheit	0.18000	-40.00000	Air Temperature Fahrenheit	0	-40	694.4	0	4080	MAT_F	Air temperature, Fahrenheit
+785	0	0	0	O2	Scalar	2	34	Volt	0.004887585	0.000000	O2 Voltage Rear	0.00	0	1.246334175	0	255	O2	Exhaust O2 sensor voltage for the rear cylinder
+787	0	0	0	Accel Corr.	Scalar	2	42	Percent	0.10000	0.000000	Acceleration Correction	0.0	0	6553.5	0	65535	Accel Corr.	Acceleration condition fuel enrichment
+792	0	0	0	AFV	Scalar	2	52	Percent	0.10000	0.000000	AFV Rear	0.0	0	6553.5	0	65535	AFV	Adaptive fuel value for the rear cylinder
+788	0	0	0	Decel Corr.	Scalar	2	44	Percent	0.10000	0.000000	Deceleration Correction	0.0	0	6553.5	0	65535	Decel Corr.	Deceleration condition fuel adjustment
+793	0	0	0	EGO Corr.	Scalar	2	54	Percent	0.10000	0.000000	EGO Correction	0.0	0	6553.5	0	65535	EGO Corr.	Exhaust gas O2 fuel adjustment for the rear cylinder
+786	0	0	0	IAT Corr.	Scalar	2	40	Percent	0.10000	0.000000	Air Temp Correction	0.0	0	6553.5	0	65535	IAT Corr.	Air density (temperature dependent) compensation
+790	0	0	0	Idle Corr.	Scalar	2	48	Percent	0.10000	0.000000	Idle Correction	0.0	0	6553.5	0	65535	Idle Corr.	Idle fuel adjustment
+791	0	0	0	OL Corr.	Scalar	2	50	Percent	0.10000	0.000000	Open Loop Correction	0.0	0	6553.5	0	65535	OL Corr.	Open loop default correction
+789	0	0	0	WOT Corr.	Scalar	2	46	Percent	0.10000	0.000000	WOT Correction	0.0	0	6553.5	0	65535	WOT Corr.	Wide open throttle fuel enrichment
+852	0	0	0	WUE	Scalar	2	38	Percent	0.100000	0.00000	Engine Temp Correction	0.0	0	6553.5	0	65535	WUE	Warmup enrichment
+775	0	0	0	pw1	Scalar	2	21	Milliseconds	0.00133	0.000000	Fuel Pulsewidth Front	0.00	0	87.16155	0	65535	pw1	Injector pulsewidth for the front cylinder
+776	0	0	0	pw2	Scalar	2	23	Milliseconds	0.00133	0.000000	Fuel Pulsewidth Rear	0.00	0	87.16155	0	65535	pw2	Injector pulsewidth for the rear cylinder
+769	0	0	0	spark1	Scalar	2	13	Degrees	0.00250	0.000000	Spark Advance Front	0.00	0	163.8375	0	65535	spark1	Spark advance for the front cylinder
+770	0	0	0	spark2	Scalar	2	15	Degrees	0.00250	0.000000	Spark Advance Rear	0.00	0	163.8375	0	65535	spark2	Spark advance for the rear cylinder
+772	0	0	0	veCurr1	Scalar	2	17	Milliseconds	0.0266	0.000000	Table Fuel, Front	0.00	0	1743.231	0	65535	veCurr1	Fuel map value for the front cylinder (interpolated, scaled to milliseconds)
+771	0	0	0	veCurr1_RAW	Scalar	2	17	fuel	1.000000	0.000000	Raw Table Fuel, Front	0.00	0	65535	0	65535	veCurr1_RAW	Fuel map raw value for the front cylinder (interpolated, unscaled)
+774	0	0	0	veCurr2	Scalar	2	19	Milliseconds	0.0266	0.000000	Table Fuel, Rear	0.00	0	1743.231	0	65535	veCurr2	Fuel map value for the rear cylinder (interpolated, scaled to milliseconds)
+773	0	0	0	veCurr2_RAW	Scalar	2	19	fuel	1.000000	0.000000	Raw Table Fuel, Rear	0.00	0	65535	0	65535	veCurr2_RAW	Fuel map raw value for the rear cylinder (interpolated, unscaled)
+802	0	0	0	BAS ADC	Scalar	2	65	10-bit ADC	1.00000	0.000000	Bank Angle Sensor	0	0	1023	0	1023	BAS ADC	Bank angle sensor unscaled input
+829	0	0	0	Batt. ADC	Scalar	2	92	10-bit ADC	1.00000	0.000000	Battery Feedback	0	0	1023	0	1023	Batt. ADC	Battery voltage unscaled input
+823	0	0	0	Coil1 ADC	Scalar	1	86	8-bit ADC	1.00000	0.000000	Coil Feedback Front	0	0	255	0	255	Coil1 ADC	Front ignition coil unscaled feedback signal
+824	0	0	0	Coil2 ADC	Scalar	1	87	8-bit ADC	1.00000	0.000000	Coil Feedback Rear	0	0	255	0	255	Coil2 ADC	Rear ignition coil unscaled feedback signal
+830	0	0	0	ETS ADC	Scalar	1	94	8-bit ADC	1.00000	0.000000	Engine Temperature Sensor	0	0	255	0	255	ETS ADC	Engine temperature sensor for the rear cylinder unscaled signal
+835	0	0	0	Fan ADC	Scalar	1	97	8-bit ADC	1.00000	0.000000	Cooling Fan Feedback	0	0	255	0	255	Fan ADC	Cooling fan unscaled feedback signal
+834	0	0	0	FP ADC	Scalar	1	96	8-bit ADC	1.00000	0.000000	Fuel Pump Feedback	0	0	255	0	255	FP ADC	Fuel pump unscaled feedback singal
+832	0	0	0	IAT ADC	Scalar	1	95	8-bit ADC	1.00000	0.000000	Air Temperature Sensor	0	0	255	0	255	IAT ADC	Manifold air temperature sensor unscaled input
+825	0	0	0	Inj1 ADC	Scalar	1	88	8-bit ADC	1.00000	0.000000	Injector Feedback Front	0	0	255	0	255	Inj1 ADC	Injector unscaled feedback signal for the front cylinder
+826	0	0	0	Inj2 ADC	Scalar	1	89	8-bit ADC	1.00000	0.000000	Injector Feedback Rear	0	0	255	0	255	Inj2 ADC	Injector unscaled feedback signal for the rear cylinder
+784	0	0	0	O2 ADC	Scalar	2	34	10-bit ADC	1.00000	0.000000	O2 Sensor Rear	0	0	255	0	255	O2 ADC	Exhaust gas O2 sensor unscaled input for the rear cylinder
+794	0	0	0	Flags0	Bitfield	1	56		1.00000	0.000000	Flags Byte 0	0	0	255	0	255	Flags0	Flags, Byte 0
+795	0	0	0	Flags1	Bitfield	1	57		1.00000	0.000000	Flags Byte 1	0	0	255	0	255	Flags1	Flags, Byte 1
+796	0	0	0	Flags2	Bitfield	1	58		1.00000	0.000000	Flags Byte 2	0	0	255	0	255	Flags2	Flags, Byte 2
+797	0	0	0	Flags3	Bitfield	1	59		1.00000	0.000000	Flags Byte 3	0	0	255	0	255	Flags3	Flags, Byte 3
+798	0	0	0	Flags4	Bitfield	1	60		1.00000	0.000000	Flags Byte 4	0	0	255	0	255	Flags4	Flags, Byte 4
+799	0	0	0	Flags5	Bitfield	1	61		1.00000	0.000000	Flags Byte 5	0	0	255	0	255	Flags5	Flags, Byte 5
+800	0	0	0	Flags6	Bitfield	1	62		1.00000	0.000000	Flags Byte 6	0	0	255	0	255	Flags6	Flags, Byte 6
+804	0	0	0	CDiag0	Bitfield	1	67		1.00000	0.000000	Current Errors Byte 0	0	0	255	0	255	CDiag0	Current trouble codes, byte 1
+805	0	0	0	CDiag1	Bitfield	1	68		1.00000	0.000000	Current Errors Byte 1	0	0	255	0	255	CDiag1	Current trouble codes, byte 2
+806	0	0	0	CDiag2	Bitfield	1	69		1.00000	0.000000	Current Errors Byte 2	0	0	255	0	255	CDiag2	Current trouble codes, byte 3
+807	0	0	0	CDiag3	Bitfield	1	70		1.00000	0.000000	Current Errors Byte 3	0	0	255	0	255	CDiag3	Current trouble codes, byte 4
+838	0	0	0	CDiag4	Bitfield	1	101		1.00000	0.000000	Current Errors Byte 4	0	0	255	0	255	CDiag4	Current trouble codes, byte 5
+812	0	0	0	HDiag0	Bitfield	1	75		1.00000	0.000000	Stored Errors Byte 0	0	0	255	0	255	HDiag0	Stored diagnostic trouble codes, byte 1
+813	0	0	0	HDiag1	Bitfield	1	76		1.00000	0.000000	Stored Errors Byte 1	0	0	255	0	255	HDiag1	Stored diagnostic trouble codes, byte 2
+814	0	0	0	HDiag2	Bitfield	1	77		1.00000	0.000000	Stored Errors Byte 2	0	0	255	0	255	HDiag2	Stored diagnostic trouble codes, byte 3
+815	0	0	0	HDiag3	Bitfield	1	78		1.00000	0.000000	Stored Errors Byte 3	0	0	255	0	255	HDiag3	Stored diagnostic trouble codes, byte 4
+840	0	0	0	HDiag4	Bitfield	1	103		1.00000	0.000000	Stored Errors Byte 4	0	0	255	0	255	HDiag4	Stored diagnostic trouble codes, byte 5
+808	0	0	1	RDiag0	Bitfield	1	71		1.00000	0.000000	Recent Errors Byte 1	0	0	255	0	255	RDiag0	Recent trouble codes, byte 1
+809	0	0	1	RDiag1	Bitfield	1	72		1.00000	0.000000	Recent Errors Byte 2	0	0	255	0	255	RDiag1	Recent trouble codes, byte 2
+810	0	0	1	RDiag2	Bitfield	1	73		1.00000	0.000000	Recent Errors Byte 3	0	0	255	0	255	RDiag2	Recent trouble codes, byte 3
+811	0	0	1	RDiag3	Bitfield	1	74		1.00000	0.000000	Recent Errors Byte 4	0	0	255	0	255	RDiag3	Recent trouble codes, byte 4
+839	0	0	1	RDiag4	Bitfield	1	102		1.00000	0.000000	Recent Errors Byte 5	0	0	255	0	255	RDiag4	Recent trouble codes, byte 5
+764	0	0	1	ACK	Scalar	1	6		1.0000000	0.00000	ACK	0	0	255	0	255	ACK	Acknowledge byte (ASCII 0x06, other values signal an error)
+842	0	0	1	CheckS.	Scalar	1	106		1.00000	0.000000	Checksum	0	0	255	0	255	CheckS.	Record checksum
+822	0	0	0	DIn	Bitfield	1	85		1.00000	0.000000	Digital Input	0	0	255	0	255	DIn	Digital input feedback
+821	0	0	0	DOut1	Bitfield	1	84		1.00000	0.000000	Digital Output 1	0	0	255	0	255	DOut1	Digital output 1 bitvalues
+760	0	0	1	DST	Scalar	1	2		1.0000000	0.00000	DST	0	0	255	0	255	DST	DST record header value
+762	0	0	1	EOH	Scalar	1	4		1.0000000	0.00000	EOH	0	0	255	0	255	EOH	End of header value (ASCII 0xFF)
+841	0	0	1	EOT	Scalar	1	105		1.00000	0.000000	End of Text	0	0	255	0	255	EOT	End of text value (ASCII 0x03)
+831	0	0	0	ETS Voltg.	Scalar	1	94	Volt	0.019607843	0.000000	ETS Voltage	0.00	0	4.999999965	0	255	ETS Voltg.	Engine temperature sensor for the rear cylinder voltage
+836	0	0	0	Fan Duty	Scalar	1	98	Percent	1.00000	0.000000	Fan Duty Cycle	0	0	255	0	255	Fan Duty	Fan duty cycle
+833	0	0	0	IAT Voltg.	Scalar	1	95	Volt	0.019607843	0.000000	IAT Voltage	0.00	0	4.999999965	0	255	IAT Voltg.	Manifold air temperature sensor voltage
+761	0	0	1	Len	Scalar	1	3		1.0000000	0.00000	Len	0	0	255	0	255	Len	Payload length header value
+766	0	0	0	MilliSec	Scalar	1	8	Seconds	0.01	0.000000	10 Millisecond Time	0.00	0	2.55	0	255	MilliSec	10 milliseconds timer
+820	0	0	0	Rides	Scalar	1	83	Rides	1.00000	0.000000	Rides	0	0	255	0	255	Rides	Number of rides since trouble code set
+758	0	0	1	SOH	Scalar	1	0		1.0000000	0.00000	SOH	0	0	255	0	255	SOH	Start of header value (ASCII 0x01)
+763	0	0	1	SOT	Scalar	1	5		1.0000000	0.00000	SOT	0	0	255	0	255	SOT	Start of text value (ASCII 0x02)
+837	0	0	0	speed mph	Scalar	1	99	mph	1.00000	0.000000	Speed MPH	0	0	255	0	255	speed mph	Vehicle speed sensor counts
+759	0	0	1	SRC	Scalar	1	1		1.0000000	0.00000	SRC	0	0	255	0	255	SRC	SRC header value
+765	0	0	0	SysConfig	Bitfield	1	7		1.00000	0.000000	System Configuration	0	0	255	0	255	SysConfig	System configuration value
+801	0	0	1	unknown		2	63		1.00000	0.000000	Unknown	0	0	65535	0	65535	unknown	Unknown Variable
+816	0	0	1	unknown		1	79		1.00000	0.000000	Unknown	0	0	255	0	255	unknown	Unknown Variable
+817	0	0	1	unknown		1	80		1.00000	0.000000	Unknown	0	0	255	0	255	unknown	Unknown Variable
+818	0	0	1	unknown		1	81		1.00000	0.000000	Unknown	0	0	255	0	255	unknown	Unknown Variable
+819	0	0	1	unknown		1	82		1.00000	0.000000	Unknown	0	0	255	0	255	unknown	Unknown Variable
