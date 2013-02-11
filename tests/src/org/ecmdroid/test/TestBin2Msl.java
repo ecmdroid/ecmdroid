@@ -32,7 +32,7 @@ public class TestBin2Msl extends AndroidTestCase {
 	{
 		ByteArrayInputStream bin = new ByteArrayInputStream(TestUtils.readBinaryLog());
 		ByteArrayOutputStream msl = new ByteArrayOutputStream(1024*1024*10);
-		Bin2MslConverter.convert(bin, msl);
+		new Bin2MslConverter().convert(bin, msl);
 		System.out.println("Number of bytes in msl file: " + msl.size());
 	}
 }

@@ -30,6 +30,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Observable;
 import java.util.regex.Pattern;
 
 import android.util.Log;
@@ -37,9 +38,12 @@ import android.util.Log;
 /**
  * BIN to MSL (MegalogViewer) Logfile converter.
  */
-public class Bin2MslConverter
+public class Bin2MslConverter extends Observable
 {
+	private static final int OBSERVER_UPDATE_DELAY = 500;
 	private static final String TAG = "BIN2MSL";
+
+	private boolean cancelled = false;
 
 	/**
 	 * Convert a logfile from binary format into msl
@@ -48,7 +52,7 @@ public class Bin2MslConverter
 	 * @throws IOException if an error occurs during conversion
 	 * @since EcmDroid v0.9
 	 */
-	public static void convert(InputStream bin, OutputStream msl) throws IOException
+	public void convert(InputStream bin, OutputStream msl) throws IOException
 	{
 
 		byte[] buffer5 = new byte[5];
@@ -193,7 +197,7 @@ public class Bin2MslConverter
 				numRecord = 0;
 
 				while ((l = offsetsTable.readLine()) != null) {
-					Log.d(TAG, "read line:>"+l+"<");
+					// Log.d(TAG, "read line:>"+l+"<");
 
 					fields = p.split(l);
 					offset = Integer.parseInt(fields[7],10);
@@ -258,6 +262,7 @@ public class Bin2MslConverter
 			}
 			mslFile.print("\r\n");
 
+			long start = System.currentTimeMillis();
 			try {
 
 				numRecord = 1;
@@ -265,7 +270,8 @@ public class Bin2MslConverter
 				StringBuilder rt = new StringBuilder(1024);
 				NumberFormat df = DecimalFormat.getInstance(loc);
 				df.setMaximumFractionDigits(3);
-				while (true) {
+				df.setGroupingUsed(false);
+				while (!cancelled) {
 					rt.setLength(0);
 
 					// timestamp
@@ -290,7 +296,7 @@ public class Bin2MslConverter
 						continue;
 					}
 
-					rt.append(numRecord);
+					rt.append(df.format(numRecord));
 					rt.append(String.format(loc, "\t%.5f",fVal/100.0));  // timestamp
 
 					// Gego calculation
@@ -400,7 +406,6 @@ public class Bin2MslConverter
 						//if (alCategory.get(i) > category) {
 						//  continue;
 						//}
-
 						iVal = rtBuffer[o];
 
 						if (alSize.get(i) == 2) {
@@ -414,7 +419,7 @@ public class Bin2MslConverter
 						rt.append('\t');
 
 						if (alFormat.get(i).equals("0")) {
-							rt.append((int)fVal);
+							rt.append(df.format((int)fVal));
 						} else {
 							rt.append(df.format(fVal));
 						}
@@ -422,9 +427,21 @@ public class Bin2MslConverter
 					rt.append("\r\n");
 					mslFile.append(rt);
 					numRecord ++;
+
+					if (countObservers() > 0) {
+						long now = System.currentTimeMillis();
+						if (start + OBSERVER_UPDATE_DELAY <= now) {
+							setChanged();
+							notifyObservers(String.format("%d log records converted", numRecord));
+							start = now;
+						}
+					}
 				}
 			} catch (EOFException e) {
-				Log.i(TAG, "Conversion finished. "+numDiscard+" of "+numRecord+" records discarded.");
+				String s = String.format("Conversion finished. %d of %d records discarded.", numDiscard, numRecord);
+				Log.i(TAG, s);
+				setChanged();
+				notifyObservers(s);
 			}
 		} finally {
 			if (binFile != null) {
@@ -435,5 +452,12 @@ public class Bin2MslConverter
 				mslFile.close();
 			}
 		}
+	}
+
+	/**
+	 * Cancel the conversion.
+	 */
+	public void cancel() {
+		cancelled = true;
 	}
 }
