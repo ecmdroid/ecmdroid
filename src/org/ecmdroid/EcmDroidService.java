@@ -109,6 +109,13 @@ public class EcmDroidService extends Service
 		return currentLog == null ? "" : currentLog.getName();
 	}
 
+	/**
+	 * Get the currently used Log file or null, if logging is not active.
+	 */
+	public File getCurrentFile() {
+		return currentLog;
+	}
+
 	public synchronized void startRecording(File log, int interval, ECM ecm) throws IOException {
 
 		if (recording) {

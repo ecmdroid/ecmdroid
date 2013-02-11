@@ -19,14 +19,23 @@
 package org.ecmdroid.activity;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Observable;
+import java.util.Observer;
 
 import org.ecmdroid.Constants.Variables;
 import org.ecmdroid.ECM;
 import org.ecmdroid.EcmDroidService;
 import org.ecmdroid.R;
 import org.ecmdroid.Variable;
+import org.ecmdroid.task.ProgressDialogTask;
+import org.ecmdroid.util.Bin2MslConverter;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -44,12 +53,15 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class LogActivity extends BaseActivity implements OnClickListener
 {
+	private static final String PREFS_CONVERTLOG = "convertlog";
+	private static final String PREFS_DELAY = "delay";
 	private static final String TAG = "LogActivity";
 	private Button recordButton;
 	private TextView logFile;
@@ -140,7 +152,9 @@ public class LogActivity extends BaseActivity implements OnClickListener
 			spinner.setEnabled(true);
 		}
 		SharedPreferences prefs = getPreferences(MODE_PRIVATE);
-		spinner.setSelection(prefs.getInt("delay", 0));
+		spinner.setSelection(prefs.getInt(PREFS_DELAY, 0));
+		CheckBox convert = (CheckBox) findViewById(R.id.logConvertCheckbox);
+		convert.setChecked(prefs.getBoolean(PREFS_CONVERTLOG, false));
 	}
 
 	@Override
@@ -148,8 +162,10 @@ public class LogActivity extends BaseActivity implements OnClickListener
 		super.onPause();
 		SharedPreferences prefs = getPreferences(MODE_PRIVATE);
 		Spinner spinner = (Spinner) findViewById(R.id.logInterval);
+		CheckBox convert = (CheckBox) findViewById(R.id.logConvertCheckbox);
 		Editor editor = prefs.edit();
-		editor.putInt("delay", spinner.getSelectedItemPosition());
+		editor.putInt(PREFS_DELAY, spinner.getSelectedItemPosition());
+		editor.putBoolean(PREFS_CONVERTLOG, convert.isChecked());
 		editor.commit();
 		unregisterReceiver(receiver);
 	}
@@ -176,15 +192,11 @@ public class LogActivity extends BaseActivity implements OnClickListener
 					return;
 				}
 			} else {
+				boolean convert = ((CheckBox)findViewById(R.id.logConvertCheckbox)).isChecked();
 				recordButton.setEnabled(false);
-				view.post(new Runnable() {
-					public void run() {
-						ecmDroidService.stopRecording();
-						recordButton.setEnabled(true);
-						recordButton.setText(R.string.start_recording);
-						Toast.makeText(LogActivity.this, R.string.logfile_closed, Toast.LENGTH_LONG).show();
-					}
-				});
+				new StopTask(LogActivity.this, convert).execute();
+				recordButton.setEnabled(true);
+				recordButton.setText(R.string.start_recording);
 			}
 		}
 	}
@@ -224,11 +236,86 @@ public class LogActivity extends BaseActivity implements OnClickListener
 					cltValue.setText(clt.getFormattedValue());
 				}
 			} else {
-				logFile.setText(R.string.none);
+				logFile.setText(R.string.dash);
 				logStatus.setText(R.string.status_idle);
 				tpsValue.setText(R.string.dash);
 				rpmValue.setText(R.string.dash);
 				cltValue.setText(R.string.dash);
+			}
+		}
+	}
+
+	private class StopTask extends ProgressDialogTask implements Observer
+	{
+		private boolean convert;
+		private Bin2MslConverter converter;
+		private String lastStatus;
+
+		public StopTask(Activity context, boolean convert) {
+			super(context, "");
+			this.convert = convert;
+			converter = new Bin2MslConverter();
+		}
+
+		@Override
+		protected Exception doInBackground(Void... params) {
+			Exception ret = null;
+			File log = ecmDroidService.getCurrentFile();
+			publishProgress(context.getString(R.string.stopping_logfile_recorder));
+			ecmDroidService.stopRecording();
+			try { Thread.sleep(500); } catch (InterruptedException e) {}
+			if (convert) {
+				setCancelable(true);
+				publishProgress(context.getString(R.string.converting_to_msl));
+				try { Thread.sleep(500); } catch (InterruptedException e) {}
+				InputStream in = null;
+				OutputStream out = null;
+				try {
+					in = new FileInputStream(log);
+					out = new FileOutputStream(new File(log.getAbsolutePath().replaceAll("bin$", "msl")));
+					converter.addObserver(this);
+					converter.convert(in, out);
+				} catch (Exception e) {
+					Log.w(TAG, "Conversion failed.", e);
+					ret = new Exception(context.getString(R.string.conversion_failed) + " " + e.getMessage());
+				} finally {
+					try {
+						if (in != null)
+							in.close();
+
+						if (out != null) {
+							out.flush();
+							out.close();
+						}
+					} catch (Exception e) {
+						Log.w(TAG, "Unable to close Input/Output stream.", e);
+						ret = e;
+					}
+				}
+			}
+			return ret;
+		}
+
+		@Override
+		protected void onCancelled() {
+			super.onCancelled();
+			Toast.makeText(LogActivity.this, R.string.conversion_cancelled, Toast.LENGTH_LONG).show();
+		}
+
+		@Override
+		protected void onPostExecute(Exception result) {
+			super.onPostExecute(result);
+			if (result == null && lastStatus != null) {
+				Toast.makeText(LogActivity.this, lastStatus, Toast.LENGTH_LONG).show();
+			}
+		}
+
+		public void update(Observable observable, Object data) {
+			lastStatus = (String) data;
+			if (isCancelled()) {
+				converter.cancel();
+			} else {
+				publishProgress(lastStatus);
 			}
 		}
 	}

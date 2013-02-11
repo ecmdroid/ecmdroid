@@ -222,6 +222,11 @@
     <string name="ecm_connection_type">ECM Connection</string>
     <string name="baro_correction_feature">Baro Correction Feature</string>
     <string name="eeprom_burning_disabled_by_configuration">EEPROM burning disabled by configuration.</string>
+    <string name="convertlog">Convert to MSL</string>
+    <string name="stopping_logfile_recorder">Stopping logfile recorder...</string>
+    <string name="converting_to_msl">Converting to MSL...</string>
+    <string name="conversion_failed">Conversion failed.</string>
+    <string name="conversion_cancelled">Conversion cancelled.</string>
 
 
 </resources>
