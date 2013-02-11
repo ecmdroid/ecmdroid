@@ -22,13 +22,15 @@ import org.ecmdroid.Utils;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
 /**
  * Base class for async tasks with a progress dialog.
  */
-public abstract class ProgressDialogTask extends AsyncTask<Void, String, Exception>
+public abstract class ProgressDialogTask extends AsyncTask<Void, String, Exception> implements OnCancelListener
 {
 	protected Activity context;
 
@@ -40,13 +42,20 @@ public abstract class ProgressDialogTask extends AsyncTask<Void, String, Excepti
 		this.context = context;
 		this.taskTitle = taskTitle;
 	}
+
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
 		ro = Utils.freezeOrientation(context);
 		super.onPreExecute();
 		pd = ProgressDialog.show(context, taskTitle, "");
+		pd.setOnCancelListener(this);
 		pd.setCancelable(false);
+		pd.setCanceledOnTouchOutside(false);
+	}
+
+	public void setCancelable(boolean state) {
+		pd.setCancelable(state);
 	}
 
 	@Override
@@ -63,6 +72,11 @@ public abstract class ProgressDialogTask extends AsyncTask<Void, String, Excepti
 	protected void onCancelled() {
 		pd.dismiss();
 		super.onCancelled();
+	}
+
+	public void onCancel(DialogInterface dialog) {
+		this.cancel(false);
+
 	}
 
 	@Override
