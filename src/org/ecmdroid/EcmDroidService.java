@@ -185,6 +185,7 @@ public class EcmDroidService extends Service
 	private class ReaderThread extends Thread
 	{
 		private static final int DEFAULT_INTERVAL = 250;
+		private static final int MINIMUM_INTERVAL = 50;
 		private boolean running = true;
 
 		private ReaderThread() {
@@ -205,7 +206,7 @@ public class EcmDroidService extends Service
 						}
 					}
 				}
-				int i = recordingInterval;
+				int i = Math.max(MINIMUM_INTERVAL, recordingInterval);
 				now = System.currentTimeMillis();
 				try {
 					byte[] data = ecm.readRTData();
@@ -215,11 +216,11 @@ public class EcmDroidService extends Service
 					}
 				} catch (Exception e) {
 					readFailures++;
-					if (i == 0) {
+					if (i < DEFAULT_INTERVAL) {
 						i = DEFAULT_INTERVAL;
 					}
 				}
-				if (running && i != 0) {
+				if (running) {
 					long toSleep = i - (System.currentTimeMillis() - now);
 					if (toSleep > 0) {
 						try {
