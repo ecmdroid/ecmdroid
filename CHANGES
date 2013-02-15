@@ -1,29 +1,38 @@
 EcmDroid Changelog
 ------------------
-EcmDroid v0.8 (2012/01/11):
-	- Database Update from ecmspy.com. Most notable changes:
-	  * Additional ECMS: B3R3D, B3R2D, BUEIC, B3R1D, BUEJA
-	  * More Fuel and Spark Skip Configuration bits
-	- Don't crash if encountering an unknown ECM, display a warning instead
-	- Fix Mfg Date parsing for dates < 2000
+EcmDroid v0.9 (2012/02/15):
+- New option to convert binary log files into MSL (Megalogviewer)
+  format after recording (Converter Code contributed by Gunter)
+- Honor the EEPROM burning preference (Previously, even though EEPROM
+  burning was disabled in the preferences and could not be triggered
+  within the EEPROM view, clicking 'Apply' on the setup view circumvented
+  this setting.
+- Don't hog the CPU when recording with 'no-delay'
+
+EcmDroid v0.8 (2012/11/01):
+- Database Update from ecmspy.com. Most notable changes:
+  * Additional ECMS: B3R3D, B3R2D, BUEIC, B3R1D, BUEJA
+  * More Fuel and Spark Skip Configuration bits
+- Don't crash if encountering an unknown ECM, display a warning instead
+- Fix Mfg Date parsing for dates < 2000
 
 EcmDroid v0.7 (2012/10/20):
-	- EEPROM Editor: Blank the info cell on unknown areas
-	- Add a 'apply changes' button to the EEPROM setup view
-	- Preferences: New 'hide non-existent variables' option, I18N, summaries
-	- Setup: Support for multiple names for a single variable
-	- Setup: Add Baro & ABP variable names for DDFI-2
-	- Move remaining activites from base to activity package
-	- Add support for Array and Axis variables
+- EEPROM Editor: Blank the info cell on unknown areas
+- Add a 'apply changes' button to the EEPROM setup view
+- Preferences: New 'hide non-existent variables' option, I18N, summaries
+- Setup: Support for multiple names for a single variable
+- Setup: Add Baro & ABP variable names for DDFI-2
+- Move remaining activites from base to activity package
+- Add support for Array and Axis variables
 
 EcmDroid v0.6 (2012/08/18):
-	- Fix readout of stored trouble codes
+- Fix readout of stored trouble codes
 
 EcmDroid v0.5 (2012/08/11):
-	- Prevent the app from crashing upon screen rotation
-	- Switch to ECMSpys .xpr format for saving and loading EEPROM data
-	- Properly handle ECMs that don't have page zero (e.g. BUEKA)
+- Prevent the app from crashing upon screen rotation
+- Switch to ECMSpys .xpr format for saving and loading EEPROM data
+- Properly handle ECMs that don't have page zero (e.g. BUEKA)
 
 EcmDroid v0.4 (2012/08/05):
-	- First tagged release with support for reading, writing,
-	  fetching and burning EEPROM data
+- First tagged release with support for reading, writing,
+  fetching and burning EEPROM data
