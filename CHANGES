@@ -1,6 +1,6 @@
 EcmDroid Changelog
 ------------------
-EcmDroid v0.9 (2012/02/15):
+EcmDroid v0.9 (2013/02/15):
 - New option to convert binary log files into MSL (Megalogviewer)
   format after recording (Converter Code contributed by Gunter)
 - Honor the EEPROM burning preference (Previously, even though EEPROM
@@ -9,7 +9,7 @@ EcmDroid v0.9 (2012/02/15):
   this setting.
 - Don't hog the CPU when recording with 'no-delay'
 
-EcmDroid v0.8 (2012/11/01):
+EcmDroid v0.8 (2013/01/11):
 - Database Update from ecmspy.com. Most notable changes:
   * Additional ECMS: B3R3D, B3R2D, BUEIC, B3R1D, BUEJA
   * More Fuel and Spark Skip Configuration bits
