@@ -38,6 +38,8 @@ public class Variable implements Cloneable {
 	private DataClass cls;
 	private int size;
 	private int width;
+	private int rows;
+	private int cols;
 	private int offset;
 	private String unit = "";
 	private String symbol = "";
@@ -101,6 +103,22 @@ public class Variable implements Cloneable {
 
 	public void setWidth(int width) {
 		this.width = width;
+	}
+
+	public int getRows() {
+		return rows;
+	}
+
+	public void setRows(int rows) {
+		this.rows = rows;
+	}
+
+	public int getCols() {
+		return cols;
+	}
+
+	public void setCols(int cols) {
+		this.cols = cols;
 	}
 
 	public int getElementCount() {
@@ -257,7 +275,7 @@ public class Variable implements Cloneable {
 				}
 				if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
 					rawValues[s] = new Short((short) (value & 0xffff));
-				} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE || cls == DataClass.ARRAY  || cls == DataClass.AXIS) {
+				} else if (cls != DataClass.STRING) {
 					double v = value;
 					if (scale != 0) {
 						v *= scale;
@@ -287,6 +305,10 @@ public class Variable implements Cloneable {
 		return formattedValues[index];
 	}
 
+	public Object getFormattedValueAt(int row, int col) {
+		return formattedValues[row * cols + col];
+	}
+
 	public String getValueAsString() {
 		if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
 			return getFormattedValue();
@@ -296,6 +318,10 @@ public class Variable implements Cloneable {
 
 	public int getIntValue() {
 		return getIntValueAt(0);
+	}
+
+	public int getIntValueAt(int row, int col) {
+		return getIntValueAt(row * cols + col);
 	}
 
 	public int getIntValueAt(int index) {
@@ -319,32 +345,34 @@ public class Variable implements Cloneable {
 		}
 		int co = offset < 0 ? bytes.length + offset : offset;
 		byte[] buffer = new byte[size];
-		int value = 0;
-		if (cls == DataClass.BITFIELD || cls == DataClass.BITS) {
-			value = (Short) rawValues[0] & 0xFFFF;
-		} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE) {
-			double v = 0;
-			if (rawValues[0] instanceof Double) {
-				v = (Double) rawValues[0];
+		for (int s = 0; s < (size / width); s++) {
+			int value = 0;
+			if (cls == DataClass.BITFIELD || cls == DataClass.BITS) {
+				value = (Short) rawValues[0] & 0xFFFF;
+			} else if (cls != DataClass.STRING) {
+				double v = 0;
+				if (rawValues[s] instanceof Double) {
+					v = (Double) rawValues[s];
+				} else {
+					v = (Integer) rawValues[s];
+				}
+				if (translate != 0) {
+					v -= translate;
+				}
+				if (scale != 0) {
+					v /= scale;
+				}
+				value = (int) v;
+
 			} else {
-				v = (Integer) rawValues[0];
+				Log.w(TAG, "Unsupported class " + cls);
+				return;
 			}
-			if (translate != 0) {
-				v -= translate;
-			}
-			if (scale != 0) {
-				v /= scale;
-			}
-			value = (int) v;
 
-		} else {
-			Log.w(TAG, "Unsupported class " + cls);
-			return;
-		}
-
-		for (int i = 0; i < size; i++) {
-			buffer[i] = (byte) (value & 0xFF);
-			value >>= 8;
+			for (int i = 0; i < width; i++) {
+				buffer[i + s * width] = (byte) (value & 0xFF);
+				value >>= 8;
+			}
 		}
 		Log.d(TAG, String.format("Setting buffer (len: %X) at offset 0x%02X (raw: 0x%02X) to %s (width: %d).", bytes.length, co, offset, Utils.hexdump(buffer), size));
 		System.arraycopy(buffer, 0, bytes, co, size);
@@ -367,15 +395,20 @@ public class Variable implements Cloneable {
 		}
 	}
 
+	public void parseValueAt(int row, int col, Object value) {
+		parseValueAt(row * cols + col, value);
+	}
+
 	private void formatValueAt(int index) {
 		if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
 			Short v = (Short) rawValues[index];
 			formattedValues[index] = Integer.toBinaryString(v);
-		} else if (cls == DataClass.SCALAR || cls == DataClass.VALUE || cls == DataClass.ARRAY || cls == DataClass.AXIS) {
+		} else if (cls  != DataClass.STRING) {
 			formattedValues[index] = formatter.format(rawValues[index]);
 			if (!Utils.isEmptyString(symbol)) {
 				formattedValues[index] += symbol;
 			}
 		}
 	}
+
 }

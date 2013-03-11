@@ -208,6 +208,8 @@ public class DatabaseVariableProvider extends VariableProvider {
 			ret.setSize(cursor.getInt(cursor.getColumnIndex("size")));
 			if (DataSource.EEPROM.equals(runtimeData)) {
 				ret.setWidth(cursor.getInt(cursor.getColumnIndex("elemsize")));
+				ret.setCols(cursor.getInt(cursor.getColumnIndex("cols")));
+				ret.setRows(cursor.getInt(cursor.getColumnIndex("rows")));
 			} else {
 				ret.setWidth(ret.getSize());
 			}

@@ -97,9 +97,20 @@ public class TestVariableProvider extends AndroidTestCase
 		assertEquals(6, var.getRawValue());
 		var = provider.getEEPROMVariable("BUEIB", "KMFG_Serial");
 		assertNotNull(var);
+		assertEquals(2, var.getWidth());
+		assertEquals(1, var.getElementCount());
+		assertEquals(2, var.getSize());
+		assertEquals(0, var.getRows());
+		assertEquals(0, var.getCols());
+		assertEquals(DataClass.VALUE, var.getCls());
 		var.refreshValue(eeprom);
 		assertEquals(204, var.getRawValue());
 
+		var.parseValue(0xCDDC);
+		assertEquals(0xCDDC, var.getIntValue());
+		var.updateValue(eeprom);
+		assertEquals((byte)0xCD, eeprom[var.getOffset() + 1]);
+		assertEquals((byte)0xDC, eeprom[var.getOffset()]);
 	}
 
 	public void testNameLookup()
@@ -118,6 +129,8 @@ public class TestVariableProvider extends AndroidTestCase
 		var.refreshValue(eeprom);
 		assertEquals(12, var.getSize());
 		assertEquals(1, var.getWidth());
+		assertEquals(1, var.getCols());
+		assertEquals(12, var.getRows());
 		int[] expected = { 10, 15, 20, 30, 40, 50, 60, 80, 100, 125, 175, 255 };
 		for (int i=0; i< expected.length; i++) {
 			assertEquals(String.valueOf(expected[i]), var.getFormattedValueAt(i));
@@ -134,6 +147,8 @@ public class TestVariableProvider extends AndroidTestCase
 		var.refreshValue(eeprom);
 		assertEquals(26, var.getSize());
 		assertEquals(2, var.getWidth());
+		assertEquals(1, var.getCols());
+		assertEquals(13, var.getRows());
 		expected = new int[]{ 8000, 7000, 6000, 5000, 4000, 3400, 2900, 2400, 1900, 1350, 1000, 800, 0 };
 		for (int i=0; i< expected.length; i++) {
 			assertEquals(String.valueOf(expected[i]), var.getFormattedValueAt(i));
@@ -143,6 +158,43 @@ public class TestVariableProvider extends AndroidTestCase
 			var.getIntValueAt(expected.length);
 			fail("ArrayIndexOutOfBoundsException expected.");
 		} catch (ArrayIndexOutOfBoundsException e) {}
+	}
+
+	public void testTable() throws IOException {
+		byte[] eeprom = TestUtils.readEEPROM();
+		Variable var = provider.getEEPROMVariable("BUEIB", "Tab_ABP_Conv");
+		assertNotNull(var);
+		assertEquals(var.getCls(), DataClass.TABLE);
+		assertEquals(5, var.getRows());
+		assertEquals(2, var.getCols());
+		var.refreshValue(eeprom);
+		int[][] expected = {{125, 100}, {127, 60}, {170, 80}, {213, 100}, {250, 120}};
+		for (int r = 0; r < expected.length; r++) {
+			for (int c = 0; c < expected[0].length; c++) {
+				assertEquals(String.valueOf(expected[r][c]), var.getFormattedValueAt(r, c));
+				assertEquals(expected[r][c], var.getIntValueAt(r, c));
+			}
+		}
+		try {
+			var.getFormattedValueAt(expected.length + 1, expected[0].length + 1);
+			fail("ArrayIndexOutOfBoundsException expected.");
+		} catch (ArrayIndexOutOfBoundsException e) {}
+
+		var.parseValueAt(0, 0, Integer.valueOf(42));
+		var.parseValueAt(0, 1, Integer.valueOf(99));
+		var.parseValueAt(1, 0, Integer.valueOf(88));
+		var.parseValueAt(1, 1, Integer.valueOf(77));
+		assertEquals(42, var.getIntValueAt(0, 0));
+		assertEquals(99, var.getIntValueAt(0, 1));
+		assertEquals(88, var.getIntValueAt(1, 0));
+		assertEquals(77, var.getIntValueAt(1, 1));
+
+		var.updateValue(eeprom);
+		int o = var.getOffset();
+		assertEquals(42, eeprom[o++]);
+		assertEquals(99, eeprom[o++]);
+		assertEquals(88, eeprom[o++]);
+		assertEquals(77, eeprom[o++]);
 	}
 }
 
