@@ -47,6 +47,22 @@ public class TestVariableProvider extends AndroidTestCase
 		assertTrue(vars.contains("CLT"));
 	}
 
+	public void testScalarRtVariableNames() {
+		Collection<String> vars = provider.getScalarRtVariableNames("BUE2D");
+		assertEquals(79, vars.size());
+		assertTrue(vars.contains("O2 ADC"));
+		assertTrue(vars.contains("ETS1 ADC"));
+		assertTrue(vars.contains("EGO1 Corr."));
+	}
+
+	public void testBitfieldRtVariableNames() {
+		Collection<String> vars = provider.getBitfieldRtVariableNames("BUE2D");
+		assertEquals(32, vars.size());
+		assertTrue(vars.contains("Flags0"));
+		assertTrue(vars.contains("CDiag7"));
+		assertTrue(vars.contains("DOut2 Feedb."));
+	}
+
 	public void testRtVariable() {
 		Variable v = provider.getRtVariable("BUE2D", "pw2");
 		assertNotNull(v);

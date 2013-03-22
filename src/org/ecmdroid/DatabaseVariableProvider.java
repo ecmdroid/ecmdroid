@@ -49,6 +49,11 @@ public class DatabaseVariableProvider extends VariableProvider {
 		return getRtVariableNames(ecm, DataClass.SCALAR);
 	}
 
+	@Override
+	public Collection<String> getBitfieldRtVariableNames(String ecm) {
+		return getRtVariableNames(ecm, DataClass.BITFIELD);
+	}
+
 	private Collection<String> getRtVariableNames(String ecm, DataClass type) {
 		LinkedList<String> ret = new LinkedList<String>();
 		SQLiteDatabase db = dbHelper.getReadableDatabase();

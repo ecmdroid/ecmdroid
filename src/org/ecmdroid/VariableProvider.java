@@ -54,6 +54,13 @@ public abstract class VariableProvider
 	public abstract Collection<String> getScalarRtVariableNames(String ecm);
 
 	/**
+	 * Get all available bitfield runtime variable names for an ECM.
+	 * @param ecm the ECM ID
+	 * @return a collection of bitfield names, possibly empty.
+	 */
+	public abstract Collection<String> getBitfieldRtVariableNames(String ecm);
+
+	/**
 	 * Get a EEPROM Variable definition.
 	 * @param ecm the ECMs ID (e.g. 'BUEIB')
 	 * @param name the variable name (e.g. 'KTemp_Fan_On')
