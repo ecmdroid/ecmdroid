@@ -20,6 +20,8 @@ package org.ecmdroid;
 
 import java.util.LinkedList;
 
+import org.ecmdroid.Variable.DataClass;
+
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -48,6 +51,7 @@ public class DataChannelAdapter extends ArrayAdapter<Variable> {
 		inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		variableProvider = VariableProvider.getInstance(ctx);
 		variables = new LinkedList<String>(variableProvider.getScalarRtVariableNames(ecm.getId()));
+		variables.addAll(variableProvider.getBitfieldRtVariableNames(ecm.getId()));
 		variables.add(0, NO_SELECTION);
 		this.ecm = ecm;
 	}
@@ -116,12 +120,15 @@ public class DataChannelAdapter extends ArrayAdapter<Variable> {
 
 		TextView    value = (TextView) convertView.findViewById(R.id.dataChannelText);
 		ProgressBar pg  = (ProgressBar) convertView.findViewById(R.id.dataChannelProgress);
+		View bitset = convertView.findViewById(R.id.dataChannelBits);
+
 		if (value != null) {
 			value.setText(variable == null ? "" : variable.getFormattedValue());
 		}
 		if (pg != null) {
-			// Log.d(TAG, "Setting MAX " + variable.getName() + " to " + variable.getHigh());
-			if (variable != null) {
+			if (variable != null && variable.getCls() == DataClass.SCALAR) {
+				pg.setVisibility(View.VISIBLE);
+				// Log.d(TAG, "Setting MAX " + variable.getName() + " to " + variable.getHigh());
 				pg.setMax((int) variable.getHigh());
 				try {
 					int pi = (int) Double.parseDouble(variable.getRawValue().toString());
@@ -131,7 +138,25 @@ public class DataChannelAdapter extends ArrayAdapter<Variable> {
 					// Log.d(TAG, "Unable to parse value "+ variable.getRawValue());
 				}
 			} else {
-				pg.setProgress(0);
+				pg.setVisibility(View.GONE);
+			}
+		}
+		if (bitset != null) {
+			if (variable != null && variable.getCls() == DataClass.BITFIELD) {
+				bitset.setVisibility(View.VISIBLE);
+				short bits = 0;
+				if (variable.getRawValue() instanceof Short) {
+					bits = ((Short) variable.getRawValue()).shortValue();
+				}
+				for ( int i = 0; i < 8; i++) {
+					CheckBox b = (CheckBox) bitset.findViewWithTag("b" + i);
+					if (b != null) {
+						b.setChecked((bits & 1) != 0);
+						bits >>= 1;
+					}
+				}
+			} else {
+				bitset.setVisibility(View.GONE);
 			}
 		}
 		return convertView;

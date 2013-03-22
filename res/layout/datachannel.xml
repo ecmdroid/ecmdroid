@@ -34,5 +34,77 @@
         android:layout_margin="10dp"
         android:max="100"
         android:progress="0" />
-        
+
+    <LinearLayout
+        android:id="@+id/dataChannelBits"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible" >
+
+        <CheckBox
+            android:tag="b7"
+            android:id="@+id/dataChannelBit7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            />
+
+        <CheckBox
+            android:tag="b6"
+            android:id="@+id/dataChannelBit6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            />
+        <CheckBox
+            android:tag="b5"
+            android:id="@+id/dataChannelBit5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            />
+        <CheckBox
+            android:tag="b4"
+            android:id="@+id/dataChannelBit4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            />
+        <CheckBox
+            android:tag="b3"
+            android:id="@+id/dataChannelBit3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            />
+        <CheckBox
+            android:tag="b2"
+            android:id="@+id/dataChannelBit2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            />
+        <CheckBox
+            android:tag="b1"
+            android:id="@+id/dataChannelBit1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            />
+        <CheckBox
+            android:tag="b0"
+            android:id="@+id/dataChannelBit0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            />
+    </LinearLayout>
 </LinearLayout>
