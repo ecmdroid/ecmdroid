@@ -402,7 +402,7 @@ public class Variable implements Cloneable {
 	private void formatValueAt(int index) {
 		if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
 			Short v = (Short) rawValues[index];
-			formattedValues[index] = Integer.toBinaryString(v);
+			formattedValues[index] = Integer.toBinaryString(0x100 | v).substring(1);
 		} else if (cls  != DataClass.STRING) {
 			formattedValues[index] = formatter.format(rawValues[index]);
 			if (!Utils.isEmptyString(symbol)) {
