@@ -45,6 +45,7 @@ public class EEPROM {
 	private byte[] data;
 	private boolean eepromRead;
 	private boolean touched;
+	private int xsize = 0;
 
 	public EEPROM(String id) {
 		this.id = id;
@@ -112,6 +113,7 @@ public class EEPROM {
 			while(c.moveToNext()) {
 				if (eeprom.length == 0) {
 					eeprom.length = c.getInt(c.getColumnIndex("xsize"));
+					eeprom.xsize = eeprom.length;
 					eeprom.type = Type.getType(c.getString(c.getColumnIndex("type")));
 					eeprom.data = new byte[eeprom.length];
 				}
@@ -165,7 +167,7 @@ public class EEPROM {
 		String name = null;
 		try {
 			db = helper.getReadableDatabase();
-			String query = "SELECT name FROM eeprom WHERE xsize = " + length + " ORDER BY name";
+			String query = "SELECT name FROM eeprom WHERE size = " + length + " OR xsize = " + length + " ORDER BY name";
 			c = db.rawQuery(query, null);
 			while (c.moveToNext()) {
 				name = c.getString(c.getColumnIndex("name"));
@@ -241,6 +243,10 @@ public class EEPROM {
 		this.version = version;
 	}
 
+	public int getXsize() {
+		return xsize;
+	}
+
 	public boolean isEepromRead() {
 		return eepromRead;
 	}
@@ -259,5 +265,9 @@ public class EEPROM {
 
 	public void saved() {
 		touched = false;
+	}
+
+	public boolean hasPageZero() {
+		return length == xsize;
 	}
 }

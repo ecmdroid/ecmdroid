@@ -427,8 +427,12 @@ public class ECM
 		if (name == null || eeprom == null) {
 			return null;
 		}
+
 		Variable var = this.variableProvider.getEEPROMVariable(getId(), name);
 		if (var != null) {
+			if (var.getOffset() < 0 && !eeprom.hasPageZero()) {
+				return null;
+			}
 			var.refreshValue(eeprom.getBytes());
 		}
 		return var;
@@ -448,6 +452,9 @@ public class ECM
 		BitSet bitset = bitsetProvider.getBitSet(getId(), name, DataSource.EEPROM);
 		if (bitset != null) {
 			Bit b = bitset.getBit(bit);
+			if (b.getOffset() < 0 && !eeprom.hasPageZero()) {
+				return null;
+			}
 			b.refreshValue(eeprom.getBytes());
 			return b;
 		}

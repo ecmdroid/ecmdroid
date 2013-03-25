@@ -203,7 +203,7 @@ public class EEPROMActivity extends Activity {
 			final File dir = getApplicationContext().getExternalFilesDir(getString(R.string.eeprom_dir));
 			final String[] files = dir.list(new FilenameFilter() {
 				public boolean accept(File dir, String filename) {
-					return filename.endsWith(Constants.EEPROM_FILE_SUFFIX);
+					return filename.endsWith(Constants.XPR_FILE_SUFFIX) || filename.endsWith(Constants.EPR_FILE_SUFFIX);
 				}
 			});
 			if (files.length > 0) {

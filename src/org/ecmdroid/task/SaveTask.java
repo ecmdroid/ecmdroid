@@ -65,7 +65,7 @@ public class SaveTask extends AsyncTask<Void, Void, Exception> {
 			return;
 		}
 		final EditText input = new EditText(context);
-		String fn = String.format("%s_%s%s", eeprom.getId(), DateFormat.format("yyyyMMdd-kkmmss", System.currentTimeMillis()), Constants.EEPROM_FILE_SUFFIX);
+		String fn = String.format("%s_%s%s", eeprom.getId(), DateFormat.format("yyyyMMdd-kkmmss", System.currentTimeMillis()), Constants.XPR_FILE_SUFFIX);
 		input.setText(fn);
 		input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 		builder.setView(input);
