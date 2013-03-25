@@ -21,6 +21,7 @@ package org.ecmdroid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.text.ParseException;
 import java.util.Calendar;
@@ -44,6 +45,7 @@ import android.util.Log;
 
 public class ECM
 {
+
 	public static enum Type {
 		DDFI1, DDFI2, DDFI3;
 		public static Type getType(String type) {
@@ -59,6 +61,7 @@ public class ECM
 	private BitSetProvider bitsetProvider;
 
 	private static final int DEFAULT_TIMEOUT = 1000;
+	private static final int TCP_CONNECT_TIMEOUT = 5000;
 	private static final String TAG = "ECM";
 	private static final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private static final String UNKNOWN = "N/A";
@@ -122,7 +125,8 @@ public class ECM
 	 */
 	public void connect(String host, int port) throws IOException
 	{
-		Socket s = new Socket(host, port);
+		Socket s = new Socket();
+		s.connect(new InetSocketAddress(host, port), TCP_CONNECT_TIMEOUT);
 		in = s.getInputStream();
 		out = s.getOutputStream();
 		socket = s;
