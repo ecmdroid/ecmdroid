@@ -59,6 +59,11 @@ public class SaveTask extends AsyncTask<Void, Void, Exception> {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setTitle(R.string.save_eeprom_as);
 		builder.setIcon(android.R.drawable.ic_menu_save);
+		if (!Utils.isExternalStorageAvailable()) {
+			builder.setMessage(R.string.no_ext_storage);
+			builder.create().show();
+			return;
+		}
 		final EditText input = new EditText(context);
 		String fn = String.format("%s_%s%s", eeprom.getId(), DateFormat.format("yyyyMMdd-kkmmss", System.currentTimeMillis()), Constants.EEPROM_FILE_SUFFIX);
 		input.setText(fn);

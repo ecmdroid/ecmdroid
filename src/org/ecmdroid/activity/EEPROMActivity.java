@@ -198,23 +198,32 @@ public class EEPROMActivity extends Activity {
 	}
 
 	private Dialog createLoadDialog(final StringBuilder result) {
-		final File dir = getApplicationContext().getExternalFilesDir(getString(R.string.eeprom_dir));
-		final String[] files = dir.list(new FilenameFilter() {
-			public boolean accept(File dir, String filename) {
-				return filename.endsWith(Constants.EEPROM_FILE_SUFFIX);
-			}
-		});
-		Arrays.sort(files);
 		Builder builder = new Builder(this);
-		builder.setItems(files, new OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				String selected = files[which];
-				if (result != null) {
-					result.setLength(0);
-					result.append(new File(dir, selected).getPath());
+		if (Utils.isExternalStorageAvailable()) {
+			final File dir = getApplicationContext().getExternalFilesDir(getString(R.string.eeprom_dir));
+			final String[] files = dir.list(new FilenameFilter() {
+				public boolean accept(File dir, String filename) {
+					return filename.endsWith(Constants.EEPROM_FILE_SUFFIX);
 				}
+			});
+			if (files.length > 0) {
+				Arrays.sort(files);
+				builder.setItems(files, new OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						String selected = files[which];
+						if (result != null) {
+							result.setLength(0);
+							result.append(new File(dir, selected).getPath());
+						}
+					}
+				});
+			} else {
+				builder.setMessage(R.string.no_eeprom_dumps_present);
 			}
-		});
+		} else {
+			builder.setMessage(R.string.no_ext_storage);
+		}
+		builder.setIcon(R.drawable.ic_menu_open);
 		builder.setTitle(R.string.load_eeprom);
 		return builder.create();
 	}

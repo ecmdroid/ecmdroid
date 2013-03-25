@@ -227,6 +227,7 @@
     <string name="converting_to_msl">Converting to MSL...</string>
     <string name="conversion_failed">Conversion failed.</string>
     <string name="conversion_cancelled">Conversion cancelled.</string>
+    <string name="no_eeprom_dumps_present">No EEPROM dumps present</string>
 
 
 </resources>

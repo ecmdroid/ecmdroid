@@ -31,6 +31,7 @@ import org.ecmdroid.Constants.Variables;
 import org.ecmdroid.ECM;
 import org.ecmdroid.EcmDroidService;
 import org.ecmdroid.R;
+import org.ecmdroid.Utils;
 import org.ecmdroid.Variable;
 import org.ecmdroid.task.ProgressDialogTask;
 import org.ecmdroid.util.Bin2MslConverter;
@@ -45,7 +46,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -186,7 +186,6 @@ public class LogActivity extends BaseActivity implements OnClickListener
 			if (!ecm.isRecording()) {
 				try {
 					startRecording();
-					recordButton.setText(R.string.stop_recording);
 				} catch (IOException e) {
 					Toast.makeText(this, "I/O error. " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 					return;
@@ -202,8 +201,7 @@ public class LogActivity extends BaseActivity implements OnClickListener
 	}
 
 	private void startRecording() throws IOException {
-		String state = Environment.getExternalStorageState();
-		if (!Environment.MEDIA_MOUNTED.equals(state)){
+		if (!Utils.isExternalStorageAvailable()) {
 			Toast.makeText(this, R.string.no_ext_storage, Toast.LENGTH_LONG).show();
 			return;
 		}
@@ -215,6 +213,7 @@ public class LogActivity extends BaseActivity implements OnClickListener
 		if (!dir.exists() && !dir.mkdirs()) {
 			Log.w(TAG, "Unable to create directories " + dir.getAbsolutePath());
 		}
+		recordButton.setText(R.string.stop_recording);
 		ecmDroidService.startRecording(new File(dir, fn + ".bin"), intv == null ? 0 : intv.delay, ecm);
 	}
 

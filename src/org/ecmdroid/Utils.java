@@ -38,6 +38,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -203,5 +204,11 @@ public abstract class Utils
 			result = context.getText(R.string.app_name) + " " + pInfo.versionName;
 		} catch (NameNotFoundException e1) {}
 		return result;
+	}
+
+	public static boolean isExternalStorageAvailable()
+	{
+		String state = Environment.getExternalStorageState();
+		return Environment.MEDIA_MOUNTED.equals(state);
 	}
 }
