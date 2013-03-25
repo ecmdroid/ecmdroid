@@ -277,6 +277,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			if (result == null ) {
 				connectButton.setText(R.string.disconnect);
 				connectButton.setTag(R.string.connected);
+			} else {
+				try {
+					ecm.disconnect();
+				} catch (IOException e) {}
 			}
 		}
 	}
