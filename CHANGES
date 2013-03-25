@@ -1,5 +1,16 @@
 EcmDroid Changelog
 ------------------
+EcmDroid v0.91 (2013/03/25):
+- The Data Channel view now is able to display bit fields
+- Add support for loading legacy (".epr") EEPROM dumps
+- Prompt for the ECM type when loading ambiguously sized EEPROMs
+- Read Stored Errors from EEPROM (instead of live data) when not
+  currently connected to an ECM
+- Use a 5-second connect timeout for TCP connections
+- Load/Save/Log: Don't crash or misbehave if external storage is not
+  present
+- Properly release socket to ECM if connecting fails half-way through
+
 EcmDroid v0.9 (2013/02/15):
 - New option to convert binary log files into MSL (Megalogviewer)
   format after recording (Converter Code contributed by Gunter)
