@@ -228,21 +228,47 @@ public class EEPROMActivity extends Activity {
 		return builder.create();
 	}
 
-	private void loadEEPROM(File file)
+
+	private void loadEEPROM(final File file)
+	{
+		int len = (int) file.length();
+		final String[] ids;
+		try {
+			// Determine ECM type
+			ids = EEPROM.size2id(this, len);
+		} catch (IOException e) {
+			Toast.makeText(EEPROMActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+			return;
+		}
+		if (ids.length > 1 ) {
+			Builder builder = new Builder(this);
+			builder.setItems(ids, new OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					String selected = ids[which];
+					loadEEPROM(selected, file);
+				}
+			});
+			builder.setTitle(R.string.select_ecm_type).create().show();
+		} else if (ids.length == 1) {
+			loadEEPROM(ids[0], file);
+		}
+	}
+
+	private void loadEEPROM(String id, File file)
 	{
 		try {
 			FileInputStream in = new FileInputStream(file);
-			EEPROM eeprom = EEPROM.load(this, ecm.getId(), in);
+			EEPROM eeprom = EEPROM.load(this, ecm.getId(), id, in);
 			if (ecm.isConnected() && !eeprom.getId().equals(ecm.getId())) {
-				throw new IOException(getString(R.string.incompatible_version_disconnect_first));
+				throw new IOException(getString(R.string.incompatible_version_disconnect_first, id));
 			}
 			ecm.setEEPROM(eeprom);
-			Toast.makeText(EEPROMActivity.this, "EEPROM loaded sucessfully", Toast.LENGTH_LONG).show();
+			Toast.makeText(EEPROMActivity.this, R.string.eeprom_loaded_sucessfully, Toast.LENGTH_LONG).show();
 			GridView gridview = (GridView) findViewById(R.id.eepromGrid);
 			adapter = new EEPROMAdapter(EEPROMActivity.this, ecm.getEEPROM(), COLS);
 			gridview.setAdapter(adapter);
 		} catch (IOException e) {
-			Toast.makeText(EEPROMActivity.this, "Unable to load EEPROM. " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+			Toast.makeText(EEPROMActivity.this, getString(R.string.unable_to_load_eeprom) + " " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 		}
 	}
 }

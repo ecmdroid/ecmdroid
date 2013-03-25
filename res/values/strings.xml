@@ -207,8 +207,8 @@
     <string name="save_eeprom_as">Save EEPROM As…</string>
     <string name="file_already_exists_overwrite">%1$s\n\nFile already exists. Overwrite?</string>
     <string name="eeprom_saved">EEPROM saved.</string>
-    <string name="unsupported_eeprom">%1$: Unsupported EEPROM.</string>
-    <string name="incompatible_version_disconnect_first">Incompatible Version. Please disconnect first.</string>
+    <string name="unsupported_eeprom">%1$s: Unsupported EEPROM.</string>
+    <string name="incompatible_version_disconnect_first">%1$s: Incompatible ECM version. Please disconnect first.</string>
     <string name="eeprom_dir">eeprom</string>
     <string name="unable_to_determine_ecm_type">Unable to determine ECM type</string>
     <string name="apply_changes">Apply Changes</string>
@@ -228,6 +228,9 @@
     <string name="conversion_failed">Conversion failed.</string>
     <string name="conversion_cancelled">Conversion cancelled.</string>
     <string name="no_eeprom_dumps_present">No EEPROM dumps present</string>
+    <string name="select_ecm_type">Select ECM type:</string>
+    <string name="eeprom_loaded_sucessfully">EEPROM loaded sucessfully</string>
+    <string name="unable_to_load_eeprom">Unable to load EEPROM.</string>
 
 
 </resources>

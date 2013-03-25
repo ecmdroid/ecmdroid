@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import org.ecmdroid.ECM.Type;
 
@@ -134,7 +135,7 @@ public class EEPROM {
 		return eeprom;
 	}
 
-	public static EEPROM load(Context context, String currentId, InputStream in) throws IOException {
+	public static EEPROM load(Context context, String currentId, String id, InputStream in) throws IOException {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
 		int length;
@@ -145,14 +146,6 @@ public class EEPROM {
 		in.close();
 
 		byte[] data = bytes.toByteArray();
-		String id = size2id(context, data.length);
-
-		if (id == null) {
-			throw new IOException(context.getString(R.string.unable_to_determine_ecm_type));
-		}
-		if (Constants.BUEIB.equals(id) && Constants.B2RIB.equals(currentId)){
-			id = Constants.B2RIB;
-		}
 
 		EEPROM eeprom = EEPROM.get(id, context);
 		if (eeprom == null) {
@@ -163,26 +156,31 @@ public class EEPROM {
 		return eeprom;
 	}
 
-	private static String size2id(Context context, int length)
+	public static String[] size2id(Context context, int length) throws IOException
 	{
 		DBHelper helper = new DBHelper(context);
+		LinkedList<String> ret = new LinkedList<String>();
 		SQLiteDatabase db = null;
 		Cursor c = null;
 		String name = null;
 		try {
 			db = helper.getReadableDatabase();
-			// BUEIB/B2RIB is ambiguous, prefer BUEIB (guess why...)
-			String query = "SELECT name FROM eeprom WHERE xsize = " + length + " AND name != '" + Constants.B2RIB +"' LIMIT 1";
+			String query = "SELECT name FROM eeprom WHERE xsize = " + length + " ORDER BY name";
 			c = db.rawQuery(query, null);
-			if (c.moveToFirst()) {
+			while (c.moveToNext()) {
 				name = c.getString(c.getColumnIndex("name"));
+				ret.add(name);
 			}
 		} finally {
 			c.close();
 			db.close();
 		}
-		Log.d(TAG, "EEPROM ID guessed from size: " + name);
-		return name;
+		if (ret.size() == 0) {
+			throw new IOException(context.getString(R.string.unable_to_determine_ecm_type));
+		}
+
+		Log.d(TAG, "EEPROM ID(s) from size: " + ret);
+		return ret.toArray(new String[0]);
 	}
 
 	public class Page {
