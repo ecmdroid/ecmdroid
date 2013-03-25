@@ -148,6 +148,7 @@ public class ECM
 			socket = null;
 		}
 		connected = false;
+		rtData = null;
 	}
 
 	synchronized PDU sendPDU(PDU pdu) throws IOException {
@@ -363,18 +364,36 @@ public class ECM
 
 	public Collection<Error> getErrors(ErrorType type) throws IOException {
 		String field = (type == ErrorType.CURRENT ? "CDiag%d" : "HDiag%d_LD");
-		if (getRealtimeData() == null) {
+		DataSource ds = DataSource.RUNTIME_DATA;
+		if (getRealtimeData() == null && isConnected()) {
 			readRTData();
 		}
+
 		byte[] data = getRealtimeData();
+		if (data == null) {
+			if (type == ErrorType.STORED && eeprom != null && eeprom.isEepromRead()) {
+				if (D) Log.d(TAG, "No live data, falling back to EEPROM data for stored errors...");
+				data = eeprom.getBytes();
+				field = "HDiag%d";
+				ds = DataSource.EEPROM;
+			} else {
+				return null;
+			}
+		}
 
 		List<Error> errors = new LinkedList<Error>();
 		if (data != null) {
 			for (int i = 0; ; i++) {
-				BitSet bitset = bitsetProvider.getBitSet(this.eeprom.getId(), String.format(field,i), DataSource.RUNTIME_DATA);
+				String f = String.format(field,i);
+				BitSet bitset = bitsetProvider.getBitSet(this.eeprom.getId(), f, ds);
 				if (bitset == null) {
 					break;
 				}
+				if (ds == DataSource.EEPROM && bitset.getOffset() < 0 && !eeprom.hasPageZero()) {
+					if (D) Log.d(TAG, f + ": Skipping troublecode variable at offset " + bitset.getOffset());
+					continue;
+				}
+				if (D) Log.d(TAG, "Checking field " + f + "(offset " + bitset.getOffset() + ") for errors");
 				for (Bit bit : bitset) {
 					if (bit.refreshValue(data)) {
 						Error e = new Error();

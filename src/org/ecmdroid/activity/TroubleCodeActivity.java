@@ -113,12 +113,11 @@ public class TroubleCodeActivity extends BaseActivity implements OnClickListener
 	}
 
 	private void update() {
-		if (ecm.getRealtimeData() != null) {
-			try {
-				currentErrors = ecm.getErrors(ErrorType.CURRENT);
-				storedErrors = ecm.getErrors(ErrorType.STORED);
-			} catch (IOException e) {}
-		}
+		currentErrors = storedErrors = null;
+		try {
+			currentErrors = ecm.getErrors(ErrorType.CURRENT);
+			storedErrors = ecm.getErrors(ErrorType.STORED);
+		} catch (IOException e) {}
 		EditText ce = (EditText) findViewById(R.id.currentErrors);
 		ce.setText(errors2str(currentErrors));
 		EditText se = (EditText) findViewById(R.id.storedErrors);
