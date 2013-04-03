@@ -52,6 +52,10 @@
             android:name=".activity.PrefsActivity"
             android:label="@string/preferences" />
         <activity
+            android:name=".activity.TorqueValuesActivity"
+            android:label="Torque Values" >
+        </activity>
+        <activity
             android:name=".activity.AboutActivity"
             android:label="@string/about" />
         </application>

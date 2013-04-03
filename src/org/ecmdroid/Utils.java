@@ -29,6 +29,7 @@ import org.ecmdroid.activity.LogActivity;
 import org.ecmdroid.activity.MainActivity;
 import org.ecmdroid.activity.PrefsActivity;
 import org.ecmdroid.activity.SetupActivity;
+import org.ecmdroid.activity.TorqueValuesActivity;
 import org.ecmdroid.activity.TroubleCodeActivity;
 
 import android.app.Activity;
@@ -71,6 +72,8 @@ public abstract class Utils
 			id = R.id.setup;
 		} else if (cls == AboutActivity.class) {
 			id = R.id.about;
+		} else if (cls == TorqueValuesActivity.class) {
+			id = R.id.torque;
 		}
 		if (id > 0) {
 			MenuItem item  = menu.findItem(id);
@@ -128,6 +131,11 @@ public abstract class Utils
 		case R.id.about:
 			if (activity.getClass() != AboutActivity.class) {
 				intent = new Intent(activity, AboutActivity.class);
+			}
+			break;
+		case R.id.torque:
+			if (activity.getClass() != TorqueValuesActivity.class) {
+				intent = new Intent(activity, TorqueValuesActivity.class);
 			}
 			break;
 		}
