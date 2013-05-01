@@ -24,7 +24,7 @@
 			<CheckBoxPreference android:key="KBaro_Config[6]:KABP_Config[7]" android:title="@string/airbox_pressure_feature"/>
 			<CheckBoxPreference android:key="KBaro_Config[2]:KABP_Config[0]" android:title="@string/log_avg_baro_abp_corr_data"/>
 			<CheckBoxPreference android:key="KABP_Config[1]" android:title="@string/log_map_front_rear_data"/>
-			<CheckBoxPreference android:key="KBaro_Config[2]:KBaro_Read[4]" android:title="@string/read_baro_at_key_on"/>
+			<CheckBoxPreference android:key="KBaro_Config[0]:KBaro_Read[4]" android:title="@string/read_baro_at_key_on"/>
 			<CheckBoxPreference android:key="KABP_Config[5]" android:title="@string/read_sensor_continuously"/>
 			<CheckBoxPreference android:key="KBaro_Config[1]:KBaro_Read[5]" android:title="@string/skip_key_on_read_if_engine_runs"/>
 			<CheckBoxPreference android:key="KABP_Config[4]" android:title="@string/speed_correction" />
