@@ -73,7 +73,7 @@
 			<Preference android:key="tv.00071" android:title="Muffler strap fastener, front" android:summary="12-14 Nm" />
 			<Preference android:key="tv.00072" android:title="Muffler strap fastener, rear" android:summary="5-7 Nm" />
 			<Preference android:key="tv.00073" android:title="Oil cooler air scoop" android:summary="14-16 Nm" />
-			<Preference android:key="tv.00074" android:title="Oil drain plug" android:summary=" Nm" />
+			<Preference android:key="tv.00074" android:title="Oil drain plug" android:summary="20 Nm" />
 			<Preference android:key="tv.00075" android:title="Oil line fittings" android:summary="39-42 Nm" />
 			<Preference android:key="tv.00076" android:title="Passenger seat latch" android:summary="7-11 Nm" />
 			<Preference android:key="tv.00077" android:title="Pivot shaft pinch bolt" android:summary="23-26 Nm" />
