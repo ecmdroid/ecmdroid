@@ -1,5 +1,10 @@
 EcmDroid Changelog
 ------------------
+EcmDroid v0.92 (2013/05/01):
+- Fix Airbox Pressure Sensor 'baro at key-on' configuration
+- The app now contains a list of torque values for XB models
+  from the xborgforum Wiki
+
 EcmDroid v0.91 (2013/03/25):
 - The Data Channel view now is able to display bit fields
 - Add support for loading legacy (".epr") EEPROM dumps
