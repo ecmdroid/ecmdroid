@@ -70,6 +70,13 @@ public class LogActivity extends BaseActivity implements OnClickListener
 	private ECM ecm = ECM.getInstance(this);
 	private EcmDroidService ecmDroidService;
 
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if (hasFocus) updateUI();
+	}
+
+
 	private static class Interval {
 		int delay;
 		String name;
