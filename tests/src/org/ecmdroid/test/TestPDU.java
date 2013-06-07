@@ -35,7 +35,7 @@ public class TestPDU extends AndroidTestCase {
 		assertFalse(pdu.isRequest());
 		assertTrue(pdu.isResponse());
 		assertTrue(pdu.isACK());
-		assertEquals(pdu.getSender(), PDU.ECM_ID);
+		assertEquals(pdu.getSender(), PDU.STOCK_ECM_ID);
 		assertEquals("BUEIB310 12-11-03", new String(pdu.getEEPromData(), "US-ASCII"));
 	}
 

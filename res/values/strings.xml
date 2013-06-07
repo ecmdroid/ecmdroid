@@ -6,11 +6,6 @@
     <string name="protocol">Protocol</string>
     <string name="choose_protocol">Choose Protocol</string>
 
-    <string-array name="protocols">
-        <item>Stock / P&amp;A</item>
-        <!-- <item>Factory Race</item> -->
-    </string-array>
-
     <string name="active_tests">Active Tests</string>
     <string name="tps_reset">TPS Reset</string>
     <string name="run_device_test">Choose Device Test</string>

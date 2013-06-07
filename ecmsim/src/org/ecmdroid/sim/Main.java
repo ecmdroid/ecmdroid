@@ -40,8 +40,8 @@ import org.ecmdroid.PDU;
 public class Main
 {
 	static final int PORT = 6275;
-	static final PDU ACK  = new PDU(PDU.ECM_ID, PDU.DROID_ID, new byte[]{0x06, 0x00});
-	static final PDU NACK = new PDU(PDU.ECM_ID, PDU.DROID_ID, new byte[]{0x42, 0x42});
+	static final PDU ACK  = new PDU(PDU.STOCK_ECM_ID, PDU.DROID_ID, new byte[]{0x06, 0x00});
+	static final PDU NACK = new PDU(PDU.STOCK_ECM_ID, PDU.DROID_ID, new byte[]{0x42, 0x42});
 
 	static final byte[] VERSION_RESPONSE_BUE2D = {0x01, 0x42, 0x00, 0x13, (byte) 0xff, 0x02, 0x06, 0x42, 0x55, 0x45, 0x32, 0x44, 0x32, 0x34, 0x32, 0x20, 0x31, 0x31, 0x2d, 0x33, 0x30, 0x2d, 0x30, 0x39, 0x03, (byte) 0x93};
 	static final byte[] VERSION_RESPONSE_BUEIB = {0x01, 0x42, 0x00, 0x13, (byte) 0xff, 0x02, 0x06, 0x42, 0x55, 0x45, 0x49, 0x42, 0x33, 0x31, 0x30, 0x20, 0x31, 0x32, 0x2d, 0x31, 0x31, 0x2d, 0x30, 0x33, 0x03, (byte) 0xe2};
@@ -133,7 +133,7 @@ public class Main
 							byte stat = (byte) ((System.currentTimeMillis() - deviceTestStart > 3000) ? 0 : 1);
 							payload[1] = stat;
 						}
-						PDU response = new PDU(PDU.ECM_ID, PDU.DROID_ID, payload);
+						PDU response = new PDU(PDU.STOCK_ECM_ID, PDU.DROID_ID, payload);
 						out.write(response.getBytes());
 						break;
 					default:

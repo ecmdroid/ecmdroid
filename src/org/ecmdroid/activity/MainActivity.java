@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import org.ecmdroid.DBHelper;
 import org.ecmdroid.ECM;
+import org.ecmdroid.ECM.Protocol;
 import org.ecmdroid.EEPROM;
 import org.ecmdroid.EcmDroidService;
 import org.ecmdroid.R;
@@ -44,7 +45,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +56,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 	private ECM ecm = ECM.getInstance(this);
 	private Button connectButton;
+	private Spinner protocolSpinner;
 	private DBHelper dbHelper;
 	private SharedPreferences prefs;
 
@@ -83,6 +87,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			setTitle(version);
 		}
 		super.onCreate(savedInstanceState);
+
+		protocolSpinner = (Spinner) findViewById(R.id.protocolSpinner);
+		protocolSpinner.setAdapter(new ArrayAdapter<ECM.Protocol>(this, android.R.layout.simple_spinner_item, ECM.Protocol.values()));
 
 		bindService(new Intent(this, EcmDroidService.class), serviceConnection, Context.BIND_AUTO_CREATE);
 		connectButton  = (Button) findViewById(R.id.connectButton);
@@ -122,6 +129,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			connectButton.setText(R.string.disconnect);
 			connectButton.setTag(R.string.connected);
 		}
+		protocolSpinner.setEnabled(!ecm.isConnected());
+		protocolSpinner.setSelection(ecm.getCurrentProtocol().ordinal());
 		update();
 	}
 
@@ -177,6 +186,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 				Log.w(TAG, "Disconnect failed. ", ioe);
 			}
 			b.setText(R.string.connect);
+			protocolSpinner.setEnabled(true);
 			b.setTag(null);
 		}
 	}
@@ -203,7 +213,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		alert.show();
 	}
 
-	protected void connect(BluetoothDevice bluetoothDevice) {
+	private void connect(BluetoothDevice bluetoothDevice) {
 		Log.i(TAG,  "Device selected: " + bluetoothDevice);
 		new ConnectTask(bluetoothDevice).execute();
 	}
@@ -254,9 +264,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			publishProgress(String.format("Connecting to %1$s...", target));
 			try {
 				if (btDevice != null) {
-					ecm.connect(btDevice);
+					ecm.connect(btDevice, (Protocol) protocolSpinner.getSelectedItem());
 				} else {
-					ecm.connect(host, port);
+					ecm.connect(host, port, (Protocol) protocolSpinner.getSelectedItem());
 				}
 			} catch (Exception e) {
 				return e;
@@ -277,6 +287,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			if (result == null ) {
 				connectButton.setText(R.string.disconnect);
 				connectButton.setTag(R.string.connected);
+				protocolSpinner.setEnabled(false);
 			} else {
 				try {
 					ecm.disconnect();

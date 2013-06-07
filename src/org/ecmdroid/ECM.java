@@ -56,6 +56,21 @@ public class ECM
 		}
 	}
 
+	public static enum Protocol {
+		STOCK("Stock / P&A"), FACTORY_RACE("Factory Race");
+
+		private String label;
+
+		private Protocol(String label) {
+			this.label = label;
+		}
+
+		@Override
+		public String toString() {
+			return label;
+		}
+	}
+
 	private static final boolean D = false;
 	private VariableProvider variableProvider;
 	private BitSetProvider bitsetProvider;
@@ -79,6 +94,7 @@ public class ECM
 	private byte[] rtData;
 	private boolean recording;
 	private Context context;
+	private Protocol protocol = Protocol.STOCK;
 
 	private ECM(Context ctx)
 	{
@@ -92,7 +108,7 @@ public class ECM
 	 * @param bluetoothDevice the bluetooth modem
 	 * @throws IOException
 	 */
-	public void connect(final BluetoothDevice bluetoothDevice) throws IOException
+	public void connect(BluetoothDevice bluetoothDevice, Protocol protocol) throws IOException
 	{
 		BluetoothSocket s = null;
 		try {
@@ -115,6 +131,8 @@ public class ECM
 			}
 			throw e;
 		}
+		this.protocol = protocol;
+		PDU.setProtocol(protocol);
 		connected = true;
 	}
 
@@ -123,13 +141,15 @@ public class ECM
 	 * @param host host name
 	 * @param port port
 	 */
-	public void connect(String host, int port) throws IOException
+	public void connect(String host, int port, Protocol protocol) throws IOException
 	{
 		Socket s = new Socket();
 		s.connect(new InetSocketAddress(host, port), TCP_CONNECT_TIMEOUT);
 		in = s.getInputStream();
 		out = s.getOutputStream();
 		socket = s;
+		this.protocol = protocol;
+		PDU.setProtocol(protocol);
 		connected = true;
 	}
 
@@ -160,6 +180,9 @@ public class ECM
 		out.write(bytes);
 		// Wait for response
 		PDU ret = receivePDU();
+		if (!ret.isResponse()) {
+			throw new IOException("No valid response from ECM (wrong Protocol?)");
+		}
 		if (!ret.isACK()) {
 			throw new IOException("Request not acknowledged by ECM (error code " + ret.getErrorIndicator() +").");
 		}
@@ -213,6 +236,13 @@ public class ECM
 			throw new IOException("Unsupported ECM Version '" + ret + "'!");
 		}
 		return ret;
+	}
+
+	/**
+	 * Returns the currently active protocol (STOCK or FACTORY_RACE)
+	 */
+	public Protocol getCurrentProtocol() {
+		return protocol;
 	}
 
 	/**

@@ -29,7 +29,9 @@ public class PDU
 	public static final byte CMD_VERSION = 0x56;
 	public static final byte ACK         = 0x06;
 	public static final byte DROID_ID    = 0x00;
-	public static final byte ECM_ID      = 0x42;
+	public static final byte STOCK_ECM_ID= 0x42;
+	public static final byte RACE_ECM_ID = 0x55;
+
 	public static final byte SOH         = 0x01;
 	public static final byte EOH         = (byte) 0xFF;
 	public static final byte SOT         = 0x02;
@@ -64,10 +66,34 @@ public class PDU
 	}
 
 	private byte[] pdu;
+	private static byte ECM_ID = STOCK_ECM_ID;
 
-	private static final PDU GET_VERSION = new PDU(DROID_ID, ECM_ID, new byte[] {0x56});
-	private static final PDU GET_RT      = new PDU(DROID_ID, ECM_ID, new byte[] {0x43});
-	private static final PDU GET_CSTATE  = PDU.getRequest(0x20, 0, 1);
+	private static PDU GET_VERSION = new PDU(DROID_ID, ECM_ID, new byte[] {0x56});
+	private static PDU GET_RT      = new PDU(DROID_ID, ECM_ID, new byte[] {0x43});
+	private static PDU GET_CSTATE  = PDU.getRequest(0x20, 0, 1);
+
+	/**
+	 * Set the ECM protocol to use.
+	 * @param protocol the Protocol (STOCK or FACTORY_RACE)
+	 */
+	public static void setProtocol(ECM.Protocol protocol) {
+		byte id = ECM.Protocol.FACTORY_RACE.equals(protocol) ? RACE_ECM_ID : STOCK_ECM_ID;
+		if (id != ECM_ID) {
+			ECM_ID = id;
+			GET_VERSION = new PDU(DROID_ID, ECM_ID, new byte[] {0x56});
+			GET_RT = new PDU(DROID_ID, ECM_ID, new byte[] {0x43});
+			GET_CSTATE = PDU.getRequest(0x20, 0, 1);
+		}
+	}
+
+	/**
+	 * Get the currently used ECM address (ID)
+	 * @return {@link #STOCK_ECM_ID} or {@link #RACE_ECM_ID}
+	 */
+	public static byte getECMID() {
+		return ECM_ID;
+	}
+
 
 	/** Construct a EEPROM GET Request
 	 *
