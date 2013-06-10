@@ -19,6 +19,7 @@
 package org.ecmdroid;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 
@@ -33,6 +34,8 @@ import android.util.Log;
 public class DatabaseVariableProvider extends VariableProvider {
 
 	private DBHelper dbHelper;
+	private HashMap<String, Variable> cache = new HashMap<String, Variable>();
+	private String current_ecm = null;
 	private static final boolean D = false;
 
 	public DatabaseVariableProvider(Context ctx) {
@@ -82,8 +85,16 @@ public class DatabaseVariableProvider extends VariableProvider {
 
 	@Override
 	public Variable getRtVariable(String ecm, String name) {
+		if (current_ecm != null && !current_ecm.equals(ecm)) {
+			cache.clear();
+			current_ecm = ecm;
+		}
+		String key = "rt#" + name;
+		Variable ret = cache.get(key);
+		if (cache.containsKey(key)) {
+			return ret;
+		}
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
-		Variable ret = null;
 		try {
 			String query = "SELECT rtoffsets.*, names.*, eeprom.type as ecm_type FROM rtoffsets, eeprom, names " +
 					" WHERE eeprom.name = '" + ecm + "' AND names.origname = '" + name + "'"+
@@ -101,6 +112,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 		} finally {
 			db.close();
 		}
+		cache.put(key, ret);
 		return ret;
 	}
 
@@ -110,7 +122,15 @@ public class DatabaseVariableProvider extends VariableProvider {
 		if (ecm == null || name == null) {
 			return null;
 		}
-		Variable ret = null;
+		if (current_ecm != null && !current_ecm.equals(ecm)) {
+			cache.clear();
+			current_ecm = ecm;
+		}
+		String key = "ee#" + name;
+		Variable ret = cache.get(key);
+		if (cache.containsKey(key)) {
+			return ret;
+		}
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		try {
 			String query = "SELECT eeoffsets.*, names.*, eeprom.type as ecm_type FROM eeoffsets, eeprom, names " +
@@ -124,6 +144,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 		} finally {
 			db.close();
 		}
+		cache.put(key, ret);
 		return ret;
 	}
 

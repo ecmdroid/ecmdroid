@@ -18,6 +18,8 @@
  */
 package org.ecmdroid;
 
+import java.util.HashMap;
+
 import org.ecmdroid.Constants.DataSource;
 
 import android.content.Context;
@@ -27,13 +29,23 @@ import android.database.sqlite.SQLiteDatabase;
 public class DatabaseBitSetProvider extends BitSetProvider {
 
 	private DBHelper dbHelper;
+	private HashMap<String, BitSet> cache;
+	private String current_ecm = null;
 
 	public DatabaseBitSetProvider(Context ctx) {
 		dbHelper = new DBHelper(ctx);
+		cache = new HashMap<String, BitSet>();
 	}
 	@Override
 	public BitSet getBitSet(String ecm_id, String name, DataSource source) {
-		BitSet ret = null;
+		if (current_ecm != null && !current_ecm.equals(ecm_id)) {
+			cache.clear();
+			current_ecm = ecm_id;
+		}
+		BitSet ret = cache.get(name);
+		if (cache.containsKey(name)) {
+			return ret;
+		}
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		String offset_table = (source == DataSource.EEPROM ? "eeoffsets" : "rtoffsets");
 		try {
@@ -77,6 +89,7 @@ public class DatabaseBitSetProvider extends BitSetProvider {
 		} finally {
 			db.close();
 		}
+		cache.put(name,ret);
 		return ret;
 	}
 
