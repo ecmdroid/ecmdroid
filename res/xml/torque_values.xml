@@ -79,7 +79,7 @@
 			<Preference android:key="tv.00077" android:title="Pivot shaft pinch bolt" android:summary="23-26 Nm" />
 			<Preference android:key="tv.00078" android:title="Ram air scoop" android:summary="1-4 Nm" />
 			<Preference android:key="tv.00079" android:title="Rear fender fastener" android:summary="1-4 Nm" />
-			<Preference android:key="tv.00080" android:title="Rotor mounting fasteners, front" android:summary="34-37 Nm" />
+			<Preference android:key="tv.00080" android:title="Rotor mounting fasteners, front" android:summary="34-37 Nm (EBR mount kit: 21-25 Nm)" />
 			<Preference android:key="tv.00081" android:title="Rotor mounting fasteners, rear" android:summary="34-37 Nm" />
 			<Preference android:key="tv.00082" android:title="Safety interlock fastener" android:summary="0,8-1,1 Nm" />
 			<Preference android:key="tv.00083" android:title="Seat fasteners" android:summary="1-4 Nm (R model)" />
