@@ -1,5 +1,12 @@
 EcmDroid Changelog
 ------------------
+EcmDroid v0.93 (2013/08/20):
+- Add support for Factory Race ECMs
+- Add EBR front rotor mount kit torque values
+- Speed Up EEPROM Setup by caching bitset and variable definitions
+- Refresh Log Recording View whenever focused
+- Require BT_ADMIN permission for picky devices (Icona, RAZR D1/3)
+
 EcmDroid v0.92 (2013/05/01):
 - Fix Airbox Pressure Sensor 'baro at key-on' configuration
 - The app now contains a list of torque values for XB models
