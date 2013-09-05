@@ -227,6 +227,8 @@
     <string name="eeprom_loaded_sucessfully">EEPROM loaded successfully</string>
     <string name="unable_to_load_eeprom">Unable to load EEPROM.</string>
     <string name="torque_values">Torque Values</string>
+    <string name="edit_cell_value">Edit Cell Value</string>
+    <string name="set">Set</string>
 
 
 </resources>

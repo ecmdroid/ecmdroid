@@ -31,11 +31,12 @@ import org.ecmdroid.EEPROMAdapter;
 import org.ecmdroid.R;
 import org.ecmdroid.Utils;
 import org.ecmdroid.Variable;
+import org.ecmdroid.fragments.CellEditorDialogFragment;
+import org.ecmdroid.fragments.CellEditorDialogFragment.CellEditorDialogListener;
 import org.ecmdroid.task.BurnTask;
 import org.ecmdroid.task.FetchTask;
 import org.ecmdroid.task.SaveTask;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -45,17 +46,19 @@ import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class EEPROMActivity extends Activity {
+public class EEPROMActivity extends FragmentActivity implements CellEditorDialogListener {
 
 	public static final String ACTION_BURN = "BURN";
 
@@ -152,38 +155,21 @@ public class EEPROMActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
 				if (pos % COLS != 0) {
 					int offset = pos - (pos / COLS + 1);
-					Variable var = ecm.getEEPROMValueNearOffset(offset);
-					if ((var.getOffset() + var.getSize() - 1) < offset) {
-						// Unknown area
-						var = null;
-					}
-
-					cellInfo.setText(var == null ? "" : var.getLabel() != null ? var.getLabel() : var.getName());
-					cellInfo.setEnabled(var != null && var.getOffset() == offset);
-					byte[] bytes = ecm.getEEPROM().getBytes();
-					int val = bytes[offset] & 0xFF;
-					offsetHex.setText(Utils.toHex(offset, 3));
-					offsetDec.setText(Integer.toString(offset));
-					byteValHex.setText(Utils.toHex(val, 2));
-					byteValDec.setText(Integer.toString(val));
-					if (offset == 0) {
-						hiShortHex.setText("");
-						hiShortDec.setText("");
-					} else {
-						int hival = val << 8 | (bytes[offset -1] & 0xff);
-						hiShortHex.setText(Utils.toHex(hival, 4));
-						hiShortDec.setText(Integer.toString(hival));
-					}
-
-					if (offset + 1 >= bytes.length) {
-						loShortHex.setText("");
-						loShortDec.setText("");
-					} else {
-						int loval = (bytes[offset+1] & 0xff) << 8 | val;
-						loShortHex.setText(Utils.toHex(loval, 4));
-						loShortDec.setText(Integer.toString(loval));
-					}
+					showCellInfo(offset);
 				}
+			}
+		});
+
+		gridview.setOnItemLongClickListener(new OnItemLongClickListener() {
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int pos, long id) {
+				if (pos % COLS != 0) {
+					int offset = pos - (pos / COLS + 1);
+					showCellInfo(offset);
+					byte value = ecm.getEEPROM().getBytes()[offset];
+					CellEditorDialogFragment editor = CellEditorDialogFragment.newInstance(offset, value);
+					editor.show(getSupportFragmentManager(), "EEPROMActivity");
+				}
+				return false;
 			}
 		});
 
@@ -194,6 +180,16 @@ public class EEPROMActivity extends Activity {
 			} else {
 				Toast.makeText(EEPROMActivity.this, R.string.eeprom_burning_disabled_by_configuration, Toast.LENGTH_LONG).show();
 			}
+		}
+	}
+
+	public void onCellValueChanged(int offset, byte value) {
+		byte oldValue = ecm.getEEPROM().getBytes()[offset];
+		if (oldValue != value) {
+			ecm.getEEPROM().getBytes()[offset] = value;
+			ecm.getEEPROM().touch();
+			GridView gridview = (GridView) findViewById(R.id.eepromGrid);
+			gridview.invalidateViews();
 		}
 	}
 
@@ -267,8 +263,43 @@ public class EEPROMActivity extends Activity {
 			GridView gridview = (GridView) findViewById(R.id.eepromGrid);
 			adapter = new EEPROMAdapter(EEPROMActivity.this, ecm.getEEPROM(), COLS);
 			gridview.setAdapter(adapter);
+			gridview.invalidateViews();
 		} catch (IOException e) {
 			Toast.makeText(EEPROMActivity.this, getString(R.string.unable_to_load_eeprom) + " " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+		}
+	}
+
+	private void showCellInfo(int offset) {
+		Variable var = ecm.getEEPROMValueNearOffset(offset);
+		if ((var.getOffset() + var.getSize() - 1) < offset) {
+			// Unknown area
+			var = null;
+		}
+
+		cellInfo.setText(var == null ? "" : var.getLabel() != null ? var.getLabel() : var.getName());
+		cellInfo.setEnabled(var != null && var.getOffset() == offset);
+		byte[] bytes = ecm.getEEPROM().getBytes();
+		int val = bytes[offset] & 0xFF;
+		offsetHex.setText(Utils.toHex(offset, 3));
+		offsetDec.setText(Integer.toString(offset));
+		byteValHex.setText(Utils.toHex(val, 2));
+		byteValDec.setText(Integer.toString(val));
+		if (offset == 0) {
+			hiShortHex.setText("");
+			hiShortDec.setText("");
+		} else {
+			int hival = val << 8 | (bytes[offset -1] & 0xff);
+			hiShortHex.setText(Utils.toHex(hival, 4));
+			hiShortDec.setText(Integer.toString(hival));
+		}
+
+		if (offset + 1 >= bytes.length) {
+			loShortHex.setText("");
+			loShortDec.setText("");
+		} else {
+			int loval = (bytes[offset+1] & 0xff) << 8 | val;
+			loShortHex.setText(Utils.toHex(loval, 4));
+			loShortDec.setText(Integer.toString(loval));
 		}
 	}
 }
