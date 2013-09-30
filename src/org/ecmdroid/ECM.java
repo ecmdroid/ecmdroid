@@ -327,6 +327,7 @@ public class ECM
 				dtr = 1;
 			}
 			sendPDU(PDU.setRequest(page.nr(), offset, buffer, page.start() + offset, dtr));
+			page.saved();
 			i += dtr;
 		}
 	}
@@ -558,8 +559,9 @@ public class ECM
 
 	public boolean setEEPROMValue(Variable var) {
 		try {
-			var.updateValue(eeprom.getBytes());
-			eeprom.touch();
+			byte[] bytes = eeprom.getBytes();
+			var.updateValue(bytes);
+			eeprom.touch(var.getOffset(), bytes.length);
 		} catch (Exception e) {
 			Log.w(TAG, "Unable to update value. " + e.getLocalizedMessage());
 			return false;
@@ -568,8 +570,9 @@ public class ECM
 	}
 
 	public boolean setEEPROMBits(BitSet bitset) {
-		if (bitset.updateValue(eeprom.getBytes())) {
-			eeprom.touch();
+		byte[] bytes = eeprom.getBytes();
+		if (bitset.updateValue(bytes)) {
+			eeprom.touch(bitset.getOffset(), bytes.length);
 		}
 		return true;
 	}

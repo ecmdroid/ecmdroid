@@ -187,7 +187,7 @@ public class EEPROMActivity extends FragmentActivity implements CellEditorDialog
 		byte oldValue = ecm.getEEPROM().getBytes()[offset];
 		if (oldValue != value) {
 			ecm.getEEPROM().getBytes()[offset] = value;
-			ecm.getEEPROM().touch();
+			ecm.getEEPROM().touch(offset, 1);
 			GridView gridview = (GridView) findViewById(R.id.eepromGrid);
 			gridview.invalidateViews();
 		}

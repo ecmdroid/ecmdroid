@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Locale;
 
 import org.ecmdroid.ECM.Type;
 
@@ -154,6 +155,9 @@ public class EEPROM {
 			throw new FileNotFoundException(context.getString(R.string.unsupported_eeprom, id));
 		}
 		eeprom.setBytes(data);
+		for (Page pg : eeprom.getPages()) {
+			pg.touch();
+		}
 		eeprom.setEepromRead(true);
 		return eeprom;
 	}
@@ -189,6 +193,7 @@ public class EEPROM {
 		private int nr;
 		private int length;
 		private int start;
+		private boolean touched;
 
 		public Page(int nr, int length) {
 			this.nr = nr;
@@ -219,6 +224,23 @@ public class EEPROM {
 			data = getParent().getBytes();
 			System.arraycopy(data, start + offset, buffer, buffer_pos, length);
 			return buffer;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(Locale.ENGLISH, "Page[#: %2d, start: %04X, length: %04X]", nr, start, length);
+		}
+
+		public void touch() {
+			touched = true;
+		}
+
+		public void saved() {
+			touched = false;
+		}
+
+		public boolean isTouched() {
+			return touched;
 		}
 	}
 
@@ -255,7 +277,14 @@ public class EEPROM {
 		this.eepromRead = eepromRead;
 	}
 
-	public void touch() {
+	public void touch(int offset, int length) {
+		// Mark page dirty
+		for (Page pg : pages)  {
+			if (offset >= pg.start && offset < pg.start + pg.length) {
+				pg.touch();
+				// Log.d(TAG, pg + " dirty");
+			}
+		}
 		touched = true;
 	}
 
