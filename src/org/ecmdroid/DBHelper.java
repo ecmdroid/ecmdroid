@@ -35,7 +35,6 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final int DB_VERSION = 2;
 
 	private static final String TAG = "DBHelper";
-	private static File DB_PATH = new File("/data/data/org.ecmdroid/databases/");
 	private static String DB_NAME = "ecmdroid";
 	private Context context;
 
@@ -45,17 +44,17 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 
 	public boolean isDbInstalled() {
-		File db = new File(DB_PATH, DB_NAME);
-		return db.exists();
+
+		return context.getDatabasePath(DB_NAME).exists();
 	}
 
 	public void installDB(Context context) throws IOException {
-		File db = new File(DB_PATH, DB_NAME);
-		DB_PATH.mkdirs();
+		File db = context.getDatabasePath(DB_NAME);
 		Log.d(TAG, "Checking if file '" + db.getAbsolutePath() + "' exists...");
 		if (!db.exists()) {
 			long now = System.currentTimeMillis();
 			Log.i(TAG,"Installing Database...");
+			db.getParentFile().mkdirs();
 			AssetManager assets = context.getAssets();
 			InputStream in = assets.open(DB_NAME + ".db");
 			FileOutputStream out = new FileOutputStream(db);
