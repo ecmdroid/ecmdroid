@@ -28,6 +28,8 @@ import org.ecmdroid.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -38,10 +40,13 @@ public class BurnTask extends ProgressDialogTask
 {
 	private static final String TAG = "BurnTask";
 	private ECM ecm;
+	private boolean changes = false;
+	private SharedPreferences prefs;
 
 	public BurnTask(Activity context) {
 		super(context, context.getString(R.string.burn_eeprom));
 		ecm = ECM.getInstance(context);
+		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 
 	public void start() {
@@ -88,6 +93,7 @@ public class BurnTask extends ProgressDialogTask
 			EEPROM eeprom = ecm.getEEPROM();
 			if (ecm.getEEPROM() != null) {
 				int i = 0;
+				boolean fast_burn = prefs.getBoolean("enable_fast_burning", false);
 				int count = eeprom.getPageCount();
 				for (Page pg : ecm.getEEPROM().getPages()) {
 					if (pg.nr() == 0) {
@@ -95,8 +101,12 @@ public class BurnTask extends ProgressDialogTask
 						count--;
 						continue;
 					}
-					publishProgress(context.getString(R.string.burn_progress, ++i, count));
-					ecm.writeEEPromPage(pg);
+					// Either write all pages (if no local modifications exist) or only the ones that are touched
+					if (!fast_burn || pg.isTouched()) {
+						publishProgress(context.getString(R.string.burn_progress, ++i, count));
+						ecm.writeEEPromPage(pg);
+						changes = true;
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -110,7 +120,7 @@ public class BurnTask extends ProgressDialogTask
 		super.onPostExecute(result);
 		if (result == null) {
 			ecm.getEEPROM().saved();
-			Toast.makeText(context, R.string.burn_success, Toast.LENGTH_LONG).show();
+			Toast.makeText(context, changes ? R.string.burn_success : R.string.no_changes_to_burn,  Toast.LENGTH_LONG).show();
 		}
 	}
 

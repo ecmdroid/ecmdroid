@@ -26,4 +26,9 @@
 		android:key="enable_burn_eeprom"
 		android:title="@string/enable_eeprom_burning"
 		android:summaryOn="@string/burn_at_your_own_risk"/>
+	<CheckBoxPreference
+	    android:dependency="enable_burn_eeprom"
+		android:key="enable_fast_burning"
+		android:title="@string/optimized_burning"
+		android:summary="@string/only_write_back_modified_pages"/>
 </PreferenceScreen>

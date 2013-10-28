@@ -229,6 +229,9 @@
     <string name="torque_values">Torque Values</string>
     <string name="edit_cell_value">Edit Cell Value</string>
     <string name="set">Set</string>
+    <string name="optimized_burning">Optimized Burning</string>
+    <string name="only_write_back_modified_pages">Only write back modified pages</string>
+    <string name="no_changes_to_burn">No changes to burn</string>
 
 
 </resources>
