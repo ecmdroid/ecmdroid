@@ -1,5 +1,12 @@
 EcmDroid Changelog
 ------------------
+EcmDroid v0.95 (2013/10/28):
+- Add support for optimized burning (only pages with changes are
+  burned). This must be enabled in preferences.
+- EEPROM cells may now be edited directly by long-clicking on the
+  cell value.
+- Refresh the EEPROM View after fetching Data from the ECM.
+
 EcmDroid v0.94 (2013/09/01):
 - The permission is called 'BLUETOOTH_ADMIN' not 'BT_ADMIN'
 
