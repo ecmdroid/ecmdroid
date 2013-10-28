@@ -94,7 +94,15 @@ public class EEPROMActivity extends FragmentActivity implements CellEditorDialog
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.fetch:
-			new FetchTask(this).start();
+			new FetchTask(this) {
+				@Override
+				protected void onPostExecute(Exception result) {
+					super.onPostExecute(result);
+					GridView gridview = (GridView) findViewById(R.id.eepromGrid);
+					adapter = new EEPROMAdapter(EEPROMActivity.this, ecm.getEEPROM(), COLS);
+					gridview.setAdapter(adapter);
+				}
+			}.start();
 			break;
 		case R.id.burn:
 			new BurnTask(this).start();
@@ -190,6 +198,7 @@ public class EEPROMActivity extends FragmentActivity implements CellEditorDialog
 			ecm.getEEPROM().touch(offset, 1);
 			GridView gridview = (GridView) findViewById(R.id.eepromGrid);
 			gridview.invalidateViews();
+			showCellInfo(offset);
 		}
 	}
 
@@ -263,7 +272,6 @@ public class EEPROMActivity extends FragmentActivity implements CellEditorDialog
 			GridView gridview = (GridView) findViewById(R.id.eepromGrid);
 			adapter = new EEPROMAdapter(EEPROMActivity.this, ecm.getEEPROM(), COLS);
 			gridview.setAdapter(adapter);
-			gridview.invalidateViews();
 		} catch (IOException e) {
 			Toast.makeText(EEPROMActivity.this, getString(R.string.unable_to_load_eeprom) + " " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 		}
