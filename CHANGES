@@ -1,5 +1,11 @@
 EcmDroid Changelog
 ------------------
+EcmDroid v0.96 (2014/05/19):
+- Fix a bug introduced in v0.93: Upon switching ECM types,
+  the variable cache was *not* cleared, resulting in stale offset/size
+  definitions and potential data corruption
+- Display Layout, Country ID and Calibration Info on Main Screen
+
 EcmDroid v0.95 (2013/10/28):
 - Add support for optimized burning (only pages with changes are
   burned). This must be enabled in preferences.
