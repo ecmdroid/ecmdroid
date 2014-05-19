@@ -85,7 +85,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 
 	@Override
 	public Variable getRtVariable(String ecm, String name) {
-		if (current_ecm != null && !current_ecm.equals(ecm)) {
+		if (!ecm.equals(current_ecm)) {
 			cache.clear();
 			current_ecm = ecm;
 		}
@@ -122,7 +122,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 		if (ecm == null || name == null) {
 			return null;
 		}
-		if (current_ecm != null && !current_ecm.equals(ecm)) {
+		if (!ecm.equals(current_ecm)) {
 			cache.clear();
 			current_ecm = ecm;
 		}
