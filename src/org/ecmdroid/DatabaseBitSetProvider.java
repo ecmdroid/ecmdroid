@@ -38,7 +38,7 @@ public class DatabaseBitSetProvider extends BitSetProvider {
 	}
 	@Override
 	public BitSet getBitSet(String ecm_id, String name, DataSource source) {
-		if (!ecm_id.equals(current_ecm)) {
+		if (ecm_id != null && !ecm_id.equals(current_ecm)) {
 			cache.clear();
 			current_ecm = ecm_id;
 		}
