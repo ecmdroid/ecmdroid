@@ -553,6 +553,25 @@ public class ECM
 		return UNKNOWN;
 	}
 
+	public String getCountryId() {
+		String id = getFormattedEEPROMValue(Variables.Country_ID, UNKNOWN);
+		if ("255".equals(id)) {
+			id = String.format("S%s-M%s-V%s",
+					getFormattedEEPROMValue(Variables.KID_Series, "?"),
+					getFormattedEEPROMValue(Variables.KID_Market, "?"),
+					getFormattedEEPROMValue(Variables.KID_Version, "?"));
+		}
+		return id;
+	}
+
+	public String getCalibrationId() {
+		return getFormattedEEPROMValue(Variables.Cal_ID, UNKNOWN);
+	}
+
+	public String getLayoutRevision() {
+		return getFormattedEEPROMValue(Variables.CSR, UNKNOWN);
+	}
+
 	public boolean isEepromRead() {
 		return eeprom != null && eeprom.isEepromRead();
 	}

@@ -18,6 +18,9 @@
     <string name="tps">TPS:</string>
     <string name="rpm">RPM:</string>
     <string name="clt">CLT:</string>
+    <string name="ecm_country_id">Country ID:</string>
+    <string name="ecm_calibration">Calibration:</string>
+    <string name="ecm_layout_revision">Layout Rev:</string>
     <string name="start_recording">Start Recording</string>
     <string name="status_idle">Idle</string>
     <string name="current_errors">Current Errors</string>

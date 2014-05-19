@@ -102,11 +102,56 @@
         android:layout_alignLeft="@+id/ecmSerialValue" />
 
     <TextView
-        android:id="@+id/protocolLabel"
+        android:id="@+id/ecmLayoutRevision"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/ecmId"
         android:layout_below="@+id/ecmMfgDate"
+        android:text="@string/ecm_layout_revision" />
+
+    <TextView
+        android:id="@+id/ecmLayoutRevisionValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/ecmLayoutRevision"
+        android:layout_alignLeft="@+id/ecmMfgDateValue" />
+
+    <TextView
+        android:id="@+id/ecmCountryId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/ecmId"
+        android:layout_below="@+id/ecmLayoutRevision"
+        android:text="@string/ecm_country_id" />
+
+    <TextView
+        android:id="@+id/ecmCountryIdValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/ecmCountryId"
+        android:layout_alignLeft="@+id/ecmLayoutRevisionValue" />
+
+    <TextView
+        android:id="@+id/ecmCalibration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/ecmId"
+        android:layout_below="@+id/ecmCountryId"
+        android:text="@string/ecm_calibration" />
+
+    <TextView
+        android:id="@+id/ecmCalibrationValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/ecmCalibration"
+        android:layout_alignLeft="@+id/ecmCountryIdValue" />
+
+    <TextView
+        android:id="@+id/protocolLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/ecmId"
+        android:layout_below="@+id/ecmCalibration"
         android:layout_marginTop="30dp"
         android:text="@string/protocol" />
 
@@ -115,7 +160,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@id/protocolLabel"
-        android:layout_alignLeft="@+id/ecmMfgDateValue"
+        android:layout_alignLeft="@+id/ecmCalibrationValue"
         android:layout_marginRight="10dp"
         android:prompt="@string/choose_protocol" />
 

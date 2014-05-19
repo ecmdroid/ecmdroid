@@ -287,6 +287,10 @@ public class Variable implements Cloneable {
 					if ("0".equals(format)) {
 						rawValues[s] = Integer.valueOf(((Double)rawValues[s]).intValue());
 					}
+				} else if (cls == DataClass.STRING) {
+					byte[] bytes = new byte[size];
+					System.arraycopy(tmp, co, bytes, 0, size);
+					rawValues[s] = bytes;
 				} else {
 					Log.w(TAG, "Unsupported class " + cls);
 				}
@@ -403,7 +407,17 @@ public class Variable implements Cloneable {
 		if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
 			Short v = (Short) rawValues[index];
 			formattedValues[index] = Integer.toBinaryString(0x100 | v).substring(1);
-		} else if (cls  != DataClass.STRING) {
+		} else if (cls == DataClass.STRING) {
+			byte[] raw = (byte[]) rawValues[index];
+			int len = raw.length;
+			for (int i = 0; i < raw.length; i++) {
+				if (raw[i] == 0) {
+					len = i;
+					break;
+				}
+			}
+			formattedValues[index] = new String(raw, 0, len);
+		} else {
 			formattedValues[index] = formatter.format(rawValues[index]);
 			if (!Utils.isEmptyString(symbol)) {
 				formattedValues[index] += symbol;

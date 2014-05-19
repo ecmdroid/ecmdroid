@@ -149,6 +149,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			if (eeprom.isEepromRead()) {
 				setText(R.id.ecmSerialValue, ecm.getSerialNo());
 				setText(R.id.ecmMfgDateValue, ecm.getMfgDate());
+				setText(R.id.ecmLayoutRevisionValue, ecm.getLayoutRevision());
+				setText(R.id.ecmCountryIdValue, ecm.getCountryId());
+				setText(R.id.ecmCalibrationValue, ecm.getCalibrationId());
 			}
 		}
 	}
