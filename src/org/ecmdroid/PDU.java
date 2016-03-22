@@ -19,7 +19,11 @@ package org.ecmdroid;
 
 import java.text.ParseException;
 
-
+/**
+ * This class represents a data frame exchanged with the ECM via
+ * {@link ECM#sendPDU(PDU)} and {@link ECM#receivePDU()}. a PDU consists of a
+ * header, payload and trailing checksum.
+ */
 public class PDU
 {
 	public static final byte CMD_RTDATA  = 0x43;
@@ -36,7 +40,10 @@ public class PDU
 	public static final byte SOT         = 0x02;
 	public static final byte EOT         = 0x03;
 
-
+	/**
+	 * Enumeration of ECM functions. Used for performing an active test or
+	 * clearing stored error codes.
+	 */
 	public static enum Function {
 		ClearCodes(1, "Clear Codes"),
 		FrontCoil(2, "Front Coil"),

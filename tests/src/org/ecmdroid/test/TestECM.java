@@ -39,7 +39,7 @@ public class TestECM extends AndroidTestCase {
 		ecm = ECM.getInstance(getContext());
 		EEPROM eeprom = EEPROM.get("BUEIB", getContext());
 		ecm.setEEPROM(eeprom);
-		ecm.setRealtimeData(rtd);
+		ecm.getRuntimeData(rtd);
 		System.arraycopy(epd, 0, eeprom.getBytes(), 0, epd.length);
 	}
 

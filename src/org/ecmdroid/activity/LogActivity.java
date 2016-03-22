@@ -228,9 +228,9 @@ public class LogActivity extends BaseActivity implements OnClickListener
 			if (ecm.isRecording()) {
 				logFile.setText(ecmDroidService.getLogfile());
 				logStatus.setText(String.format(getString(R.string.log_status), ecmDroidService.getRecords(), ecmDroidService.getBytes()/1024));
-				Variable tps = ecm.getRealtimeValue(Variables.TPD);
-				Variable rpm = ecm.getRealtimeValue(Variables.RPM);
-				Variable clt = ecm.getRealtimeValue(Variables.CLT);
+				Variable tps = ecm.getRuntimeValue(Variables.TPD);
+				Variable rpm = ecm.getRuntimeValue(Variables.RPM);
+				Variable clt = ecm.getRuntimeValue(Variables.CLT);
 				if (tps != null) {
 					tpsValue.setText(tps.getFormattedValue());
 				}

@@ -20,7 +20,9 @@ package org.ecmdroid;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-
+/**
+ * A {@code BitSet} holds at most 8 {@link Bit}'s (and therefore could by termed 'Byte').
+ */
 public class BitSet implements Iterable<Bit>
 {
 	@SuppressWarnings("unused")

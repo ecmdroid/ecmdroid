@@ -262,7 +262,7 @@ public class EEPROMActivity extends FragmentActivity implements CellEditorDialog
 	{
 		try {
 			FileInputStream in = new FileInputStream(file);
-			EEPROM eeprom = EEPROM.load(this, ecm.getId(), id, in);
+			EEPROM eeprom = EEPROM.load(this, id, in);
 			if (ecm.isConnected() && !eeprom.getId().equals(ecm.getId())) {
 				throw new IOException(getString(R.string.incompatible_version_disconnect_first, id));
 			}

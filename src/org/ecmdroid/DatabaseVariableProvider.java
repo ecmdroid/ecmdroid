@@ -23,13 +23,16 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 
 import org.ecmdroid.Constants.DataSource;
-import org.ecmdroid.Variable.DataClass;
+import org.ecmdroid.Variable.DataType;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+/**
+ * Create a Variable based on definitions in the built-in database.
+ */
 public class DatabaseVariableProvider extends VariableProvider {
 
 	private DBHelper dbHelper;
@@ -48,15 +51,15 @@ public class DatabaseVariableProvider extends VariableProvider {
 
 	@Override
 	public Collection<String> getScalarRtVariableNames(String ecm) {
-		return getRtVariableNames(ecm, DataClass.SCALAR);
+		return getRtVariableNames(ecm, DataType.SCALAR);
 	}
 
 	@Override
 	public Collection<String> getBitfieldRtVariableNames(String ecm) {
-		return getRtVariableNames(ecm, DataClass.BITFIELD);
+		return getRtVariableNames(ecm, DataType.BITFIELD);
 	}
 
-	private Collection<String> getRtVariableNames(String ecm, DataClass type) {
+	private Collection<String> getRtVariableNames(String ecm, DataType type) {
 		LinkedList<String> ret = new LinkedList<String>();
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		try {
@@ -223,13 +226,13 @@ public class DatabaseVariableProvider extends VariableProvider {
 		if (cursor.moveToFirst()) {
 			ret = new Variable();
 			ret.setId(cursor.getInt(cursor.getColumnIndex("uniqueid")));
-			ret.setType(ECM.Type.getType(cursor.getString(cursor.getColumnIndex("ecm_type"))));
+			ret.setEcmType(ECM.Type.getType(cursor.getString(cursor.getColumnIndex("ecm_type"))));
 			ret.setName(cursor.getString(cursor.getColumnIndex("origname")));
 			if (ret.getName()== null) {
 				ret.setName(cursor.getString(cursor.getColumnIndex("varname")));
 			}
 			String type = cursor.getString(cursor.getColumnIndex("type")).toUpperCase();
-			ret.setCls(DataClass.valueOf(type));
+			ret.setType(DataType.valueOf(type));
 			ret.setSize(cursor.getInt(cursor.getColumnIndex("size")));
 			if (DataSource.EEPROM.equals(runtimeData)) {
 				ret.setWidth(cursor.getInt(cursor.getColumnIndex("elemsize")));

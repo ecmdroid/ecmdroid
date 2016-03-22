@@ -19,6 +19,9 @@ package org.ecmdroid;
 
 import android.graphics.Color;
 
+/**
+ * Map an octet value to a corresponding ARGB color code.
+ */
 public class ColorMap {
 
 	private static final int[] colors = new int[256];

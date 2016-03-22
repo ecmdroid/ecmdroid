@@ -28,6 +28,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+/**
+ * Helper for initially installing or updating the bundled SQLite database.
+ */
 public class DBHelper extends SQLiteOpenHelper {
 
 	// Increase this whenever updating the database

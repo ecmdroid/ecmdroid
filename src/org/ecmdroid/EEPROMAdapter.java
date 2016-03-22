@@ -26,6 +26,9 @@ import android.widget.BaseAdapter;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
+/**
+ * Android Adapter and Section Indexer for the EEPROM Editor.
+ */
 public class EEPROMAdapter extends BaseAdapter implements SectionIndexer
 {
 	private static final int SECTION_LENGTH = 8; // Number of rows per section

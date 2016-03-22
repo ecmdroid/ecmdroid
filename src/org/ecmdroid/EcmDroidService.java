@@ -33,6 +33,9 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+/**
+ * Service for continuously reading ECM runtime data and recording log files.
+ */
 public class EcmDroidService extends Service
 {
 	public static final String REALTIME_DATA = "org.ecmdroid.Service.realtimedataevent";

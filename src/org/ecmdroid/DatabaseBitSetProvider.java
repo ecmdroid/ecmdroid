@@ -25,6 +25,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+/**
+ * Create a BitSet based on definitions in the built-in database.
+ */
 public class DatabaseBitSetProvider extends BitSetProvider {
 
 	private DBHelper dbHelper;

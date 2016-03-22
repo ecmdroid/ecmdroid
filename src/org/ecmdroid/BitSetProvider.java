@@ -22,6 +22,9 @@ import org.ecmdroid.Constants.DataSource;
 import android.content.Context;
 import android.util.Log;
 
+/**
+ * Provider for Runtime- and EEPROM BitSet definitions.
+ */
 public abstract class BitSetProvider {
 
 	protected static final String TAG = "BitSetProvider";

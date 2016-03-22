@@ -19,6 +19,9 @@ package org.ecmdroid;
 
 import java.util.HashMap;
 
+/**
+ * {@code Units} maps a unit name to its symbol (e.g. "Degree" maps to "°").
+ */
 public abstract class Units
 {
 	private static final HashMap<String, String> map = new HashMap<String, String>();

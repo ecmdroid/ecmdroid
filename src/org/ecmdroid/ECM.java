@@ -41,10 +41,34 @@ import android.content.Context;
 import android.text.format.DateFormat;
 import android.util.Log;
 
-
+/**
+ * This class represents the main interface to your Buell ECM. Communication
+ * with the ECM may take place via a Bluetooth SPP adapter or TCP/IP. Functions
+ * include:
+ * <ul>
+ * <li>Reading stored errors</li>
+ * <li>Executing "Active" Tests (e.g. run the fuel pump)</li>
+ * <li>reading runtime ("live") data</li>
+ * <li>reading and writing EEPROM data (e.g. ECM settings)</li>
+ * </ul>
+ * <p>
+ * When using a bluetooth adapter, the Initial pairing of your android device
+ * and the adapter must be done using the Android Settings application (Wireless
+ * & Network). Also, make sure that the adapter is set to 9600, 8N1, No
+ * Handshake.
+ * </p>
+ * <p>
+ * Use {@link ECM#getInstance(Context)} as a starting point and call one of the
+ * connect() methods for establishing a connection to the ECM. Before EEPROM
+ * data can be accessed, you must call {@link ECM#setupEEPROM()}.
+ * </p>
+ */
 public class ECM
 {
 
+	/**
+	 * ECM Type. DDFI-1 (Tubers), DDFI-2 (XBs -2007), DDFI-3 (XB 2008-, 1125R/CR)
+	 */
 	public static enum Type {
 		DDFI1, DDFI2, DDFI3;
 		public static Type getType(String type) {
@@ -55,6 +79,9 @@ public class ECM
 		}
 	}
 
+	/**
+	 * Supported ECM protocols (stock or factory-race).
+	 */
 	public static enum Protocol {
 		STOCK("Stock / P&A"), FACTORY_RACE("Factory Race");
 
@@ -170,6 +197,9 @@ public class ECM
 		rtData = null;
 	}
 
+	/**
+	 * Send a protocol data unit (PDU) to the ECM and return the ECMs response
+	 */
 	synchronized PDU sendPDU(PDU pdu) throws IOException {
 		if (D) Log.d(TAG, "Sending: " + pdu);
 		if (out == null) {
@@ -188,7 +218,7 @@ public class ECM
 		return ret;
 	}
 
-	private PDU receivePDU() throws IOException
+	public PDU receivePDU() throws IOException
 	{
 		try
 		{
@@ -220,7 +250,8 @@ public class ECM
 	}
 
 	/**
-	 * Read out the EEPROM and return the version of the currently connected ECM.
+	 * Read out and return the version of the currently connected ECM. You must invoke
+	 * this method before EEPROM data can be accessed.
 	 * @return the full ECM version string (e.g. "BUEIB310 12-11-03")
 	 * @throws IOException if communicating with the ECM fails
 	 */
@@ -316,6 +347,11 @@ public class ECM
 		}
 	}
 
+	/**
+	 * Write a single page to the EEPROM
+	 * @param page the page to write
+	 * @throws IOException if an I/O error occurs during programming
+	 */
 	public void writeEEPromPage(Page page) throws IOException {
 		byte[] buffer = page.getParent().getBytes();
 		for (int i=0; i < page.length(); ) {
@@ -333,7 +369,7 @@ public class ECM
 
 
 	/**
-	 * Request runtime data from ECM
+	 * Request runtime data from the ECM
 	 * @return a byte[] holding the Runtime Data (payload only)
 	 * @throws IOException if an I/O error occurred.
 	 */
@@ -377,6 +413,11 @@ public class ECM
 		return r;
 	}
 
+	/**
+	 * Returns the single {@code ECM} instance.
+	 *
+	 * @param ctx the Android Context
+	 */
 	public static synchronized ECM getInstance(Context ctx) {
 		if (singleton == null) {
 			singleton = new ECM(ctx);
@@ -384,22 +425,38 @@ public class ECM
 		return singleton;
 	}
 
+	/**
+	 * Indicates if a connection to the underlying ECM is established.
+	 */
 	public boolean isConnected() {
 		return connected;
 	}
 
+	/**
+	 * Returns a reference to the ECMs EEPROM contents.
+	 *
+	 * @return the EEPROM or null if you have not yet called
+	 *         {@link #setupEEPROM()} after establishing a connection.
+	 */
 	public EEPROM getEEPROM() {
 		return eeprom;
 	}
 
+	/**
+	 * Retrieve all current or historic (stored) error codes.
+	 *
+	 * @param type the type of error
+	 * @return a (possibly empty) list of errors or null
+	 * @throws IOException if an I/O error occurs
+	 */
 	public Collection<Error> getErrors(ErrorType type) throws IOException {
 		String field = (type == ErrorType.CURRENT ? "CDiag%d" : "HDiag%d_LD");
 		DataSource ds = DataSource.RUNTIME_DATA;
-		if (getRealtimeData() == null && isConnected()) {
+		if (getRuntimeData() == null && isConnected()) {
 			readRTData();
 		}
 
-		byte[] data = getRealtimeData();
+		byte[] data = getRuntimeData();
 		if (data == null) {
 			if (type == ErrorType.STORED && eeprom != null && eeprom.isEepromRead()) {
 				if (D) Log.d(TAG, "No live data, falling back to EEPROM data for stored errors...");
@@ -440,15 +497,16 @@ public class ECM
 	}
 
 
-	public void setRealtimeData(byte[] data) {
+	public void getRuntimeData(byte[] data) {
 		rtData = data;
 	}
 
-	public byte[] getRealtimeData() {
+
+	public byte[] getRuntimeData() {
 		return rtData;
 	}
 
-	public Variable getRealtimeValue(String name) {
+	public Variable getRuntimeValue(String name) {
 		if (this.eeprom == null) return null;
 		Variable v = variableProvider.getRtVariable(getId(), name);
 		if (v != null) {

@@ -19,7 +19,7 @@ package org.ecmdroid;
 
 import java.util.LinkedList;
 
-import org.ecmdroid.Variable.DataClass;
+import org.ecmdroid.Variable.DataType;
 
 import android.content.Context;
 import android.util.Log;
@@ -34,6 +34,10 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+/**
+ * Adapter for visualizing an array of Variables. Used by the 'Data
+ * Channels' activity to display runtime data.
+ */
 public class DataChannelAdapter extends ArrayAdapter<Variable> {
 	private static final String NO_SELECTION = "<none>";
 	protected static final String TAG = "DataChannelAdapter";
@@ -114,7 +118,7 @@ public class DataChannelAdapter extends ArrayAdapter<Variable> {
 		}
 
 		if (variable != null) {
-			variable.refreshValue(ecm.getRealtimeData());
+			variable.refreshValue(ecm.getRuntimeData());
 		}
 
 		TextView    value = (TextView) convertView.findViewById(R.id.dataChannelText);
@@ -125,7 +129,7 @@ public class DataChannelAdapter extends ArrayAdapter<Variable> {
 			value.setText(variable == null ? "" : variable.getFormattedValue());
 		}
 		if (pg != null) {
-			if (variable != null && variable.getCls() == DataClass.SCALAR) {
+			if (variable != null && variable.getType() == DataType.SCALAR) {
 				pg.setVisibility(View.VISIBLE);
 				// Log.d(TAG, "Setting MAX " + variable.getName() + " to " + variable.getHigh());
 				pg.setMax((int) variable.getHigh());
@@ -141,7 +145,7 @@ public class DataChannelAdapter extends ArrayAdapter<Variable> {
 			}
 		}
 		if (bitset != null) {
-			if (variable != null && variable.getCls() == DataClass.BITFIELD) {
+			if (variable != null && variable.getType() == DataType.BITFIELD) {
 				bitset.setVisibility(View.VISIBLE);
 				short bits = 0;
 				if (variable.getRawValue() instanceof Short) {

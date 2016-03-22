@@ -44,6 +44,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+/**
+ * Collection of various static utility methods.
+ */
 public abstract class Utils
 {
 	private static final String TAG = "Utils";

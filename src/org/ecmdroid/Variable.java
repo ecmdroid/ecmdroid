@@ -22,9 +22,18 @@ import java.text.DecimalFormat;
 
 import android.util.Log;
 
-
+/**
+ * A Variable holds the name, location, length, format, type and other
+ * properties of information either stored in the {@link EEPROM} or runtime
+ * data.
+ * @see VariableProvider
+ */
 public class Variable implements Cloneable {
-	public enum DataClass {
+
+	/**
+	 * Variable data type (scalar, bit, array, etc.).
+	 */
+	public enum DataType {
 		SCALAR, VALUE, BITS, BITFIELD, ARRAY, AXIS, TABLE, MAP, STRING;
 	}
 
@@ -32,9 +41,9 @@ public class Variable implements Cloneable {
 	private static final DecimalFormat DEFAULT_FORMAT = new DecimalFormat("0");
 
 	private int id;
-	private ECM.Type type;
+	private ECM.Type etype;
 	private String name;
-	private DataClass cls;
+	private DataType type;
 	private int size;
 	private int width;
 	private int rows;
@@ -64,12 +73,12 @@ public class Variable implements Cloneable {
 		this.id = id;
 	}
 
-	public ECM.Type getType() {
-		return type;
+	public ECM.Type getEcmType() {
+		return etype;
 	}
 
-	public void setType(ECM.Type type) {
-		this.type = type;
+	public void setEcmType(ECM.Type type) {
+		this.etype = type;
 	}
 
 	public String getName() {
@@ -80,12 +89,12 @@ public class Variable implements Cloneable {
 		this.name = name;
 	}
 
-	public DataClass getCls() {
-		return cls;
+	public DataType getType() {
+		return type;
 	}
 
-	public void setCls(DataClass cls) {
-		this.cls = cls;
+	public void setType(DataType type) {
+		this.type = type;
 	}
 
 	public int getSize() {
@@ -255,7 +264,7 @@ public class Variable implements Cloneable {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer("Variable[id: ").append(id).append(", name:");sb.append(name);
-		sb.append(", ECM: ").append(type).append(", class: ").append(cls);
+		sb.append(", ECM: ").append(etype).append(", type: ").append(type);
 		sb.append(", size: ").append(size).append(", offset: ").append(offset);
 		sb.append(", unit: ").append(unit).append(", scale:").append(scale);
 		sb.append(", trn: ").append(translate).append(", high: ").append(high);
@@ -272,9 +281,9 @@ public class Variable implements Cloneable {
 					value <<= 8;
 					value |= (tmp[co + s * width + i - 1] & 0xff);
 				}
-				if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
+				if (type == DataType.BITS || type == DataType.BITFIELD) {
 					rawValues[s] = new Short((short) (value & 0xffff));
-				} else if (cls != DataClass.STRING) {
+				} else if (type != DataType.STRING) {
 					double v = value;
 					if (scale != 0) {
 						v *= scale;
@@ -286,12 +295,12 @@ public class Variable implements Cloneable {
 					if ("0".equals(format)) {
 						rawValues[s] = Integer.valueOf(((Double)rawValues[s]).intValue());
 					}
-				} else if (cls == DataClass.STRING) {
+				} else if (type == DataType.STRING) {
 					byte[] bytes = new byte[size];
 					System.arraycopy(tmp, co, bytes, 0, size);
 					rawValues[s] = bytes;
 				} else {
-					Log.w(TAG, "Unsupported class " + cls);
+					Log.w(TAG, "Unsupported type " + type);
 				}
 				formatValueAt(s);
 			}
@@ -313,7 +322,7 @@ public class Variable implements Cloneable {
 	}
 
 	public String getValueAsString() {
-		if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
+		if (type == DataType.BITS || type == DataType.BITFIELD) {
 			return getFormattedValue();
 		}
 		return formatter.format(rawValues[0]);
@@ -328,7 +337,7 @@ public class Variable implements Cloneable {
 	}
 
 	public int getIntValueAt(int index) {
-		if (cls == DataClass.BITFIELD || cls == DataClass.BITS) {
+		if (type == DataType.BITFIELD || type == DataType.BITS) {
 			return ((Short)rawValues[index]).intValue();
 		}
 
@@ -350,9 +359,9 @@ public class Variable implements Cloneable {
 		byte[] buffer = new byte[size];
 		for (int s = 0; s < (size / width); s++) {
 			int value = 0;
-			if (cls == DataClass.BITFIELD || cls == DataClass.BITS) {
+			if (type == DataType.BITFIELD || type == DataType.BITS) {
 				value = (Short) rawValues[0] & 0xFFFF;
-			} else if (cls != DataClass.STRING) {
+			} else if (type != DataType.STRING) {
 				double v = 0;
 				if (rawValues[s] instanceof Double) {
 					v = (Double) rawValues[s];
@@ -368,7 +377,7 @@ public class Variable implements Cloneable {
 				value = (int) v;
 
 			} else {
-				Log.w(TAG, "Unsupported class " + cls);
+				Log.w(TAG, "Unsupported type " + type);
 				return;
 			}
 
@@ -403,10 +412,10 @@ public class Variable implements Cloneable {
 	}
 
 	private void formatValueAt(int index) {
-		if (cls == DataClass.BITS || cls == DataClass.BITFIELD) {
+		if (type == DataType.BITS || type == DataType.BITFIELD) {
 			Short v = (Short) rawValues[index];
 			formattedValues[index] = Integer.toBinaryString(0x100 | v).substring(1);
-		} else if (cls == DataClass.STRING) {
+		} else if (type == DataType.STRING) {
 			byte[] raw = (byte[]) rawValues[index];
 			int len = raw.length;
 			for (int i = 0; i < raw.length; i++) {

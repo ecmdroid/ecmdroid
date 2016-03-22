@@ -19,7 +19,13 @@ package org.ecmdroid;
 
 import java.util.regex.Pattern;
 
+/**
+ * Application-wide common constants.
+ */
 public interface Constants {
+	/**
+	 * Variable names.
+	 */
 	public interface Variables {
 		public static final String ABaro = "ABaro";
 		public static final String ABAS = "ABAS";
@@ -830,6 +836,9 @@ public interface Constants {
 		public static final String WUE = "WUE";
 	}
 
+	/**
+	 * Variable Data Sources (Runtime (volatile), EEPROM).
+	 */
 	public static enum DataSource {
 		RUNTIME_DATA,
 		EEPROM

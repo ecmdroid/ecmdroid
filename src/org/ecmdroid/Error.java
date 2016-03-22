@@ -17,9 +17,14 @@
  */
 package org.ecmdroid;
 
-
+/**
+ * An ECM error consisting of a code, description and type.
+ */
 public class Error
 {
+	/**
+	 * Type of error (current, recent, stored).
+	 */
 	public enum ErrorType {
 		CURRENT, RECENT, STORED
 	};

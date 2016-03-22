@@ -33,6 +33,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+/**
+ * This class allows manipulating the bytes stored in the ECMs EEPROM.
+ */
 public class EEPROM {
 
 	private static final String TAG = "EEPROM";
@@ -137,7 +140,7 @@ public class EEPROM {
 		return eeprom;
 	}
 
-	public static EEPROM load(Context context, String currentId, String id, InputStream in) throws IOException {
+	public static EEPROM load(Context context, String id, InputStream in) throws IOException {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
 		int length;

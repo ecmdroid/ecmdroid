@@ -19,6 +19,9 @@ package org.ecmdroid;
 
 import org.ecmdroid.ECM.Type;
 
+/**
+ * A single bit of information. It usually is part of a {@link BitSet}.
+ */
 public class Bit
 {
 	private int id;

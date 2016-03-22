@@ -22,7 +22,7 @@ import java.util.Collection;
 
 import org.ecmdroid.ECM;
 import org.ecmdroid.Variable;
-import org.ecmdroid.Variable.DataClass;
+import org.ecmdroid.Variable.DataType;
 import org.ecmdroid.VariableProvider;
 
 import android.test.AndroidTestCase;
@@ -65,9 +65,9 @@ public class TestVariableProvider extends AndroidTestCase
 	public void testRtVariable() {
 		Variable v = provider.getRtVariable("BUE2D", "pw2");
 		assertNotNull(v);
-		assertEquals(ECM.Type.DDFI3, v.getType());
+		assertEquals(ECM.Type.DDFI3, v.getEcmType());
 		assertEquals("pw2", v.getName());
-		assertEquals(Variable.DataClass.SCALAR, v.getCls());
+		assertEquals(Variable.DataType.SCALAR, v.getType());
 		assertEquals(2, v.getSize());
 		assertEquals(23, v.getOffset());
 		assertEquals("Milliseconds", v.getUnit());
@@ -117,7 +117,7 @@ public class TestVariableProvider extends AndroidTestCase
 		assertEquals(2, var.getSize());
 		assertEquals(0, var.getRows());
 		assertEquals(0, var.getCols());
-		assertEquals(DataClass.VALUE, var.getCls());
+		assertEquals(DataType.VALUE, var.getType());
 		var.refreshValue(eeprom);
 		assertEquals(204, var.getRawValue());
 
@@ -140,7 +140,7 @@ public class TestVariableProvider extends AndroidTestCase
 		byte[] eeprom = TestUtils.readEEPROM();
 		Variable var = provider.getEEPROMVariable("BUEIB", "Tab_Fuel_Load_Ax");
 		assertNotNull(var);
-		assertEquals(var.getCls(), DataClass.AXIS);
+		assertEquals(var.getType(), DataType.AXIS);
 		var.refreshValue(eeprom);
 		assertEquals(12, var.getSize());
 		assertEquals(1, var.getWidth());
@@ -158,7 +158,7 @@ public class TestVariableProvider extends AndroidTestCase
 
 		var = provider.getEEPROMVariable("BUEIB", "Tab_Fuel_RPM_Ax");
 		assertNotNull(var);
-		assertEquals(var.getCls(), DataClass.AXIS);
+		assertEquals(var.getType(), DataType.AXIS);
 		var.refreshValue(eeprom);
 		assertEquals(26, var.getSize());
 		assertEquals(2, var.getWidth());
@@ -179,7 +179,7 @@ public class TestVariableProvider extends AndroidTestCase
 		byte[] eeprom = TestUtils.readEEPROM();
 		Variable var = provider.getEEPROMVariable("BUEIB", "Tab_ABP_Conv");
 		assertNotNull(var);
-		assertEquals(var.getCls(), DataClass.TABLE);
+		assertEquals(var.getType(), DataType.TABLE);
 		assertEquals(5, var.getRows());
 		assertEquals(2, var.getCols());
 		var.refreshValue(eeprom);
