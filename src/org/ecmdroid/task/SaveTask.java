@@ -115,7 +115,9 @@ public class SaveTask extends AsyncTask<Void, Void, Exception> {
 		} finally {
 			try {
 				if (out != null) out.close();
-			} catch (Exception e2) {}
+			} catch (Exception e2) {
+				return e2;
+			}
 		}
 		return null;
 	}

@@ -20,6 +20,7 @@ package org.ecmdroid;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 import org.ecmdroid.Constants.DataSource;
@@ -70,7 +71,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 					" AND rtoffsets.secret = 0 " +
 					" AND names.secret = 0";
 			if (type != null) {
-				query += " AND UPPER(rtoffsets.type) = '" + type.toString().toUpperCase() + "'";
+				query += " AND UPPER(rtoffsets.type) = '" + type.toString().toUpperCase(Locale.ENGLISH) + "'";
 			}
 			query += " ORDER BY UPPER(names.origname)";
 			if (D) Log.d(TAG, "Query: " + query);
@@ -231,7 +232,7 @@ public class DatabaseVariableProvider extends VariableProvider {
 			if (ret.getName()== null) {
 				ret.setName(cursor.getString(cursor.getColumnIndex("varname")));
 			}
-			String type = cursor.getString(cursor.getColumnIndex("type")).toUpperCase();
+			String type = cursor.getString(cursor.getColumnIndex("type")).toUpperCase(Locale.ENGLISH);
 			ret.setType(DataType.valueOf(type));
 			ret.setSize(cursor.getInt(cursor.getColumnIndex("size")));
 			if (DataSource.EEPROM.equals(runtimeData)) {

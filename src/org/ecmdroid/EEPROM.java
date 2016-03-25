@@ -180,8 +180,12 @@ public class EEPROM {
 				ret.add(name);
 			}
 		} finally {
-			c.close();
-			db.close();
+			if (c != null) {
+				c.close();
+			}
+			if (db != null) {
+				db.close();
+			}
 		}
 		if (ret.size() == 0) {
 			throw new IOException(context.getString(R.string.unable_to_determine_ecm_type));

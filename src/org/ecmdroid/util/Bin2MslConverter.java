@@ -437,7 +437,7 @@ public class Bin2MslConverter extends Observable
 					}
 				}
 			} catch (EOFException e) {
-				String s = String.format("Conversion finished. %d of %d records discarded.", numDiscard, numRecord);
+				String s = String.format(Locale.ENGLISH, "Conversion finished. %d of %d records discarded.", numDiscard, numRecord);
 				Log.i(TAG, s);
 				setChanged();
 				notifyObservers(s);

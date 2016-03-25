@@ -149,7 +149,9 @@ public class EcmDroidService extends Service
 			try {
 				logstream.flush();
 				logstream.close();
-			} catch (Exception ioe) {}
+			} catch (IOException ioe) {
+				Log.w(TAG, "Exception while flushing log stream. " + ioe);
+			}
 			logstream = null;
 		}
 		// Turn off notification

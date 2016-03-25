@@ -139,7 +139,9 @@ public class DataChannelActivity extends BaseActivity {
 	protected void onPause() {
 		try {
 			unregisterReceiver(receiver);
-		} catch (Exception unknown){}
+		} catch (IllegalArgumentException iae){
+			// receiver not (yet) registered.
+		}
 		saveSettings();
 		super.onPause();
 	}

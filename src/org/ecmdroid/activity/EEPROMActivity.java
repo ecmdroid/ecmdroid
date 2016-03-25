@@ -210,7 +210,7 @@ public class EEPROMActivity extends FragmentActivity implements CellEditorDialog
 					return filename.endsWith(Constants.XPR_FILE_SUFFIX) || filename.endsWith(Constants.EPR_FILE_SUFFIX);
 				}
 			});
-			if (files.length > 0) {
+			if (files != null && files.length > 0) {
 				Arrays.sort(files);
 				builder.setItems(files, new OnClickListener() {
 					public void onClick(DialogInterface dialog, int which) {

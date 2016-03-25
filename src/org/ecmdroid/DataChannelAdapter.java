@@ -65,7 +65,7 @@ public class DataChannelAdapter extends ArrayAdapter<Variable> {
 		// Log.d(TAG, "getView("+ position +") = " + variable.getName());
 		if (convertView == null) {
 			// Log.d(TAG, "Creating new view");
-			convertView = inflater.inflate(R.layout.datachannel, null);
+			convertView = inflater.inflate(R.layout.datachannel, parent, false);
 			Spinner spinner = (Spinner) convertView.findViewById(R.id.dataChannelSpinner);
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_spinner_item, variables);
 			spinner.setAdapter(adapter);
