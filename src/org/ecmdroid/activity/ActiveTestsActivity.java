@@ -57,6 +57,7 @@ public class ActiveTestsActivity extends ListActivity implements OnClickListener
 	private ECM ecm = ECM.getInstance(this);
 	private Button startButton;
 	private Function selectedFunction;
+	private FunctionTask functionTask;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,12 +77,22 @@ public class ActiveTestsActivity extends ListActivity implements OnClickListener
 		}
 	}
 
+	@Override
+	protected void onDestroy() {
+		if (functionTask != null) {
+			functionTask.cancel();
+			functionTask = null;
+		}
+		super.onDestroy();
+	}
+
 	public void onClick(View view) {
 		if (view.getId() == R.id.tpsResetButton) {
 			resetTPS();
 		} else  if (selectedFunction != null) {
 			Log.d(TAG, "Invoking function '" + selectedFunction + "'");
-			new FunctionTask(selectedFunction).execute();
+			functionTask = new FunctionTask(selectedFunction);
+			functionTask.execute();
 		}
 	}
 
@@ -154,10 +165,12 @@ public class ActiveTestsActivity extends ListActivity implements OnClickListener
 					try {
 						Thread.sleep(500);
 					} catch (InterruptedException e) {
-						Log.d(TAG, "Interrupted...", e);
+						Log.d(TAG, "Test interrupted.");
+						break;
 					}
 				}
 				while(ecm.isBusy());
+				Log.d(TAG, "Active Test finished.");
 			} catch (IOException e) {
 				return e;
 			}

@@ -57,9 +57,16 @@ public abstract class ProgressDialogTask extends AsyncTask<Void, String, Excepti
 		pd.setCancelable(state);
 	}
 
+	public void cancel() {
+		pd.cancel();
+		super.cancel(true);
+	}
+
 	@Override
 	protected void onPostExecute(Exception result) {
-		pd.dismiss();
+		if (pd.isShowing()) {
+			pd.dismiss();
+		}
 		context.setRequestedOrientation(ro);
 		if (result != null) {
 			Toast.makeText(context, result.getLocalizedMessage(), Toast.LENGTH_LONG).show();
