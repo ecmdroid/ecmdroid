@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	  xmlns:app="http://schemas.android.com/apk/res-auto">
+	<item
+		android:id="@+id/fetch"
+		android:title="@string/eeprom_fetch"
+		app:showAsAction="ifRoom">
+	</item>
+	<item
+		android:id="@+id/burn"
+		android:title="@string/eeprom_burn"
+		app:showAsAction="ifRoom">
+	</item>
+	<item
+		android:id="@+id/load"
+		android:title="@string/load_eeprom"
+		app:showAsAction="never">
+	</item>
+	<item
+		android:id="@+id/save"
+		android:enabled="false"
+		android:title="@string/save_eeprom"
+		app:showAsAction="never">
+	</item>
+</menu>

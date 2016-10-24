@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceScreen android:title="@string/general_config">
+		<PreferenceCategory android:title="@string/system">
+			<CheckBoxPreference
+				android:key="KConfig[4]"
+				android:title="@string/bank_angle_sensor"/>
+			<CheckBoxPreference
+				android:key="KConfig[2]"
+				android:title="@string/deceleration_fuel_cut"/>
+			<CheckBoxPreference android:key="KConfig[5]"/>
+			<CheckBoxPreference android:key="KConfig[1]"/>
+			<CheckBoxPreference
+				android:key="KConfig[0]"
+				android:title="@string/idle_fuel_amp_ign_adjust"/>
+			<CheckBoxPreference android:key="KConfig[3]"/>
+			<CheckBoxPreference android:key="KSI_Config[6]"/>
+			<CheckBoxPreference android:key="KSI_Config[5]"/>
+		</PreferenceCategory>
+		<PreferenceCategory android:title="@string/noise_reduction">
+			<CheckBoxPreference
+				android:key="KRet_Config[0]"
+				android:title="@string/on_accel_condition_only"/>
+			<CheckBoxPreference
+				android:key="KRet_Config[2]"
+				android:title="@string/on_accel_and_wot_condition"/>
+			<CheckBoxPreference
+				android:key="KRet_Config[1]"
+				android:title="@string/on_wot_condition_only"/>
+			<CheckBoxPreference android:key="KRet_Config[6]"/>
+			<CheckBoxPreference
+				android:key="KRet_Config[7]"
+				android:title="@string/suppress_accel_enrichment"/>
+			<CheckBoxPreference
+				android:key="KAIC_Config[7]"
+				android:title="@string/active_intake"/>
+		</PreferenceCategory>
+		<PreferenceCategory android:title="@string/airbox_pressure_sensor">
+			<CheckBoxPreference
+				android:key="KBaro_Config[7]"
+				android:title="@string/baro_correction_feature"/>
+			<CheckBoxPreference
+				android:key="KBaro_Config[6]:KABP_Config[7]"
+				android:title="@string/airbox_pressure_feature"/>
+			<CheckBoxPreference
+				android:key="KBaro_Config[2]:KABP_Config[0]"
+				android:title="@string/log_avg_baro_abp_corr_data"/>
+			<CheckBoxPreference
+				android:key="KABP_Config[1]"
+				android:title="@string/log_map_front_rear_data"/>
+			<CheckBoxPreference
+				android:key="KBaro_Config[0]:KBaro_Read[4]"
+				android:title="@string/read_baro_at_key_on"/>
+			<CheckBoxPreference
+				android:key="KABP_Config[5]"
+				android:title="@string/read_sensor_continuously"/>
+			<CheckBoxPreference
+				android:key="KBaro_Config[1]:KBaro_Read[5]"
+				android:title="@string/skip_key_on_read_if_engine_runs"/>
+			<CheckBoxPreference
+				android:key="KABP_Config[4]"
+				android:title="@string/speed_correction"/>
+			<CheckBoxPreference
+				android:key="KABP_Config[6]"
+				android:title="@string/use_baro_not_map_sensor"/>
+		</PreferenceCategory>
+		<PreferenceCategory android:title="@string/shifter">
+			<CheckBoxPreference
+				android:key="KShift_Config[7]"
+				android:title="@string/shifter_feature"/>
+			<CheckBoxPreference
+				android:key="KShift_Config[0]"
+				android:title="@string/shifter_transition_required"/>
+			<CheckBoxPreference
+				android:key="KShift_Config[1]"
+				android:title="@string/shifter_fuel_spark_cut"/>
+			<CheckBoxPreference
+				android:key="KSL_Config[7]"
+				android:title="@string/shift_light_feature"/>
+			<CheckBoxPreference
+				android:key="KSL_Config[0]"
+				android:title="@string/shift_light_output"/>
+		</PreferenceCategory>
+	</PreferenceScreen>
+	<PreferenceScreen android:title="@string/error_mask">
+		<PreferenceCategory android:title="@string/sensors">
+			<CheckBoxPreference
+				android:key="EDiag1[6,7]"
+				android:title="@string/air_temperature_sensor"/>
+			<CheckBoxPreference
+				android:key="EDiag3[6,7]"
+				android:title="@string/bank_angle_sensor"/>
+			<CheckBoxPreference
+				android:key="EDiag8[6,7]"
+				android:title="@string/baro_sensor"/>
+			<CheckBoxPreference
+				android:key="EDiag1[4,5]"
+				android:title="@string/battery_voltage"/>
+			<CheckBoxPreference
+				android:key="EDiag3[0]"
+				android:title="@string/camshaft_position"/>
+			<CheckBoxPreference
+				android:key="EDiag5[4,5]"
+				android:title="@string/clutch_switch"/>
+			<CheckBoxPreference
+				android:key="EDiag8[2,3]"
+				android:title="@string/crankshaft_position"/>
+			<CheckBoxPreference
+				android:key="EDiag0[0,1]"
+				android:title="@string/engine_temp_sensor"/>
+			<CheckBoxPreference
+				android:key="EDiag7[1,2,3]"
+				android:title="@string/fuel_pressure"/>
+			<CheckBoxPreference
+				android:key="EDiag8[4,5]"
+				android:title="@string/manifold_pressure"/>
+			<CheckBoxPreference
+				android:key="EDiag5[2,3]"
+				android:title="@string/neutral_indicator_switch"/>
+			<CheckBoxPreference
+				android:key="EDiag0[2,3,4]"
+				android:title="@string/o2_sensor_rear"/>
+			<CheckBoxPreference
+				android:key="EDiag7[5,6,7]"
+				android:title="@string/o2_sensor_front"/>
+			<CheckBoxPreference
+				android:key="EDiag4[5,6,7]"
+				android:title="@string/sidestand_switch"/>
+			<CheckBoxPreference
+				android:key="EDiag0[5,6]"
+				android:title="@string/throttle_pos_sensor"/>
+			<CheckBoxPreference
+				android:key="EDiag0[2,3,4]"
+				android:title="@string/velocity_sensor"/>
+		</PreferenceCategory>
+		<PreferenceCategory android:title="@string/actuators">
+			<CheckBoxPreference
+				android:key="EDiag4_2[0,1,2,3]"
+				android:title="@string/exhaust_valve_actuator"/>
+			<CheckBoxPreference
+				android:key="EDiag0[7]"
+				android:title="@string/cooling_fan"/>
+		</PreferenceCategory>
+	</PreferenceScreen>
+	<PreferenceScreen android:title="@string/limits">
+		<PreferenceScreen android:title="@string/rpm_limits">
+			<PreferenceCategory android:title="@string/fixed">
+				<EditTextPreference
+					android:key="KRPM_Soft_Hi"
+					android:title="@string/soft_limit_trigger"/>
+				<EditTextPreference
+					android:key="KRPM_Soft_Lo"
+					android:title="@string/soft_limit_reset"/>
+				<EditTextPreference
+					android:key="KRPM_Hard_Hi"
+					android:title="@string/hard_limit_trigger"/>
+				<EditTextPreference
+					android:key="KRPM_Hard_Lo"
+					android:title="@string/hard_limit_reset"/>
+				<EditTextPreference
+					android:key="KRPM_Kill_Hi"
+					android:title="@string/kill_limit_trigger"/>
+				<EditTextPreference
+					android:key="KRPM_Kill_Lo"
+					android:title="@string/kill_limit_reset"/>
+			</PreferenceCategory>
+			<PreferenceCategory android:title="@string/cold_engine">
+				<EditTextPreference
+					android:key="KTE_Cold"
+					android:title="@string/cold_engine_temp"/>
+				<EditTextPreference
+					android:key="KRPM_Cold_Soft_Hi"
+					android:title="@string/soft_limit_trigger"/>
+				<EditTextPreference
+					android:key="KRPM_Cold_Soft_Lo"
+					android:title="@string/soft_limit_reset"/>
+				<EditTextPreference
+					android:key="KRPM_Cold_Hard_Hi"
+					android:title="@string/hard_limit_trigger"/>
+				<EditTextPreference
+					android:key="KRPM_Cold_Hard_Lo"
+					android:title="@string/hard_limit_reset"/>
+			</PreferenceCategory>
+		</PreferenceScreen>
+		<PreferenceScreen android:title="@string/temp_limits">
+			<PreferenceCategory android:title="@string/limits">
+				<EditTextPreference
+					android:key="KTemp_Soft_Hi"
+					android:title="@string/soft_limit_trigger_c"/>
+				<EditTextPreference
+					android:key="KTemp_Soft_Lo"
+					android:title="@string/soft_limit_reset_c"/>
+				<EditTextPreference
+					android:key="KTemp_Hard_Hi"
+					android:title="@string/hard_limit_trigger_c"/>
+				<EditTextPreference
+					android:key="KTemp_Hard_Lo"
+					android:title="@string/hard_limit_reset_c"/>
+				<EditTextPreference
+					android:key="KTemp_Kill_Hi"
+					android:title="@string/kill_limit_trigger_c"/>
+				<EditTextPreference
+					android:key="KTemp_Kill_Lo"
+					android:title="@string/kill_limit_reset_c"/>
+				<EditTextPreference
+					android:key="KTemp_CEL_Flash_Hi"
+					android:title="@string/engine_light_flashing_on_c"/>
+				<EditTextPreference
+					android:key="KTemp_CEL_Flash_Lo"
+					android:title="@string/engine_light_flashing_off_c"/>
+			</PreferenceCategory>
+			<PreferenceCategory android:title="@string/conditions">
+				<EditTextPreference
+					android:key="KTemp_Load_Soft"
+					android:title="@string/soft_limit_min_load"/>
+				<EditTextPreference
+					android:key="KTemp_Load_Hard"
+					android:title="@string/hard_limit_min_load"/>
+				<EditTextPreference
+					android:key="KTemp_RPM_Soft"
+					android:title="@string/soft_limit_min_rpm"/>
+				<EditTextPreference
+					android:key="KTemp_RPM_Hard"
+					android:title="@string/hard_limit_min_rpm"/>
+				<EditTextPreference
+					android:key="KTemp_Abs_Hi"
+					android:title="@string/ignore_rpm_trigger_c"/>
+				<EditTextPreference
+					android:key="KTemp_Abs_Lo"
+					android:title="@string/ignore_rpm_reset_c"/>
+			</PreferenceCategory>
+		</PreferenceScreen>
+		<PreferenceScreen android:title="@string/fan_setup">
+			<PreferenceCategory android:title="@string/fan_setup_key_off">
+				<EditTextPreference
+					android:key="KKey_Off_Fan_Time"
+					android:title="@string/max_duration_min"/>
+				<EditTextPreference
+					android:key="KKey_Off_Min_Bat"
+					android:title="@string/min_batt_voltg"/>
+				<EditTextPreference
+					android:key="KKey_Off_Fan_On"
+					android:title="@string/on_temperature"/>
+				<EditTextPreference
+					android:key="KKey_Off_Fan_Off"
+					android:title="@string/off_temperature"/>
+				<EditTextPreference
+					android:key="KKey_Off_Delay"
+					android:title="100% Runtime (s)"/>
+				<EditTextPreference
+					android:key="KKey_Off_Fan_DC"
+					android:title="Run Duty Cycle (%)"/>
+			</PreferenceCategory>
+			<PreferenceCategory android:title="@string/fan_setup_key_on">
+				<EditTextPreference
+					android:key="KTemp_Fan_On"
+					android:title="@string/on_temperature"/>
+				<EditTextPreference
+					android:key="KTemp_Fan_Off"
+					android:title="@string/off_temperature"/>
+				<CheckBoxPreference
+					android:key="KCF_Config[5]"
+					android:title="@string/speed_based_fan_control"/>
+			</PreferenceCategory>
+		</PreferenceScreen>
+	</PreferenceScreen>
+	<PreferenceScreen android:title="@string/afv_settings">
+		<EditTextPreference
+			android:key="LFuel"
+			android:title="@string/afv_rear"/>
+		<EditTextPreference
+			android:key="LFuel1"
+			android:title="@string/afv_front"
+			android:dependency="KCL_Fuel_Config[0]"/>
+	</PreferenceScreen>
+	<PreferenceScreen android:title="@string/o2_setup">
+		<PreferenceCategory android:title="@string/o2_sensor">
+			<EditTextPreference
+				android:key="KO2_Rich"
+				android:title="@string/rich_v"/>
+			<EditTextPreference
+				android:key="KO2_Midpoint"
+				android:title="@string/midpoint_v"/>
+			<EditTextPreference
+				android:key="KO2_Lean"
+				android:title="@string/lean_v"/>
+			<EditTextPreference
+				android:key="KO2_Min_RPM"
+				android:title="@string/minimum_rpm"/>
+			<EditTextPreference
+				android:key="KO2_Min_TP"
+				android:title="@string/min_load_8bit"/>
+			<EditTextPreference
+				android:key="KO2_Act_Time"
+				android:title="@string/activation_delay_s"/>
+			<EditTextPreference
+				android:key="KO2_Inact_Time"
+				android:title="@string/deactivation_delay_s"/>
+		</PreferenceCategory>
+		<PreferenceCategory android:title="@string/closed_loop_configuration">
+			<CheckBoxPreference
+				android:key="KCL_Fuel_Config[7]"
+				android:title="@string/enable_closed_loop"/>
+			<CheckBoxPreference
+				android:key="KCL_Fuel_Config[0]"
+				android:title="@string/enable_independent_front_cl"/>
+			<CheckBoxPreference
+				android:key="KCL_Fuel_Config[6]"
+				android:title="@string/log_front_ego_fuel_data"/>
+		</PreferenceCategory>
+		<PreferenceCategory android:title="@string/ego_correction_settings">
+			<EditTextPreference
+				android:key="KFBFuel_Max"
+				android:title="@string/max_ego_corr_pct"/>
+			<EditTextPreference
+				android:key="KFBFuel_Min"
+				android:title="@string/min_ego_corr_pct"/>
+			<EditTextPreference
+				android:key="KCL_Max_TE"
+				android:title="@string/max_engine_temp_c"/>
+			<EditTextPreference
+				android:key="KCL_Min_TE"
+				android:title="@string/min_engine_temp_c"/>
+		</PreferenceCategory>
+		<PreferenceCategory android:title="@string/afv_settings">
+			<EditTextPreference
+				android:key="KLFuel_Max"
+				android:title="@string/maximum_afv_pct"/>
+			<EditTextPreference
+				android:key="KLFuel_Min"
+				android:title="@string/minimum_afv_pct"/>
+			<EditTextPreference
+				android:key="Enrich_Time"
+				android:title="@string/ol_learn_delay_s"/>
+			<EditTextPreference
+				android:key="KLFuel_Inc"
+				android:title="@string/increase_factor_pct"/>
+			<EditTextPreference
+				android:key="KLFuel_Dec"
+				android:title="@string/decrease_factor_pct"/>
+			<EditTextPreference
+				android:key="KLCL_Count"
+				android:title="@string/transitions_required"/>
+			<EditTextPreference
+				android:key="KLCL_Max_TE"
+				android:title="@string/max_engine_temp_c"/>
+			<EditTextPreference
+				android:key="KLCL_Min_TE"
+				android:title="@string/min_engine_temp_c"/>
+			<EditTextPreference
+				android:key="KLFCD"
+				android:title="@string/max_cylinder_diff_pct"/>
+		</PreferenceCategory>
+	</PreferenceScreen>
+	<PreferenceScreen android:title="@string/exhaust_config">
+		<CheckBoxPreference
+			android:key="KAMC_Config[7]"
+			android:title="@string/exhaust_valve_enabled"/>
+		<CheckBoxPreference android:key="KAMC_Config[0]"/>
+		<CheckBoxPreference
+			android:key="KAMC_Config[1]"
+			android:title="@string/keep_open_when_not_in_wot"/>
+		<CheckBoxPreference android:key="KAMC_Config[2]"/>
+		<CheckBoxPreference android:key="KAMC_Config[4]"/>
+		<CheckBoxPreference
+			android:key="KAMC_Config[5]"
+			android:title="@string/close_valve_on_amc_error"/>
+		<CheckBoxPreference android:key="KAMC_Config[3]"/>
+		<CheckBoxPreference
+			android:key="KAMC_Config[6]"
+			android:title="@string/cycle_valve_at_ignition_on"/>
+	</PreferenceScreen>
+</PreferenceScreen>
