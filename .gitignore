@@ -1,4 +1,10 @@
-bin/
-gen/
-local.properties
-src/org/ecmdroid/VCS.java
+*.iml
+.gradle
+/local.properties
+/keystore.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+/dl

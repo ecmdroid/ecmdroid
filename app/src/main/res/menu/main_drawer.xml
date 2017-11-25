@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	>
+
+	<group android:checkableBehavior="single">
+		<item
+			android:id="@+id/nav_info"
+			android:icon="@drawable/ic_ecminfo"
+			android:title="@string/ecm_information"/>
+		<item
+			android:id="@+id/nav_troublecodes"
+			android:icon="@drawable/ic_troublecodes"
+			android:title="@string/trouble_codes"/>
+		<item
+			android:id="@+id/nav_tests"
+			android:icon="@drawable/ic_pulse"
+			android:title="@string/active_tests"/>
+		<item
+			android:id="@+id/nav_datachannels"
+			android:icon="@drawable/ic_datachannels"
+			android:title="@string/data_channels"/>
+		<item
+			android:id="@+id/nav_setup"
+			android:icon="@drawable/ic_cog"
+			android:title="@string/setup"/>
+		<item
+			android:id="@+id/nav_log"
+			android:icon="@drawable/ic_log"
+			android:title="@string/log_recorder"/>
+		<item
+			android:id="@+id/nav_eeprom"
+			android:icon="@drawable/ic_eeprom"
+			android:title="@string/title_activity_eeprom"/>
+		<item
+			android:id="@+id/nav_torque"
+			android:icon="@drawable/ic_torque"
+			android:title="@string/torque_values"/>
+		<item
+			android:id="@+id/nav_settings"
+			android:title="@string/action_settings"/>
+		<item
+			android:id="@+id/nav_about"
+			android:title="@string/about"/>
+	</group>
+</menu>

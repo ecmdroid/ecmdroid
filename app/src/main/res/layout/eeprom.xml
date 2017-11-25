@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent"
+			  android:orientation="vertical">
+
+	<GridView
+		android:id="@+id/eepromGrid"
+		android:layout_width="wrap_content"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:fastScrollEnabled="true"
+		android:gravity="center"
+		android:horizontalSpacing="1dp"
+		android:numColumns="5"
+		android:stretchMode="columnWidth"
+		android:verticalSpacing="1dp"/>
+
+	<TableLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+
+		<TableRow>
+
+			<TextView android:text=""/>
+
+			<TextView
+				android:text="@string/offset"
+				android:gravity="right"
+				android:textStyle="bold"/>
+
+			<TextView
+				android:text="@string/byte_value"
+				android:gravity="right"
+				android:paddingLeft="10dp"
+				android:textStyle="bold"/>
+
+			<TextView
+				android:text="@string/short_hi"
+				android:gravity="right"
+				android:paddingLeft="10dp"
+				android:textStyle="bold"/>
+
+			<TextView
+				android:text="@string/short_lo"
+				android:gravity="right"
+				android:paddingLeft="10dp"
+				android:textStyle="bold"/>
+		</TableRow>
+
+		<TableRow>
+
+			<TextView android:text="@string/hex"/>
+
+			<TextView
+				android:id="@+id/offsetHex"
+				android:gravity="right"/>
+
+			<TextView
+				android:id="@+id/byteValHex"
+				android:gravity="right"/>
+
+			<TextView
+				android:id="@+id/hiShortHex"
+				android:gravity="right"/>
+
+			<TextView
+				android:id="@+id/loShortHex"
+				android:gravity="right"/>
+		</TableRow>
+
+		<TableRow>
+
+			<TextView android:text="@string/dec"/>
+
+			<TextView
+				android:id="@+id/offsetDec"
+				android:gravity="right"/>
+
+			<TextView
+				android:id="@+id/byteValDec"
+				android:gravity="right"/>
+
+			<TextView
+				android:id="@+id/hiShortDec"
+				android:gravity="right"/>
+
+			<TextView
+				android:id="@+id/loShortDec"
+				android:gravity="right"/>
+		</TableRow>
+
+		<TableRow>
+
+			<TextView android:text="@string/cell_info"/>
+
+			<TextView
+				android:id="@+id/cellInfo"
+				android:layout_span="4"
+				android:maxLines="1"
+				android:ellipsize="end"
+				android:paddingLeft="10dp"/>
+		</TableRow>
+	</TableLayout>
+</LinearLayout>

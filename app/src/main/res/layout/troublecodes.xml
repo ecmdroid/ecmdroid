@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:id="@+id/LinearLayout1"
+			  android:layout_width="fill_parent"
+			  android:layout_height="fill_parent"
+			  android:orientation="vertical">
+
+	<TextView
+		android:id="@+id/TextView1"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="5sp"
+		android:text="@string/current_errors"
+		android:labelFor="@+id/currentErrors"
+		/>
+
+	<EditText
+		android:id="@+id/currentErrors"
+		android:layout_width="fill_parent"
+		android:layout_height="0sp"
+		android:layout_margin="5sp"
+		android:layout_weight="1"
+		android:gravity="top"
+		android:background="@drawable/roundedrectangle"
+		android:textColor="#000"
+		android:scrollbars="vertical"
+		android:fadeScrollbars="false"
+		android:inputType="textMultiLine|textNoSuggestions"
+		android:focusable="false"
+		android:cursorVisible="false"
+		android:textSize="6pt"
+		android:scrollHorizontally="true"
+		android:typeface="monospace">
+
+	</EditText>
+
+	<TextView
+		android:id="@+id/TextView2"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="5sp"
+		android:layout_marginTop="10sp"
+		android:text="@string/stored_errors"
+		android:labelFor="@+id/storedErrors"/>
+
+	<EditText
+		android:id="@+id/storedErrors"
+		android:layout_width="fill_parent"
+		android:layout_height="0sp"
+		android:layout_margin="5sp"
+		android:layout_weight="1"
+		android:background="@drawable/roundedrectangle"
+		android:textColor="#000"
+		android:gravity="top"
+		android:cursorVisible="false"
+		android:scrollbars="vertical"
+		android:fadeScrollbars="false"
+		android:inputType="textMultiLine|textNoSuggestions"
+		android:focusable="false"
+		android:textSize="6pt"
+		android:scrollHorizontally="true"
+		android:typeface="monospace">
+	</EditText>
+
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="10sp"
+		style="?android:attr/buttonBarStyle"
+		android:paddingBottom="20sp">
+
+		<Button
+			android:id="@+id/readErrors"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			style="?android:attr/buttonBarButtonStyle"
+			android:text="@string/read_errors"
+			android:layout_marginStart="30sp"/>
+
+		<Button
+			android:id="@+id/clearErrors"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			style="?android:attr/buttonBarButtonStyle"
+			android:text="@string/clear_errors"
+			android:layout_marginEnd="30sp"/>
+
+	</LinearLayout>
+
+
+</LinearLayout>
