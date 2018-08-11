@@ -267,7 +267,7 @@ public class MainActivity extends AppCompatActivity
 
 	private void disconnect() {
 		try {
-			if (ecmDroidService.isRecording()) {
+			if (ecmDroidService != null && ecmDroidService.isRecording()) {
 				ecmDroidService.stopRecording();
 			}
 			ecm.disconnect();
