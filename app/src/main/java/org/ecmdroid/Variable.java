@@ -111,7 +111,7 @@ public class Variable implements Cloneable {
 	}
 
 	public void setWidth(int width) {
-		this.width = width;
+		this.width = Math.max(width,1);
 	}
 
 	public int getRows() {
