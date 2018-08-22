@@ -187,7 +187,7 @@ public class PDU {
 		}
 		// Checksum
 		byte cs = checksum();
-		if (checksum() != pdu[pdu.length - 1]) {
+		if (cs != pdu[pdu.length - 1]) {
 			throw new ParseException("Invalid checksum (" + Integer.toHexString(cs) + "/" + Integer.toHexString(pdu[pdu.length - 1] & 0xff) + ")", pdu.length - 1);
 		}
 	}
