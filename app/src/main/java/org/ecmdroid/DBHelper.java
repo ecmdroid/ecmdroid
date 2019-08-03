@@ -34,7 +34,7 @@ import java.io.InputStream;
 public class DBHelper extends SQLiteOpenHelper {
 
 	// Increase this whenever updating the database
-	private static final int DB_VERSION = 2;
+	private static final int DB_VERSION = 201504241;
 
 	private static final String TAG = "DBHelper";
 	private static String DB_NAME = "ecmdroid";
