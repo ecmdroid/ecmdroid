@@ -14,7 +14,8 @@
 			style="@android:style/Widget.TextView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:minWidth="150dp"/>
+			android:minWidth="150dp"
+			android:spinnerMode="dialog" />
 
 		<TextView
 			android:id="@+id/dataChannelText"

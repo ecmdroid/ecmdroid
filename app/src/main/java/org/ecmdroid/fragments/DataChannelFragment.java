@@ -49,7 +49,14 @@ import org.ecmdroid.VariableProvider;
 public class DataChannelFragment extends Fragment {
 
 	private static final String TAG = "DataChannels";
-	private static Variable[] channels = new Variable[4];
+	private static final String[] DEFAULT_CHANNELS = {
+			Variables.Bat,
+			Variables.RPM,
+			Variables.TPD,
+			Variables.AFV,
+			Variables.CLT
+	};
+	private static Variable[] channels = new Variable[5];
 
 	private ECM ecm = ECM.getInstance(getActivity());
 	private VariableProvider provider = VariableProvider.getInstance(getActivity());
@@ -123,7 +130,7 @@ public class DataChannelFragment extends Fragment {
 		if (!Utils.isEmptyString(ecm.getId())) {
 			SharedPreferences prefs = getActivity().getPreferences(Activity.MODE_PRIVATE);
 			int i = 0;
-			for (String defvar : new String[]{Variables.RPM, Variables.TPD, Variables.CLT, Variables.AFV}) {
+			for (String defvar : DEFAULT_CHANNELS) {
 				String var = prefs.getString("channel" + (i + 1), defvar);
 				if (!Utils.isEmptyString(var)) {
 					Log.d(TAG, "Looking up variable " + var);
