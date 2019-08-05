@@ -29,6 +29,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -64,6 +65,7 @@ import java.util.Observer;
 public class LogFragment extends Fragment implements OnClickListener {
 	private static final String PREFS_CONVERTLOG = "convertlog";
 	private static final String PREFS_DELAY = "delay";
+	private static final String PREFS_KEEP_SCREEN_ON = "keep_screen_on";
 	private static final String TAG = "LogFragment";
 	private Button recordButton;
 	private TextView logFile;
@@ -204,6 +206,7 @@ public class LogFragment extends Fragment implements OnClickListener {
 				recordButton.setEnabled(false);
 				new StopTask(getActivity(), convert).execute();
 				recordButton.setEnabled(true);
+				getView().setKeepScreenOn(false);
 				recordButton.setText(R.string.start_recording);
 			}
 		}
@@ -223,6 +226,11 @@ public class LogFragment extends Fragment implements OnClickListener {
 			Log.w(TAG, "Unable to create directories " + dir.getAbsolutePath());
 		}
 		recordButton.setText(R.string.stop_recording);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		if (prefs.getBoolean(PREFS_KEEP_SCREEN_ON, false)) {
+			Log.i(TAG, "Keeping Screen on while recording...");
+			getView().setKeepScreenOn(true);
+		}
 		ecmDroidService.startRecording(new File(dir, fn + ".bin"), interval == null ? 0 : interval.delay, ecm);
 	}
 

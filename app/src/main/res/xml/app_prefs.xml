@@ -33,4 +33,8 @@
 		android:key="enable_fast_burning"
 		android:title="@string/optimized_burning"
 		android:summary="@string/only_write_back_modified_pages"/>
+	<CheckBoxPreference
+		android:key="keep_screen_on"
+		android:title="@string/keep_screen_on_title"
+		android:summary="@string/keep_screen_on_summary"/>
 </PreferenceScreen>

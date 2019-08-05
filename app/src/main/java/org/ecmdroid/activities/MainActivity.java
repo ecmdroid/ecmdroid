@@ -175,6 +175,7 @@ public class MainActivity extends AppCompatActivity
 
 	@Override
 	protected void onSaveInstanceState(Bundle state) {
+		super.onSaveInstanceState(state);
 		state.putInt(CURRENT_FRAGMENT, currentFragment);
 	}
 
