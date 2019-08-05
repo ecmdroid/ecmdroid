@@ -75,11 +75,26 @@
 		android:layout_alignLeft="@id/eepromPagesValue"/>
 
 	<TextView
-		android:id="@+id/ecmSerial"
+		android:id="@+id/ecmVersion"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignLeft="@+id/ecmId"
 		android:layout_below="@+id/ecmType"
+		android:text="@string/ecm_version"/>
+
+	<TextView
+		android:id="@+id/ecmVersionValue"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignBaseline="@+id/ecmVersion"
+		android:layout_alignLeft="@id/eepromPagesValue"/>
+
+	<TextView
+		android:id="@+id/ecmSerial"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignLeft="@+id/ecmId"
+		android:layout_below="@+id/ecmVersion"
 		android:text="@string/ecm_serial_no"/>
 
 	<TextView

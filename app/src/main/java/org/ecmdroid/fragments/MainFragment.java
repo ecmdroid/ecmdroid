@@ -86,6 +86,7 @@ public class MainFragment extends Fragment {
 		setText(R.id.ecmIdValue, ecm.getId());
 		EEPROM eeprom = ecm.getEEPROM();
 		if (eeprom != null) {
+			setText(R.id.ecmVersionValue, eeprom.getVersion() == null ? "-" : eeprom.getVersion());
 			setText(R.id.eepromSizeValue, "" + eeprom.length());
 			setText(R.id.eepromPagesValue, "" + eeprom.getPageCount());
 			setText(R.id.ecmTypeValue, "" + ecm.getType());
