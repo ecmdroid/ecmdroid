@@ -237,5 +237,6 @@
 	<string name="keep_screen_on_summary">Keep Screen on while recording a log</string>
 	<string name="keep_screen_on_title">Keep Screen On</string>
 	<string name="ecm_version">ECM Version:</string>
+	<string name="update_db">Updating database...</string>
 
 </resources>

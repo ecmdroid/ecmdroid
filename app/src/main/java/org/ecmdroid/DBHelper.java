@@ -22,11 +22,14 @@ import android.content.res.AssetManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Helper for initially installing or updating the bundled SQLite database.
@@ -34,32 +37,34 @@ import java.io.InputStream;
 public class DBHelper extends SQLiteOpenHelper {
 
 	// Increase this whenever updating the database
-	private static final int DB_VERSION = 201504241;
+	private static final int DB_VERSION = 201504242;
 
 	private static final String TAG = "DBHelper";
 	private static String DB_NAME = "ecmdroid";
 	private Context context;
+
 
 	public DBHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
 		this.context = context;
 	}
 
-	public boolean isDbInstalled() {
 
-		return context.getDatabasePath(DB_NAME).exists();
-	}
-
-	public void installDB(Context context) throws IOException {
-		File db = context.getDatabasePath(DB_NAME);
-		Log.d(TAG, "Checking if file '" + db.getAbsolutePath() + "' exists...");
-		if (!db.exists()) {
+	public void setupDB() throws IOException {
+		SQLiteDatabase db = context.openOrCreateDatabase(DBHelper.DB_NAME, MODE_PRIVATE, null);
+		int version = db.getVersion();
+		db.close();
+		if (version != DBHelper.DB_VERSION) {
+			Log.i("Main", "Database installation / upgrade required (" + version + "->" + DBHelper.DB_VERSION + ")");
+			Toast.makeText(context, context.getString(R.string.update_db), Toast.LENGTH_LONG).show();
+			context.deleteDatabase(DBHelper.DB_NAME);
+			File dbFile = context.getDatabasePath(DB_NAME);
 			long now = System.currentTimeMillis();
 			Log.i(TAG, "Installing Database...");
-			db.getParentFile().mkdirs();
+			dbFile.getParentFile().mkdirs();
 			AssetManager assets = context.getAssets();
 			InputStream in = assets.open(DB_NAME + ".db");
-			FileOutputStream out = new FileOutputStream(db);
+			FileOutputStream out = new FileOutputStream(dbFile);
 			byte[] buffer = new byte[1024];
 			int length;
 			while ((length = in.read(buffer)) > 0) {
@@ -80,14 +85,5 @@ public class DBHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int ov, int nv) {
 		Log.w(TAG, "onUpgrade(" + ov + ", " + nv + ")");
-		if (nv > ov) {
-			Log.i(TAG, "Installing new DB version (v" + ov + " -> v" + nv + ")...");
-			context.deleteDatabase(DB_NAME);
-			try {
-				installDB(context);
-			} catch (IOException e) {
-				throw new RuntimeException("DB update failed. " + e);
-			}
-		}
 	}
 }

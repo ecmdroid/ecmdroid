@@ -62,7 +62,6 @@ import org.ecmdroid.fragments.SetupFragment;
 import org.ecmdroid.fragments.TorqueValuesFragment;
 import org.ecmdroid.fragments.TroubleCodeFragment;
 import org.ecmdroid.task.FetchTask;
-import org.ecmdroid.task.ProgressDialogTask;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -141,30 +140,6 @@ public class MainActivity extends AppCompatActivity
 
 		// Install the database
 		dbHelper = new DBHelper(this);
-		if (!dbHelper.isDbInstalled()) {
-			ProgressDialogTask installTask = new ProgressDialogTask(this, "Installing Database") {
-				@Override
-				protected Exception doInBackground(Void... args) {
-					try {
-						dbHelper.installDB(MainActivity.this);
-					} catch (IOException e) {
-						Log.e(TAG, "DB Install failed.", e);
-						return e;
-					}
-					return null;
-				}
-
-				@Override
-				protected void onPostExecute(Exception result) {
-					super.onPostExecute(result);
-					if (result != null) {
-						Toast.makeText(MainActivity.this, "FATAL: DB Installation failed.", Toast.LENGTH_LONG).show();
-						System.exit(0);
-					}
-				}
-			};
-			installTask.execute();
-		}
 	}
 
 	@Override
