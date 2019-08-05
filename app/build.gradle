@@ -17,8 +17,8 @@ android {
     defaultConfig {
         applicationId "org.ecmdroid"
         minSdkVersion 17
-        versionCode 19
-        versionName '0.99'
+        versionCode 20
+        versionName '0.99.1'
         targetSdkVersion 28
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
