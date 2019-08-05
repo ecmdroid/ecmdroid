@@ -50,7 +50,7 @@ public class DataChannelFragment extends Fragment {
 
 	private static final String TAG = "DataChannels";
 	private static final String[] DEFAULT_CHANNELS = {
-			Variables.Bat,
+			Variables.Bat_V,
 			Variables.RPM,
 			Variables.TPD,
 			Variables.AFV,

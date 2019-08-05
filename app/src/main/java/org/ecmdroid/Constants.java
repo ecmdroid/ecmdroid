@@ -836,6 +836,7 @@ public interface Constants {
 		String VS_KPH = "VS_KPH";
 		String VS_MPH = "VS_MPH";
 		String WUE = "WUE";
+		String Bat_V = "Batt. Voltg.";
 	}
 
 	/**
