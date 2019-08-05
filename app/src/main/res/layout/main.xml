@@ -180,6 +180,7 @@
 		android:prompt="@string/choose_protocol"
 		android:layout_alignBottom="@+id/protocolLabel"
 		android:layout_alignLeft="@+id/ecmCalibrationValue"
-		android:layout_alignStart="@+id/ecmCalibrationValue"/>
+		android:layout_alignStart="@+id/ecmCalibrationValue"
+		android:spinnerMode="dialog"/>
 
 </RelativeLayout>

@@ -127,7 +127,8 @@
 		android:prompt="@string/log_interval"
 		android:layout_alignBottom="@+id/logIntervalLabel"
 		android:layout_toEndOf="@+id/logIntervalLabel"
-		android:layout_below="@+id/logStatusValue"/>
+		android:layout_below="@+id/logStatusValue"
+		android:spinnerMode="dialog"/>
 
 	<CheckBox
 		android:id="@+id/logConvertCheckbox"
