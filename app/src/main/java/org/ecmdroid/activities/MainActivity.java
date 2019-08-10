@@ -82,6 +82,9 @@ public class MainActivity extends AppCompatActivity
 	protected EcmDroidService ecmDroidService;
 	private FloatingActionButton fab;
 
+	private boolean isTransactionSafe;
+	private boolean isTransactionPending;
+
 	private ServiceConnection serviceConnection = new ServiceConnection() {
 
 		public void onServiceDisconnected(ComponentName name) {
@@ -149,6 +152,21 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		isTransactionSafe = true;
+		if (isTransactionPending) {
+			switchToFragment(currentFragment);
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		isTransactionSafe = false;
+	}
+
+	@Override
 	protected void onSaveInstanceState(Bundle state) {
 		super.onSaveInstanceState(state);
 		state.putInt(CURRENT_FRAGMENT, currentFragment);
@@ -195,27 +213,34 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	private void switchToFragment(int id) {
-		Fragment fragment = null;
-		if (id == R.id.nav_info) {
-			fragment = new MainFragment();
-		} else if (id == R.id.nav_troublecodes) {
-			fragment = new TroubleCodeFragment();
-		} else if (id == R.id.nav_tests) {
-			fragment = new ActiveTestsFragment();
-		} else if (id == R.id.nav_datachannels) {
-			fragment = new DataChannelFragment();
-		} else if (id == R.id.nav_setup) {
-			fragment = new SetupFragment();
-		} else if (id == R.id.nav_log) {
-			fragment = new LogFragment();
-		} else if (id == R.id.nav_eeprom) {
-			fragment = new EEPROMFragment();
-		}
-		FragmentManager mgr = getFragmentManager();
-		if (fragment != null) {
-			mgr.beginTransaction()
-					.replace(R.id.content_frame, fragment)
-					.commit();
+		if (isTransactionSafe) {
+			Fragment fragment = null;
+			if (id == R.id.nav_info) {
+				fragment = new MainFragment();
+			} else if (id == R.id.nav_troublecodes) {
+				fragment = new TroubleCodeFragment();
+			} else if (id == R.id.nav_tests) {
+				fragment = new ActiveTestsFragment();
+			} else if (id == R.id.nav_datachannels) {
+				fragment = new DataChannelFragment();
+			} else if (id == R.id.nav_setup) {
+				fragment = new SetupFragment();
+			} else if (id == R.id.nav_log) {
+				fragment = new LogFragment();
+			} else if (id == R.id.nav_eeprom) {
+				fragment = new EEPROMFragment();
+			}
+			FragmentManager mgr = getFragmentManager();
+			if (fragment != null) {
+				Log.d(TAG, "Switching to fragment id " + id);
+				mgr.beginTransaction()
+						.replace(R.id.content_frame, fragment)
+						.commit();
+				isTransactionPending = false;
+			}
+		} else {
+			isTransactionPending = true;
+			Log.d(TAG, "Postponing fragment switch action");
 		}
 	}
 
