@@ -18,11 +18,13 @@
 package org.ecmdroid;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -256,12 +258,21 @@ public class EcmDroidService extends Service {
 		Intent intent = new Intent(this, MainActivity.class);
 		intent.putExtras(extras);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 106, intent, 0);
-		Notification notification = new Notification.Builder(this)
+		Notification.Builder builder = new Notification.Builder(this)
 				.setContentTitle(label)
 				.setContentText(text)
 				.setContentIntent(contentIntent)
-				.setSmallIcon(R.drawable.ic_log)
-				.build();
+				.setSmallIcon(R.drawable.ic_log);
+
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+			NotificationChannel channel = new NotificationChannel(
+					"ecmdroid_logrecorder",
+					"EcmDroid Log Recorder",
+					NotificationManager.IMPORTANCE_DEFAULT);
+			nm.createNotificationChannel(channel);
+			builder.setChannelId("ecmdroid_logrecorder");
+		}
+		Notification notification = builder.build();
 		notification.flags |= Notification.FLAG_NO_CLEAR;
 		nm.notify(RECORDING_ID, notification);
 	}
