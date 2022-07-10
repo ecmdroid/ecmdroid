@@ -238,5 +238,22 @@
 	<string name="keep_screen_on_title">Keep Screen On</string>
 	<string name="ecm_version">ECM Version:</string>
 	<string name="update_db">Updating database...</string>
-
+    <string name="pairing_request"><![CDATA[PAIRING requested\n-> Perform pairing steps. Connect again]]></string>
+    <string name="tcp_settings">TCP/IP Settings</string>
+    <string name="connect_disconnect">Connect/Disconnect</string>
+	<string name="location_permission_title">Location permission required</string>
+	<string name="location_permission_message">This app does not use location information, but scanning for Bluetooth LE devices requires this permission.</string>
+	<string name="location_denied_title">Location Permission Denied</string>
+	<string name="location_denied_message">As location permission has not been granted, this app cannot scan for Bluetooth LE devices.</string>
+	<string name="no_ble_devices_found">No Bluetooth LE devices found</string>
+	<string name="ble_scanning">Scanning...</string>
+	<string name="ble_initializing">Initializing...</string>
+	<string name="ble_not_supported">Bluetooth LE not supported</string>
+	<string name="bluetooth_disabled">Bluetooth is disabled</string>
+	<string name="ble_scan">Use \'SCAN\' to refresh devices</string>
+	<string name="ble_unnamed"><![CDATA[<unnamed>]]></string>
+	<string name="ble_stop_scan">STOP</string>
+	<string name="ble_start_scan">SCAN</string>
+	<string name="ble_scan_results">Scan Results</string>
+	<string name="ble_devicelist_title">Bluetooth LE Devices</string>
 </resources>

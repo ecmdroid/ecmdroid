@@ -49,6 +49,7 @@ import org.ecmdroid.EEPROMAdapter;
 import org.ecmdroid.R;
 import org.ecmdroid.Utils;
 import org.ecmdroid.Variable;
+import org.ecmdroid.activities.MainActivity;
 import org.ecmdroid.fragments.CellEditorDialogFragment.CellEditorDialogListener;
 import org.ecmdroid.task.BurnTask;
 import org.ecmdroid.task.FetchTask;
@@ -208,7 +209,9 @@ public class EEPROMFragment extends Fragment implements CellEditorDialogListener
 	@Override
 	public void onResume() {
 		super.onResume();
-		getActivity().setTitle(getString(R.string.eeprom));
+		MainActivity activity = (MainActivity) getActivity();
+		activity.setTitle(getString(R.string.eeprom));
+		activity.updateConnectButton();
 	}
 
 	@Override

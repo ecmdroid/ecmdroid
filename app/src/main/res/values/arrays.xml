@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<array name="connectionTypes">
-		<item>Bluetooth</item>
+		<item>Classic Bluetooth</item>
+		<item>Bluetooth LE</item>
 		<item>TCP/IP</item>
 	</array>
 	<array name="connectionValues">
 		<item>BT</item>
+		<item>BLE</item>
 		<item>TCP</item>
 	</array>
 </resources>

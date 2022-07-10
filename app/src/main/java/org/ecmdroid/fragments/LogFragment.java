@@ -50,6 +50,7 @@ import org.ecmdroid.EcmDroidService;
 import org.ecmdroid.R;
 import org.ecmdroid.Utils;
 import org.ecmdroid.Variable;
+import org.ecmdroid.activities.MainActivity;
 import org.ecmdroid.task.ProgressDialogTask;
 import org.ecmdroid.util.Bin2MslConverter;
 
@@ -154,17 +155,19 @@ public class LogFragment extends Fragment implements OnClickListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		getActivity().setTitle(getString(R.string.log_recorder));
-		getActivity().registerReceiver(receiver, new IntentFilter(EcmDroidService.RECORDING_STARTED));
-		getActivity().registerReceiver(receiver, new IntentFilter(EcmDroidService.RECORDING_STOPPED));
-		getActivity().registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA));
+		MainActivity activity = (MainActivity) getActivity();
+		activity.updateConnectButton();
+		activity.setTitle(getString(R.string.log_recorder));
+		activity.registerReceiver(receiver, new IntentFilter(EcmDroidService.RECORDING_STARTED));
+		activity.registerReceiver(receiver, new IntentFilter(EcmDroidService.RECORDING_STOPPED));
+		activity.registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA));
 		Spinner spinner = (Spinner) getView().findViewById(R.id.logInterval);
 		if (ecmDroidService != null && ecm.isRecording()) {
 			spinner.setEnabled(false);
 		} else {
 			spinner.setEnabled(true);
 		}
-		SharedPreferences prefs = getActivity().getPreferences(Activity.MODE_PRIVATE);
+		SharedPreferences prefs = activity.getPreferences(Activity.MODE_PRIVATE);
 		spinner.setSelection(prefs.getInt(PREFS_DELAY, 0));
 		CheckBox convert = (CheckBox) getView().findViewById(R.id.logConvertCheckbox);
 		convert.setChecked(prefs.getBoolean(PREFS_CONVERTLOG, false));

@@ -2,22 +2,26 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 				  android:title="Preferences">
 	<ListPreference
-		android:title="@string/ecm_connection_type"
+		android:defaultValue="@string/prefs_bt_connection"
 		android:entries="@array/connectionTypes"
 		android:entryValues="@array/connectionValues"
 		android:key="@string/prefs_conn_type"
-		android:defaultValue="@string/prefs_bt_connection"
-		/>
-	<EditTextPreference
-		android:key="tcp_host"
-		android:title="@string/tcp_host"
-		android:defaultValue="192.168.1.1"
-		/>
-	<EditTextPreference
-		android:key="tcp_port"
-		android:title="@string/tcp_port"
-		android:defaultValue="6275"
-		/>
+		android:title="@string/ecm_connection_type" />
+	<PreferenceCategory
+		android:key="tcp_settings"
+		android:textColor="#DD2C00"
+		android:title="@string/tcp_settings"
+		android:visibility="visible">
+
+		<EditTextPreference
+			android:defaultValue="192.168.1.1"
+			android:key="tcp_host"
+			android:title="@string/tcp_host" />
+		<EditTextPreference
+			android:defaultValue="6275"
+			android:key="tcp_port"
+			android:title="@string/tcp_port" />
+	</PreferenceCategory>
 	<CheckBoxPreference
 		android:key="hide_nonexistent_vars"
 		android:title="@string/hide_eeprom_variables"

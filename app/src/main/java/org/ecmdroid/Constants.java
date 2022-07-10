@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
  */
 public interface Constants {
 	String PREFS_ECM_PROTOCOL = "ecm.protocol";
+	String INTENT_ACTION_DISCONNECT = BuildConfig.APPLICATION_ID + ".Disconnect";;
 
 	/**
 	 * Variable names.

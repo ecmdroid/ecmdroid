@@ -32,6 +32,7 @@ import org.ecmdroid.Error;
 import org.ecmdroid.Error.ErrorType;
 import org.ecmdroid.PDU.Function;
 import org.ecmdroid.R;
+import org.ecmdroid.activities.MainActivity;
 import org.ecmdroid.task.ProgressDialogTask;
 
 import java.io.IOException;
@@ -53,11 +54,13 @@ public class TroubleCodeFragment extends Fragment implements OnClickListener {
 
 	@Override
 	public void onResume() {
-		super.onResume();
 		getActivity().setTitle(getString(R.string.trouble_codes));
+		MainActivity activity = (MainActivity) getActivity();
+		activity.updateConnectButton();
 		getView().findViewById(R.id.readErrors).setEnabled(ecm.isConnected());
 		getView().findViewById(R.id.clearErrors).setEnabled(ecm.isConnected());
 		update();
+		super.onResume();
 	}
 
 	public void onClick(View view) {

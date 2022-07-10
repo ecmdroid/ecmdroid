@@ -41,6 +41,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,6 +66,8 @@ import org.ecmdroid.task.FetchTask;
 
 import java.io.IOException;
 import java.util.Locale;
+
+import de.kai_morich.simple_bluetooth_le_terminal.DevicesFragment;
 
 public class MainActivity extends AppCompatActivity
 		implements NavigationView.OnNavigationItemSelectedListener {
@@ -237,6 +240,7 @@ public class MainActivity extends AppCompatActivity
 						.replace(R.id.content_frame, fragment)
 						.commit();
 				isTransactionPending = false;
+				updateConnectButton();
 			}
 		} else {
 			isTransactionPending = true;
@@ -247,7 +251,7 @@ public class MainActivity extends AppCompatActivity
 	private void showDevices() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.paired_devices);
-		BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+		final BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
 		final BluetoothDevice[] devices = btAdapter == null ? new BluetoothDevice[0] : btAdapter.getBondedDevices().toArray(new BluetoothDevice[0]);
 		CharSequence[] items = new CharSequence[devices.length];
 
@@ -273,7 +277,6 @@ public class MainActivity extends AppCompatActivity
 			}
 			ecm.disconnect();
 			Toast.makeText(MainActivity.this, R.string.disconnected, Toast.LENGTH_LONG).show();
-			updateConnectButton();
 			// Reload fragment
 			switchToFragment(currentFragment);
 		} catch (IOException ioe) {
@@ -293,6 +296,10 @@ public class MainActivity extends AppCompatActivity
 				return;
 			}
 			showDevices();
+		} else if ("BLE".equals(connectionType)) {
+			fab.hide();
+			Fragment fragment = new DevicesFragment();
+			getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment, "devices").addToBackStack("blescan").commit();
 		} else {
 			String host = prefs.getString("tcp_host", null);
 			int port = 0;
@@ -309,10 +316,16 @@ public class MainActivity extends AppCompatActivity
 		}
 	}
 
-	private void connect(BluetoothDevice bluetoothDevice) {
+	public void connect(BluetoothDevice bluetoothDevice) {
 		Log.i(TAG, "Device selected: " + bluetoothDevice);
 
-		new ConnectTask(bluetoothDevice, getProtocol()).execute();
+		new ConnectTask(bluetoothDevice, getProtocol(), false).execute();
+	}
+
+	public void connectBLE(BluetoothDevice bluetoothDevice) {
+		Log.i(TAG, "BLE Device selected: " + bluetoothDevice);
+
+		new ConnectTask(bluetoothDevice, getProtocol(), true).execute();
 	}
 
 	private void connect(String host, int port) {
@@ -327,11 +340,13 @@ public class MainActivity extends AppCompatActivity
 	private class ConnectTask extends FetchTask {
 		private ECM.Protocol protocol;
 		private BluetoothDevice btDevice;
+		private boolean ble;
 		private String host;
 		private int port;
 
-		public ConnectTask(BluetoothDevice device, ECM.Protocol protocol) {
+		public ConnectTask(BluetoothDevice device, ECM.Protocol protocol, boolean ble) {
 			super(MainActivity.this);
+			this.ble = ble;
 			btDevice = device;
 			this.protocol = protocol;
 		}
@@ -361,7 +376,11 @@ public class MainActivity extends AppCompatActivity
 			publishProgress(String.format(Locale.US, "Connecting to %1$s...", target));
 			try {
 				if (btDevice != null) {
-					ecm.connect(btDevice, protocol);
+					if (ble) {
+						ecm.connect(this.context, btDevice, protocol);
+					} else {
+						ecm.connect(btDevice, protocol);
+					}
 				} else {
 					ecm.connect(host, port, protocol);
 				}
@@ -388,12 +407,14 @@ public class MainActivity extends AppCompatActivity
 			}
 			// Reload the fragment
 			switchToFragment(currentFragment);
-			updateConnectButton();
+			// FIXME updateConnectButton();
 		}
 	}
 
-	private void updateConnectButton() {
+	public void updateConnectButton() {
+		fab.hide();
 		fab.setBackgroundTintList(ecm.isConnected() ? TINT_CONNECTED : TINT_DISCONNECTED);
 		fab.setImageResource(ecm.isConnected() ? R.drawable.ic_connected : R.drawable.ic_disconnected);
+		fab.show();
 	}
 }

@@ -5,7 +5,7 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
     signingConfigs {
         config {
             keyAlias keystoreProperties['keyAlias']
@@ -16,10 +16,10 @@ android {
     }
     defaultConfig {
         applicationId "org.ecmdroid"
-        minSdkVersion 17
         versionCode 22
         versionName '0.99.3'
-        targetSdkVersion 28
+        minSdkVersion 23
+        targetSdkVersion 30
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -30,6 +30,10 @@ android {
         }
     }
     productFlavors {
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

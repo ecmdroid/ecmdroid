@@ -18,10 +18,12 @@
 package org.ecmdroid.fragments;
 
 import android.app.Fragment;
+import android.bluetooth.BluetoothAdapter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,7 @@ import org.ecmdroid.Constants;
 import org.ecmdroid.ECM;
 import org.ecmdroid.EEPROM;
 import org.ecmdroid.R;
+import org.ecmdroid.activities.MainActivity;
 
 public class MainFragment extends Fragment {
 	private static final String TAG = "MAIN";
@@ -47,8 +50,18 @@ public class MainFragment extends Fragment {
 	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		super.onCreate(savedInstanceState);
+		prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+		if (getArguments() != null) {
+			String deviceAddress = getArguments().getString("device");
+			if (deviceAddress != null) {
+				Log.i(TAG, "Trying to connect to " + deviceAddress);
+				final BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+				MainActivity activity = (MainActivity) getActivity();
+				activity.connectBLE(btAdapter.getRemoteDevice(deviceAddress));
+			}
+		}
 	}
 
 	@Nullable
@@ -76,7 +89,9 @@ public class MainFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		getActivity().setTitle(getString(R.string.ecm_information));
+		MainActivity activity = (MainActivity) getActivity();
+		activity.updateConnectButton();
+		activity.setTitle(getString(R.string.ecm_information));
 		protocolSpinner.setEnabled(!ecm.isConnected());
 		protocolSpinner.setSelection(ecm.getCurrentProtocol().ordinal());
 		update();

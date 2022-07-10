@@ -34,6 +34,7 @@ import android.widget.Toast;
 import org.ecmdroid.ECM;
 import org.ecmdroid.PDU.Function;
 import org.ecmdroid.R;
+import org.ecmdroid.activities.MainActivity;
 import org.ecmdroid.task.ProgressDialogTask;
 
 import java.io.IOException;
@@ -72,7 +73,10 @@ public class ActiveTestsFragment extends ListFragment implements OnClickListener
 
 	@Override
 	public void onResume() {
-		getActivity().setTitle(getString(R.string.active_tests));
+		MainActivity activity = (MainActivity) getActivity();
+		activity.setTitle(getString(R.string.active_tests));
+		activity.updateConnectButton();
+
 		setListAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_single_choice, functions));
 		ListView list = getListView();
 		list.setItemsCanFocus(false);

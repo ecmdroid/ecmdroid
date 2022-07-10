@@ -45,6 +45,7 @@ import org.ecmdroid.R;
 import org.ecmdroid.Utils;
 import org.ecmdroid.Variable;
 import org.ecmdroid.VariableProvider;
+import org.ecmdroid.activities.MainActivity;
 
 public class DataChannelFragment extends Fragment {
 
@@ -144,7 +145,9 @@ public class DataChannelFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		getActivity().setTitle(getString(R.string.data_channels));
+		MainActivity activity = (MainActivity) getActivity();
+		activity.setTitle(getString(R.string.data_channels));
+		activity.updateConnectButton();
 		toggleButton.setEnabled(ecmDroidService != null && ecm.isConnected());
 		toggleButton.setChecked(ecmDroidService != null && ecmDroidService.isReading());
 		if (ecmDroidService != null && ecmDroidService.isReading()) {

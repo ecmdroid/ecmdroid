@@ -33,6 +33,8 @@ import org.ecmdroid.PDU.Function;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.text.ParseException;
@@ -41,6 +43,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+
+import de.kai_morich.simple_bluetooth_le_terminal.SerialListener;
+import de.kai_morich.simple_bluetooth_le_terminal.SerialSocket;
 
 /**
  * This class represents the main interface to your Buell ECM. Communication
@@ -131,7 +136,7 @@ public class ECM {
 	}
 
 	/**
-	 * Connect to given Bluetooth Serial Port
+	 * Connect to given Bluetooth Classic Serial Port Profile (SPP)
 	 *
 	 * @param bluetoothDevice the bluetooth modem
 	 * @throws IOException
@@ -143,6 +148,7 @@ public class ECM {
 
 			if (s != null) {
 				s.connect();
+				if (D) Log.d(TAG, "Max receive: " + s.getMaxReceivePacketSize() +", max transmit: " + s.getMaxTransmitPacketSize());
 				in = s.getInputStream();
 				out = s.getOutputStream();
 				socket = s;
@@ -163,6 +169,77 @@ public class ECM {
 		connected = true;
 	}
 
+	/**
+	 * Connect to BLE device
+	 */
+	public void connect(Context ctx, BluetoothDevice device, Protocol protocol) throws IOException {
+		final SerialSocket s = new SerialSocket(ctx, device);
+		final Object monitor = new Object();
+		final PipedOutputStream out = new PipedOutputStream();
+		PipedInputStream in = new PipedInputStream(out);
+		connected = false;
+
+		s.connect(new SerialListener() {
+			@Override
+			public void onSerialConnect() {
+				Log.i(TAG, "BLE connected!");
+				connected = true;
+				synchronized (monitor) {
+					monitor.notify();
+				}
+			}
+
+			@Override
+			public void onSerialConnectError(Exception e) {
+				Log.e(TAG, "BLE connect error!", e);
+				synchronized (monitor) {
+					monitor.notify();
+				}
+			}
+
+			@Override
+			public void onSerialRead(byte[] data) {
+				// Log.d(TAG, "On Serial Read: " + Utils.hexdump(data));
+				try {
+					out.write(data);
+				} catch (IOException e) {
+					Log.e(TAG, "out.write failed");
+				}
+			}
+
+			@Override
+			public void onSerialIoError(Exception e) {
+				Log.e(TAG, "On Serial IO Error");
+			}
+		});
+		synchronized (monitor) {
+			try {
+				if (D) Log.d(TAG, "Waiting for BLE connection...");
+				monitor.wait();
+			} catch (InterruptedException e) {
+				if (D) Log.d(TAG, "Interrupted");
+			}
+		}
+		if (!connected) {
+			throw new IOException("BLE connection failed");
+		}
+
+		this.protocol = protocol;
+		PDU.setProtocol(this.protocol);
+		this.in = in;
+		this.out = new OutputStream() {
+			@Override
+			public void write(int i) throws IOException {
+				s.write(new byte[]{(byte) i});
+			}
+
+			@Override
+			public void write(byte[] b) throws IOException {
+				s.write(b);
+			}
+		};
+		this.socket = s;
+	}
 	/**
 	 * Connect via TCP
 	 *
@@ -192,6 +269,8 @@ public class ECM {
 				((BluetoothSocket) socket).close();
 			} else if (socket instanceof Socket) {
 				((Socket) socket).close();
+			} else if (socket instanceof SerialSocket) {
+				((SerialSocket)socket).disconnect();
 			}
 			socket = null;
 		}
@@ -203,21 +282,29 @@ public class ECM {
 	 * Send a protocol data unit (PDU) to the ECM and return the ECMs response
 	 */
 	synchronized PDU sendPDU(PDU pdu) throws IOException {
-		if (D) Log.d(TAG, "Sending: " + pdu);
-		if (out == null) {
-			throw new IOException("OutputStream to RFCOMM not available.");
+		try {
+			if (D) Log.d(TAG, "Sending: " + pdu);
+			if (out == null) {
+				throw new IOException("OutputStream to RFCOMM not available.");
+			}
+			byte[] bytes = pdu.getBytes();
+			out.write(bytes);
+			// Wait for response
+			PDU ret = receivePDU();
+			if (!ret.isResponse()) {
+				throw new IOException("No valid response from ECM (wrong Protocol?)");
+			}
+			if (!ret.isACK()) {
+				throw new IOException("Request not acknowledged by ECM (error code " + ret.getErrorIndicator() + ").");
+			}
+			return ret;
+		} catch (IOException ioe) {
+			Log.e(TAG, "IO Exception sending PDU", ioe);
+			throw ioe;
+		} catch (RuntimeException rte) {
+			Log.e(TAG, "Runtime Exception sending PDU", rte);
+			throw rte;
 		}
-		byte[] bytes = pdu.getBytes();
-		out.write(bytes);
-		// Wait for response
-		PDU ret = receivePDU();
-		if (!ret.isResponse()) {
-			throw new IOException("No valid response from ECM (wrong Protocol?)");
-		}
-		if (!ret.isACK()) {
-			throw new IOException("Request not acknowledged by ECM (error code " + ret.getErrorIndicator() + ").");
-		}
-		return ret;
 	}
 
 	public PDU receivePDU() throws IOException {

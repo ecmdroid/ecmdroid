@@ -47,6 +47,7 @@ import org.ecmdroid.R;
 import org.ecmdroid.Utils;
 import org.ecmdroid.Variable;
 import org.ecmdroid.VariableProvider;
+import org.ecmdroid.activities.MainActivity;
 import org.ecmdroid.task.ProgressDialogTask;
 
 import java.util.HashMap;
@@ -94,7 +95,10 @@ public class SetupFragment extends PreferenceFragment implements OnPreferenceCha
 
 	@Override
 	public void onResume() {
-		getActivity().setTitle(getString(R.string.setup));
+		MainActivity activity = (MainActivity) getActivity();
+		activity.setTitle(getString(R.string.setup));
+		activity.updateConnectButton();
+
 		saveButton.setVisibility(ecm.isConnected() && ecm.getEEPROM().isTouched() ? View.VISIBLE : View.GONE);
 		super.onResume();
 	}
