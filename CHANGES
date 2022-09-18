@@ -1,5 +1,44 @@
 EcmDroid Changelog
 ------------------
+EcmDroid v0.99.4 (2022/09/18):
+- add support for widely used BLE device serial profiles:
+  - Nordic Semiconductor nRF51822
+  - Texas Instruments CC254x
+  - Microchip RN4870/1
+  - Telit Bluemod
+- ecmdroid now requires Android 6 or later
+
+EcmDroid v0.99.3 (2020/05/03):
+- make AFV (Front) ECM parameter setting editable
+
+EcmDroid v0.99.2 (2019/08/10):
+- try avoiding unsafe fragment transactions
+- fix log recorder notification on Android 8.0+
+
+EcmDroid v0.99.2 (2019/08/10):
+- try avoiding unsafe fragment transactions
+- fix log recorder notification on Android 8.0+
+
+EcmDroid v0.99.1 (2019/08/05):
+- fix default "bat voltage" data channel
+- fix database installation/upgrades
+- display ECM version on information screen
+- new option for keeping the screen on while logging
+
+EcmDroid v0.99 (2019/08/03):
+- Increase number of data channels to 5
+- update internal ecm spy database
+
+EcmDroid v0.98 (2018/08/11):
+- prevent crash on ECM disconnect
+- workaround division-by-zero for database variables having width 0
+
+EcmDroid v0.97 (2016/11/27):
+- EcmDroid now requires at Android v4.2 or later
+- UI revamped
+- Fix possible crash when closing "active tests"
+- Update license to GPL v3
+
 EcmDroid v0.96 (2014/05/19):
 - Fix a bug introduced in v0.93: Upon switching ECM types,
   the variable cache was *not* cleared, resulting in stale offset/size
