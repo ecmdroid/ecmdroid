@@ -18,16 +18,17 @@
 package org.ecmdroid.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.app.AlertDialog.Builder;
-import android.app.Dialog;
 import android.app.Fragment;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,8 +37,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,17 +52,18 @@ import org.ecmdroid.activities.MainActivity;
 import org.ecmdroid.fragments.CellEditorDialogFragment.CellEditorDialogListener;
 import org.ecmdroid.task.BurnTask;
 import org.ecmdroid.task.FetchTask;
-import org.ecmdroid.task.SaveTask;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.InputStream;
 
 public class EEPROMFragment extends Fragment implements CellEditorDialogListener {
 
 	public static final String ACTION_BURN = "BURN";
+
+	private static final int SAVE_FILE = 1;
+	private static final int LOAD_FILE = 2;
 
 	private static final int COLS = 5;
 	@SuppressWarnings("unused")
@@ -122,32 +122,11 @@ public class EEPROMFragment extends Fragment implements CellEditorDialogListener
 				new BurnTask(getActivity()).start();
 				break;
 			case R.id.save:
-				new SaveTask(getActivity(), ecm.getEEPROM()).start();
+				String fn = String.format("%s_%s%s", ecm.getEEPROM().getId(), DateFormat.format("yyyyMMdd-kkmmss", System.currentTimeMillis()), Constants.XPR_FILE_SUFFIX);
+				this.saveFile(fn);
 				break;
 			case R.id.load:
-				final StringBuilder result = new StringBuilder();
-				Dialog dlg = createLoadDialog(result);
-				dlg.setOnDismissListener(new OnDismissListener() {
-					public void onDismiss(DialogInterface dialog) {
-						if (result.length() > 0) {
-							if (ecm.isEepromRead() && ecm.getEEPROM().isTouched()) {
-								AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-								builder.setTitle(R.string.load_eeprom)
-										.setMessage(R.string.overwrite_changes)
-										.setCancelable(true)
-										.setNegativeButton(android.R.string.cancel, null)
-										.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-											public void onClick(DialogInterface dialog, int id) {
-												loadEEPROM(new File(result.toString()));
-											}
-										}).show();
-							} else {
-								loadEEPROM(new File(result.toString()));
-							}
-						}
-					}
-				});
-				dlg.show();
+				this.loadFile();
 				break;
 		}
 		return true;
@@ -173,7 +152,7 @@ public class EEPROMFragment extends Fragment implements CellEditorDialogListener
 		// TODO: Chose a nice drawable for currently selected cell
 		//gridview.setSelector(android.R.drawable.edit_text);
 
-		gridview.setOnItemClickListener(new OnItemClickListener() {
+		gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View v, int pos, long id) {
 				if (pos % COLS != 0) {
 					int offset = pos - (pos / COLS + 1);
@@ -182,7 +161,7 @@ public class EEPROMFragment extends Fragment implements CellEditorDialogListener
 			}
 		});
 
-		gridview.setOnItemLongClickListener(new OnItemLongClickListener() {
+		gridview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int pos, long id) {
 				if (pos % COLS != 0) {
 					int offset = pos - (pos / COLS + 1);
@@ -226,65 +205,43 @@ public class EEPROMFragment extends Fragment implements CellEditorDialogListener
 		}
 	}
 
-	private Dialog createLoadDialog(final StringBuilder result) {
-		Builder builder = new Builder(getActivity());
-		if (Utils.isExternalStorageAvailable()) {
-			final File dir = getActivity().getApplicationContext().getExternalFilesDir(getString(R.string.eeprom_dir));
-			final String[] files = dir.list(new FilenameFilter() {
-				public boolean accept(File dir, String filename) {
-					return filename.endsWith(Constants.XPR_FILE_SUFFIX) || filename.endsWith(Constants.EPR_FILE_SUFFIX);
-				}
-			});
-			if (files != null && files.length > 0) {
-				Arrays.sort(files);
-				builder.setItems(files, new OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						String selected = files[which];
-						if (result != null) {
-							result.setLength(0);
-							result.append(new File(dir, selected).getPath());
-						}
-					}
-				});
-			} else {
-				builder.setMessage(R.string.no_eeprom_dumps_present);
-			}
-		} else {
-			builder.setMessage(R.string.no_ext_storage);
-		}
-		// builder.setIcon(R.drawable.ic_menu_open);
-		builder.setTitle(R.string.load_eeprom);
-		return builder.create();
-	}
 
-
-	private void loadEEPROM(final File file) {
-		int len = (int) file.length();
+	private void loadEEPROM(long len, InputStream in) throws IOException {
 		final String[] ids;
 		try {
 			// Determine ECM type
-			ids = EEPROM.size2id(getActivity(), len);
+			ids = EEPROM.size2id(getActivity(), (int) len);
 		} catch (IOException e) {
 			Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+			in.close();
 			return;
 		}
 		if (ids.length > 1) {
 			Builder builder = new Builder(getActivity());
-			builder.setItems(ids, new OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					String selected = ids[which];
-					loadEEPROM(selected, file);
+			builder.setItems(ids, (dialog, which) -> {
+				String selected = ids[which];
+				try {
+					loadEEPROM(selected, in);
+				} catch (IOException e) {
+					Log.e(TAG, "Unable to load XPR", e);
+				}
+			});
+			builder.setOnCancelListener(dialogInterface -> {
+				try {
+					Log.d(TAG, "ECM Type selection cancelled");
+					in.close();
+				} catch (IOException e) {
+					Log.e(TAG, "Unable to close XPR", e);
 				}
 			});
 			builder.setTitle(R.string.select_ecm_type).create().show();
 		} else if (ids.length == 1) {
-			loadEEPROM(ids[0], file);
+			loadEEPROM(ids[0], in);
 		}
 	}
 
-	private void loadEEPROM(String id, File file) {
+	private void loadEEPROM(String id, InputStream in) throws IOException {
 		try {
-			FileInputStream in = new FileInputStream(file);
 			EEPROM eeprom = EEPROM.load(getActivity(), id, in);
 			if (ecm.isConnected() && !eeprom.getId().equals(ecm.getId())) {
 				throw new IOException(getString(R.string.incompatible_version_disconnect_first, id));
@@ -296,6 +253,8 @@ public class EEPROMFragment extends Fragment implements CellEditorDialogListener
 			gridview.setAdapter(adapter);
 		} catch (IOException e) {
 			Toast.makeText(getActivity(), getString(R.string.unable_to_load_eeprom) + " " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+		} finally {
+			in.close();
 		}
 	}
 
@@ -331,6 +290,69 @@ public class EEPROMFragment extends Fragment implements CellEditorDialogListener
 			int loval = (bytes[offset + 1] & 0xff) << 8 | val;
 			loShortHex.setText(Utils.toHex(loval, 4));
 			loShortDec.setText(Integer.toString(loval));
+		}
+	}
+
+	private void saveFile(String name) {
+		Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("application/octet-stream");
+		intent.putExtra(Intent.EXTRA_TITLE, name);
+		startActivityForResult(intent, SAVE_FILE);
+	}
+
+	private void loadFile() {
+		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("application/octet-stream");
+		startActivityForResult(intent, LOAD_FILE);
+	}
+
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+		Log.d(TAG, "ActivityResult, requestCode: " + requestCode + ", result: " + resultCode);
+		Uri uri;
+		if (requestCode == SAVE_FILE && resultCode == Activity.RESULT_OK) {
+			if (resultData != null) {
+				uri = resultData.getData();
+				Log.i(TAG, "Document created, URI:" + uri);
+				try {
+					ParcelFileDescriptor pfd = getActivity().getContentResolver().
+							openFileDescriptor(uri, "w");
+					FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
+					fileOutputStream.write(ecm.getEEPROM().getBytes());
+					// Let the document provider know you're done by closing the stream.
+					fileOutputStream.close();
+					pfd.close();
+					Log.i(TAG, "EEPROM saved");
+				} catch (IOException ioe) {
+					Log.e(TAG, "EEPROM save failed", ioe);
+				}
+			}
+		} else if (requestCode == LOAD_FILE && resultCode == Activity.RESULT_OK) {
+			if (resultData != null) {
+				ParcelFileDescriptor pfd = null;
+				try {
+					uri = resultData.getData();
+					pfd = getActivity().getContentResolver().openFileDescriptor(uri, "r");
+					long size = pfd.getStatSize();
+					InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
+					loadEEPROM(size, inputStream);
+				} catch (FileNotFoundException e) {
+					Log.e(TAG, "EEPROM file Not found", e);
+				} catch (IOException e) {
+					Log.e(TAG, "IO Exception loading EEPROM", e);
+				} finally {
+					if (pfd != null) {
+						try {
+							pfd.close();
+						} catch (IOException e) {
+							Log.e(TAG, "Unable to close PFD");
+						}
+					}
+				}
+			}
 		}
 	}
 }

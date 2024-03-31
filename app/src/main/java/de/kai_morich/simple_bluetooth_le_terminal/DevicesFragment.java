@@ -18,6 +18,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,7 +40,8 @@ import java.util.Collections;
  */
 public class DevicesFragment extends ListFragment {
 
-	private enum ScanState { NONE, LE_SCAN, DISCOVERY, DISCOVERY_FINISHED }
+	private enum ScanState {NONE, LE_SCAN, DISCOVERY, DISCOVERY_FINISHED}
+
 	private ScanState scanState = ScanState.NONE;
 	private static final long LE_SCAN_PERIOD = 10000; // similar to bluetoothAdapter.startDiscovery
 	private final Handler leScanStopHandler = new Handler();
@@ -54,20 +57,21 @@ public class DevicesFragment extends ListFragment {
 
 	public DevicesFragment() {
 		leScanCallback = (device, rssi, scanRecord) -> {
-			if(device != null && getActivity() != null) {
-				getActivity().runOnUiThread(() -> { updateScan(device); });
+			if (device != null && getActivity() != null) {
+				getActivity().runOnUiThread(() -> updateScan(device));
 			}
 		};
+
 		discoveryBroadcastReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				if(BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
+				if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
 					BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-					if(device.getType() != BluetoothDevice.DEVICE_TYPE_CLASSIC && getActivity() != null) {
+					if (device.getType() != BluetoothDevice.DEVICE_TYPE_CLASSIC && getActivity() != null) {
 						getActivity().runOnUiThread(() -> updateScan(device));
 					}
 				}
-				if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(intent.getAction())) {
+				if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(intent.getAction())) {
 					scanState = ScanState.DISCOVERY_FINISHED; // don't cancel again
 					stopScan();
 				}
@@ -83,7 +87,7 @@ public class DevicesFragment extends ListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		if(getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH))
+		if (getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH))
 			bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		listAdapter = new ArrayAdapter<BluetoothDevice>(getActivity(), 0, listItems) {
 			@NonNull
@@ -94,7 +98,7 @@ public class DevicesFragment extends ListFragment {
 					view = getActivity().getLayoutInflater().inflate(R.layout.device_list_item, parent, false);
 				TextView text1 = view.findViewById(R.id.text1);
 				TextView text2 = view.findViewById(R.id.text2);
-				if(device.getName() == null || device.getName().isEmpty())
+				if (device.getName() == null || device.getName().isEmpty())
 					text1.setText(getString(R.string.ble_unnamed));
 				else
 					text1.setText(device.getName());
@@ -122,7 +126,7 @@ public class DevicesFragment extends ListFragment {
 		if (bluetoothAdapter == null) {
 			menu.findItem(R.id.bt_settings).setEnabled(false);
 			menu.findItem(R.id.ble_scan).setEnabled(false);
-		} else if(!bluetoothAdapter.isEnabled()) {
+		} else if (!bluetoothAdapter.isEnabled()) {
 			menu.findItem(R.id.ble_scan).setEnabled(false);
 		}
 	}
@@ -132,9 +136,9 @@ public class DevicesFragment extends ListFragment {
 		super.onResume();
 		getActivity().setTitle(getString(R.string.ble_devicelist_title));
 		getActivity().registerReceiver(discoveryBroadcastReceiver, discoveryIntentFilter);
-		if(bluetoothAdapter == null) {
+		if (bluetoothAdapter == null) {
 			setEmptyText(getString(R.string.ble_not_supported));
-		} else if(!bluetoothAdapter.isEnabled()) {
+		} else if (!bluetoothAdapter.isEnabled()) {
 			setEmptyText(getString(R.string.bluetooth_disabled));
 			if (menu != null) {
 				listItems.clear();
@@ -182,43 +186,57 @@ public class DevicesFragment extends ListFragment {
 
 	@SuppressLint("StaticFieldLeak") // AsyncTask needs reference to this fragment
 	private void startScan() {
-		if(scanState != ScanState.NONE)
+		if (scanState != ScanState.NONE)
 			return;
 		scanState = ScanState.LE_SCAN;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-				scanState = ScanState.NONE;
-				AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-				builder.setTitle(R.string.location_permission_title);
-				builder.setMessage(R.string.location_permission_message);
-				builder.setPositiveButton(android.R.string.ok,
-						(dialog, which) -> requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0));
-				builder.show();
+		if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+			scanState = ScanState.NONE;
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle(R.string.location_permission_title);
+			builder.setMessage(R.string.location_permission_message);
+			builder.setPositiveButton(android.R.string.ok,
+					(dialog, which) -> requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0));
+			builder.show();
+			return;
+		}
+		if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+				Log.d("BLE", "Requesting BT SCAN permissions...");
+				requestPermissions(new String[]{Manifest.permission.BLUETOOTH_SCAN}, 0);
 				return;
 			}
-			LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-			boolean         locationEnabled = false;
-			try {
-				locationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-			} catch(Exception ignored) {}
-			try {
-				locationEnabled |= locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-			} catch(Exception ignored) {}
-			if(!locationEnabled)
-				scanState = ScanState.DISCOVERY;
-			// Starting with Android 6.0 a bluetooth scan requires ACCESS_COARSE_LOCATION permission, but that's not all!
-			// LESCAN also needs enabled 'location services', whereas DISCOVERY works without.
-			// Most users think of GPS as 'location service', but it includes more, as we see here.
-			// Instead of asking the user to enable something they consider unrelated,
-			// we fall back to the older API that scans for bluetooth classic _and_ LE
-			// sometimes the older API returns less results or slower
 		}
+		if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+					Log.d("BLE", "Requesting BT CONNECT permissions...");
+					requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 0);
+					return;
+				}
+		}
+		LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+		boolean locationEnabled = false;
+		try {
+			locationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+		} catch (Exception ignored) {
+		}
+		try {
+			locationEnabled |= locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+		} catch (Exception ignored) {
+		}
+		if (!locationEnabled)
+			scanState = ScanState.DISCOVERY;
+		// Starting with Android 6.0 a bluetooth scan requires ACCESS_COARSE_LOCATION permission, but that's not all!
+		// LESCAN also needs enabled 'location services', whereas DISCOVERY works without.
+		// Most users think of GPS as 'location service', but it includes more, as we see here.
+		// Instead of asking the user to enable something they consider unrelated,
+		// we fall back to the older API that scans for bluetooth classic _and_ LE
+		// sometimes the older API returns less results or slower
 		listItems.clear();
 		listAdapter.notifyDataSetChanged();
 		setEmptyText(getString(R.string.ble_scanning));
 		menu.findItem(R.id.ble_scan).setVisible(false);
 		menu.findItem(R.id.ble_scan_stop).setVisible(true);
-		if(scanState == ScanState.LE_SCAN) {
+		if (scanState == ScanState.LE_SCAN) {
 			leScanStopHandler.postDelayed(leScanStopCallback, LE_SCAN_PERIOD);
 			new AsyncTask<Void, Void, Void>() {
 				@Override

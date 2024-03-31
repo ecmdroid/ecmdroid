@@ -17,29 +17,36 @@
  */
 package org.ecmdroid;
 
-import android.test.AndroidTestCase;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.ecmdroid.Error.ErrorType;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.Collection;
 
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertEquals;
 
-public class TestECM extends AndroidTestCase {
+
+@RunWith(AndroidJUnit4.class)
+public class TestECM{
 	private ECM ecm;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		byte[] epd = TestUtils.readEEPROM();
 		byte[] rtd = TestUtils.readRTData();
 		ecm = ECM.getInstance(getContext());
 		EEPROM eeprom = EEPROM.get("BUEIB", getContext());
 		ecm.setEEPROM(eeprom);
-		ecm.getRuntimeData(rtd);
+		ecm.setRuntimeData(rtd);
 		System.arraycopy(epd, 0, eeprom.getBytes(), 0, epd.length);
 	}
 
+	@Test
 	public void testErrorParsing() throws IOException {
 		Collection<Error> errors;
 
@@ -52,10 +59,12 @@ public class TestECM extends AndroidTestCase {
 		assertEquals("21", (errors.iterator().next()).getCode());
 	}
 
+	@Test
 	public void testSerialNo() {
 		assertEquals("204", ecm.getSerialNo());
 	}
 
+	@Test
 	public void testMfgDate() {
 		ecm.getMfgDate();
 		assertEquals("6/8/06", ecm.getMfgDate());

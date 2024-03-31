@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 				  android:title="Preferences">
+	<Preference
+		android:defaultValue="..."
+		android:key="storage_location"
+		android:selectAllOnFocus="true"
+		android:singleLine="true"
+		android:title="@string/storage_location" />
 	<ListPreference
 		android:defaultValue="@string/prefs_bt_connection"
 		android:entries="@array/connectionTypes"
@@ -22,22 +28,22 @@
 			android:key="tcp_port"
 			android:title="@string/tcp_port" />
 	</PreferenceCategory>
-	<CheckBoxPreference
+	<SwitchPreference
 		android:key="hide_nonexistent_vars"
 		android:title="@string/hide_eeprom_variables"
 		android:defaultValue="false"
 		android:summaryOn="@string/hide_inapplicable_eeprom_variables"
 		android:summaryOff="@string/show_inapplicable_eeprom_variables"/>
-	<CheckBoxPreference
+	<SwitchPreference
 		android:key="enable_burn_eeprom"
 		android:title="@string/enable_eeprom_burning"
 		android:summaryOn="@string/burn_at_your_own_risk"/>
-	<CheckBoxPreference
+	<SwitchPreference
 		android:dependency="enable_burn_eeprom"
 		android:key="enable_fast_burning"
 		android:title="@string/optimized_burning"
 		android:summary="@string/only_write_back_modified_pages"/>
-	<CheckBoxPreference
+	<SwitchPreference
 		android:key="keep_screen_on"
 		android:title="@string/keep_screen_on_title"
 		android:summary="@string/keep_screen_on_summary"/>

@@ -17,23 +17,34 @@
  */
 package org.ecmdroid;
 
-import android.test.AndroidTestCase;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.ecmdroid.Variable.DataType;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.Collection;
 
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-public class TestVariableProvider extends AndroidTestCase {
+
+@RunWith(AndroidJUnit4.class)
+public class TestVariableProvider{
 	private VariableProvider provider;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		provider = VariableProvider.getInstance(this.getContext());
+	@Before
+	public void setUp() throws Exception {
+		provider = VariableProvider.getInstance(getContext());
 	}
 
+	@Test
 	public void testRtVariableNames() {
 		Collection<String> vars = provider.getRtVariableNames("BUE2D");
 		assertEquals(111, vars.size());
@@ -42,6 +53,7 @@ public class TestVariableProvider extends AndroidTestCase {
 		assertTrue(vars.contains("CLT"));
 	}
 
+	@Test
 	public void testScalarRtVariableNames() {
 		Collection<String> vars = provider.getScalarRtVariableNames("BUE2D");
 		assertEquals(79, vars.size());
@@ -50,6 +62,7 @@ public class TestVariableProvider extends AndroidTestCase {
 		assertTrue(vars.contains("EGO1 Corr."));
 	}
 
+	@Test
 	public void testBitfieldRtVariableNames() {
 		Collection<String> vars = provider.getBitfieldRtVariableNames("BUE2D");
 		assertEquals(32, vars.size());
@@ -58,6 +71,7 @@ public class TestVariableProvider extends AndroidTestCase {
 		assertTrue(vars.contains("DOut2 Feedb."));
 	}
 
+	@Test
 	public void testRtVariable() {
 		Variable v = provider.getRtVariable("BUE2D", "pw2");
 		assertNotNull(v);
@@ -77,6 +91,7 @@ public class TestVariableProvider extends AndroidTestCase {
 		assertEquals(65535, v.getUhigh());
 	}
 
+	@Test
 	public void testRTParsing() throws IOException {
 		byte[] data = TestUtils.readRTData();
 		Variable v = provider.getRtVariable("BUEIB", "AFV");
@@ -85,6 +100,7 @@ public class TestVariableProvider extends AndroidTestCase {
 		assertEquals("100.0%", v.getFormattedValue());
 	}
 
+	@Test
 	public void testAllRTVariables() throws IOException {
 		byte[] data = TestUtils.readRTData();
 		Collection<String> vars = provider.getRtVariableNames("BUEIB");
@@ -96,6 +112,7 @@ public class TestVariableProvider extends AndroidTestCase {
 		}
 	}
 
+	@Test
 	public void testEEPROMVariable() throws IOException {
 		byte[] eeprom = TestUtils.readEEPROM();
 		Variable var = provider.getEEPROMVariable("BUEIB", "Country_ID");
@@ -124,6 +141,7 @@ public class TestVariableProvider extends AndroidTestCase {
 		assertEquals((byte) 0xDC, eeprom[var.getOffset()]);
 	}
 
+	@Test
 	public void testNameLookup() {
 		assertNull(provider.getName("DOES_NOT_EXIST"));
 		assertEquals("System Configuration", provider.getName("KConfig"));
@@ -131,6 +149,7 @@ public class TestVariableProvider extends AndroidTestCase {
 		assertNull(provider.getName("KConfig[10]"));
 	}
 
+	@Test
 	public void testAxis() throws IOException {
 		byte[] eeprom = TestUtils.readEEPROM();
 		Variable var = provider.getEEPROMVariable("BUEIB", "Tab_Fuel_Load_Ax");
@@ -172,6 +191,7 @@ public class TestVariableProvider extends AndroidTestCase {
 		}
 	}
 
+	@Test
 	public void testTable() throws IOException {
 		byte[] eeprom = TestUtils.readEEPROM();
 		Variable var = provider.getEEPROMVariable("BUEIB", "Tab_ABP_Conv");

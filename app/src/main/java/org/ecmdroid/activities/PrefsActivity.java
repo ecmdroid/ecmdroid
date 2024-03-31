@@ -17,15 +17,20 @@
  */
 package org.ecmdroid.activities;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 
 import org.ecmdroid.R;
 import org.ecmdroid.Utils;
@@ -34,7 +39,8 @@ import org.ecmdroid.Utils;
  * Application Preferences
  */
 public class PrefsActivity extends PreferenceActivity implements OnPreferenceChangeListener {
-	@SuppressWarnings("deprecation")
+	private static final int STORAGE_LOCATION = 1;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -56,6 +62,36 @@ public class PrefsActivity extends PreferenceActivity implements OnPreferenceCha
 		txt.setSummary(txt.getText());
 		txt.setOnPreferenceChangeListener(this);
 
+		Preference storage = findPreference("storage_location");
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		String storageLocation = prefs.getString("storage.location", null);
+		storage.setSummary(storageLocation == null ? getString(R.string.setup_storage_hint) : Uri.parse(storageLocation).getLastPathSegment());
+		storage.setOnPreferenceClickListener(preference -> {
+			Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+			intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+			startActivityForResult(intent, STORAGE_LOCATION);
+			return true;
+		});
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == STORAGE_LOCATION && resultCode == Activity.RESULT_OK) {
+			Uri uri;
+			if (data != null) {
+				uri = data.getData();
+				if (uri != null) {
+					getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+							| Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+					SharedPreferences.Editor editor = prefs.edit();
+					editor.putString("storage.location", uri.toString());
+					editor.apply();
+					Preference storage = findPreference("storage_location");
+					storage.setSummary(uri.getLastPathSegment());
+				}
+			}
+		}
 	}
 
 	@Override
@@ -63,15 +99,6 @@ public class PrefsActivity extends PreferenceActivity implements OnPreferenceCha
 		return Utils.createOptionsMenu(this, menu);
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-//		if (!Utils.handleOptionsItemSelected(this, item)) {
-//			return super.onOptionsItemSelected(item);
-//		}
-		return true;
-	}
-
-	@SuppressWarnings("deprecation")
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
 		if (preference instanceof ListPreference) {
 			ListPreference lp = (ListPreference) preference;

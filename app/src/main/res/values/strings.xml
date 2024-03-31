@@ -17,10 +17,10 @@
 	<string name="data_channels">Data Channels</string>
 	<string name="eeprom_pages">EEPROM Pages:</string>
 	<string name="logfile">Log file:</string>
-	<string name="logStatus">Status:</string>
-	<string name="tps">TPS:</string>
-	<string name="rpm">RPM:</string>
-	<string name="clt">CLT:</string>
+	<string name="logStatus">Status</string>
+	<string name="tps">TPS</string>
+	<string name="rpm">RPM</string>
+	<string name="clt">CLT</string>
 	<string name="ecm_country_id">Country ID:</string>
 	<string name="ecm_calibration">Calibration:</string>
 	<string name="ecm_layout_revision">Layout Rev:</string>
@@ -36,7 +36,7 @@
 	<string name="tps_reset_instructions">Back out idle adjuster. Open and snap shut throttle control grip 2–3 times. Ensure that throttle plate is completely closed ("sticks" in throttle body). Press the "OK" button. Open the throttle for 5–6° and set idle to 1050–1100 rpm.</string>
 	<string name="none">[none]</string>
 	<string name="stop_recording">Stop recording</string>
-	<string name="log_status" tools:ignore="PluralsCandidate">Recording… (%1$d record(s),  %2$d KB)</string>
+	<string name="log_status" tools:ignore="PluralsCandidate">Recording… [%1$d recs, %2$d KB]</string>
 	<string name="bluetooth_is_not_available">Bluetooth is not available</string>
 	<string name="paired_devices">Paired Devices</string>
 	<string name="no_ext_storage">External storage not available.</string>
@@ -46,7 +46,7 @@
 	<string name="clearing_trouble_codes">Clearing Trouble Codes…</string>
 	<string name="clear_all_errors">OK to permanently clear all errors?</string>
 	<string name="recording_started">Recording ECM data</string>
-	<string name="log_interval">Log Interval:</string>
+	<string name="log_interval">Log Interval</string>
 	<string name="log_recorder">Log Recorder</string>
 	<string name="ecm_id">ECM ID:</string>
 	<string name="ecm_serial_no">ECM Serial No.:</string>
@@ -256,4 +256,7 @@
 	<string name="ble_start_scan">SCAN</string>
 	<string name="ble_scan_results">Scan Results</string>
 	<string name="ble_devicelist_title">Bluetooth LE Devices</string>
+    <string name="choose_storage_location">Please configure log storage location first</string>
+	<string name="storage_location">Log Storage Location</string>
+	<string name="setup_storage_hint">...choose log data storage location...</string>
 </resources>

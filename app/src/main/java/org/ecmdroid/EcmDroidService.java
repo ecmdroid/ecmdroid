@@ -24,7 +24,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -56,8 +55,7 @@ public class EcmDroidService extends Service {
 	private long recordingStarted;
 	private boolean reading;
 	private ReaderThread readerThread;
-	private File currentLog;
-	private DataOutputStream logstream;
+	private DataOutputStream currentLog;
 	private long bytesLogged;
 	private long recordsLogged;
 	private long readFailures;
@@ -111,18 +109,14 @@ public class EcmDroidService extends Service {
 		return (float) (recordsLogged / (System.currentTimeMillis() - recordingStarted) * 1000.0);
 	}
 
-	public String getLogfile() {
-		return currentLog == null ? "" : currentLog.getName();
-	}
-
 	/**
 	 * Get the currently used Log file or null, if logging is not active.
 	 */
 	public File getCurrentFile() {
-		return currentLog;
+		return null;
 	}
 
-	public synchronized void startRecording(File log, int interval, ECM ecm) throws IOException {
+	public synchronized void startRecording(FileOutputStream logStream, int interval, ECM ecm) throws IOException {
 
 		if (recording) {
 			return;
@@ -130,13 +124,12 @@ public class EcmDroidService extends Service {
 		this.recordingInterval = interval;
 		sendBroadcast(new Intent(RECORDING_STARTED));
 		bytesLogged = recordsLogged = readFailures = 0;
-		currentLog = log;
-		logstream = new DataOutputStream(new FileOutputStream(log));
+		currentLog = new DataOutputStream(logStream);
 		String id = "UNKWN";
 		if (ecm.getEEPROM() != null) {
 			id = ecm.getEEPROM().getId();
 		}
-		logstream.write(id.getBytes(), 0, 5);
+		currentLog.write(id.getBytes(), 0, 5);
 		synchronized (readerThread) {
 			recording = true;
 			readerThread.notify();
@@ -149,14 +142,14 @@ public class EcmDroidService extends Service {
 
 	public synchronized void stopRecording() {
 		recording = false;
-		if (logstream != null) {
+		if (currentLog != null) {
 			try {
-				logstream.flush();
-				logstream.close();
+				currentLog.flush();
+				currentLog.close();
 			} catch (IOException ioe) {
 				Log.w(TAG, "Exception while flushing log stream. " + ioe);
 			}
-			logstream = null;
+			currentLog = null;
 		}
 		// Turn off notification
 		nm.cancel(RECORDING_ID);
@@ -201,7 +194,7 @@ public class EcmDroidService extends Service {
 
 		@Override
 		public void run() {
-			long now = 0;
+			long now;
 			ECM ecm = ECM.getInstance(EcmDroidService.this);
 			while (running) {
 				if (!(ecm.isConnected() && (recording || reading))) {
@@ -222,6 +215,7 @@ public class EcmDroidService extends Service {
 						logPacket(data);
 					}
 				} catch (Exception e) {
+					Log.d(TAG, "Log failed", e);
 					readFailures++;
 					if (i < DEFAULT_INTERVAL) {
 						i = DEFAULT_INTERVAL;
@@ -233,6 +227,8 @@ public class EcmDroidService extends Service {
 						try {
 							Thread.sleep(toSleep);
 						} catch (InterruptedException e) {
+							Log.i(TAG, "Reader Thread interrupted.");
+							break;
 						}
 					}
 				}
@@ -248,6 +244,7 @@ public class EcmDroidService extends Service {
 			try {
 				this.join();
 			} catch (InterruptedException e) {
+				Log.d(TAG, "Shutdown interrupted");
 			}
 		}
 	}
@@ -257,30 +254,27 @@ public class EcmDroidService extends Service {
 		extras.putInt(MainActivity.CURRENT_FRAGMENT, R.id.nav_log);
 		Intent intent = new Intent(this, MainActivity.class);
 		intent.putExtras(extras);
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 106, intent, 0);
-		Notification.Builder builder = new Notification.Builder(this)
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
+
+		NotificationChannel channel = new NotificationChannel(
+				"ecmdroid_logrecorder",
+				"EcmDroid Log Recorder",
+				NotificationManager.IMPORTANCE_DEFAULT);
+		nm.createNotificationChannel(channel);
+		Notification.Builder builder = new Notification.Builder(this, channel.getId())
 				.setContentTitle(label)
 				.setContentText(text)
 				.setContentIntent(contentIntent)
 				.setSmallIcon(R.drawable.ic_log);
-
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-			NotificationChannel channel = new NotificationChannel(
-					"ecmdroid_logrecorder",
-					"EcmDroid Log Recorder",
-					NotificationManager.IMPORTANCE_DEFAULT);
-			nm.createNotificationChannel(channel);
-			builder.setChannelId("ecmdroid_logrecorder");
-		}
 		Notification notification = builder.build();
 		notification.flags |= Notification.FLAG_NO_CLEAR;
 		nm.notify(RECORDING_ID, notification);
 	}
 
 	private synchronized void logPacket(byte[] data) throws IOException {
-		if (logstream != null) {
-			logstream.writeInt((int) (System.currentTimeMillis() - recordingStarted) / 10);
-			logstream.write(data);
+		if (currentLog != null) {
+			currentLog.writeInt((int) (System.currentTimeMillis() - recordingStarted) / 10);
+			currentLog.write(data);
 			bytesLogged += (data.length + 4);
 			recordsLogged++;
 		}

@@ -1,5 +1,13 @@
 EcmDroid Changelog
 ------------------
+EcmDroid v0.99.5 (2024/04/21):
+- ecmdroid now requires Android 8 or later
+- switch to Document Storage Framework for eeprom and log file storage
+- update gradle to v8.4, android-gradle-plugin 8.3.1
+- target Android 13 (as required by Google Play Store)
+- minor tweaks to the settings and log-recorder layout
+- bump dependencies
+
 EcmDroid v0.99.4 (2022/09/18):
 - add support for widely used BLE device serial profiles:
   - Nordic Semiconductor nRF51822

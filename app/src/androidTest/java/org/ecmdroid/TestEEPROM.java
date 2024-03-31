@@ -17,10 +17,18 @@
  */
 package org.ecmdroid;
 
-import android.test.AndroidTestCase;
+import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-public class TestEEPROM extends AndroidTestCase {
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+@RunWith(AndroidJUnit4.class)
+public class TestEEPROM {
+	@Test
 	public void testVersion() {
 		EEPROM eeprom = EEPROM.get("BUEIB310 10-11-03", getContext());
 		assertNotNull(eeprom);

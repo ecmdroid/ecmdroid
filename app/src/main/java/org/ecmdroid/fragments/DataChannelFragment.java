@@ -99,22 +99,21 @@ public class DataChannelFragment extends Fragment {
 		listView.setItemsCanFocus(false);
 		listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
 
-		toggleButton = (ToggleButton) view.findViewById(R.id.toggleLiveChannels);
-		toggleButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				boolean on = ((ToggleButton) v).isChecked();
-				synchronized (DataChannelFragment.class) {
-					if (on) {
-						ecmDroidService.startReading();
-						dataChannelAdapter.setAutoRefresh(true);
-						getActivity().registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA));
-					} else {
-						dataChannelAdapter.setAutoRefresh(false);
-						ecmDroidService.stopReading();
-						try {
-							getActivity().unregisterReceiver(receiver);
-						} catch (Exception unknown) {
-						}
+		toggleButton = view.findViewById(R.id.toggleLiveChannels);
+		toggleButton.setOnClickListener(v -> {
+			boolean on = ((ToggleButton) v).isChecked();
+			synchronized (DataChannelFragment.class) {
+				if (on) {
+					ecmDroidService.startReading();
+					dataChannelAdapter.setAutoRefresh(true);
+					getActivity().registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA), Context.RECEIVER_NOT_EXPORTED);
+				} else {
+					dataChannelAdapter.setAutoRefresh(false);
+					ecmDroidService.stopReading();
+					try {
+						getActivity().unregisterReceiver(receiver);
+					} catch (Exception unknown) {
+						Log.e(TAG, "Unable to unregister receiver", unknown);
 					}
 				}
 			}
@@ -152,7 +151,7 @@ public class DataChannelFragment extends Fragment {
 		toggleButton.setChecked(ecmDroidService != null && ecmDroidService.isReading());
 		if (ecmDroidService != null && ecmDroidService.isReading()) {
 			dataChannelAdapter.setAutoRefresh(true);
-			getActivity().registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA));
+			getActivity().registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA), Context.RECEIVER_NOT_EXPORTED);
 		}
 	}
 

@@ -23,7 +23,6 @@ SOFTWARE.
  */
 package de.kai_morich.simple_bluetooth_le_terminal;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -42,7 +41,6 @@ import org.ecmdroid.Constants;
 import org.ecmdroid.R;
 
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;

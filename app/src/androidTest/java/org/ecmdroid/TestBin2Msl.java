@@ -17,16 +17,19 @@
  */
 package org.ecmdroid;
 
-import android.test.AndroidTestCase;
-
 import org.ecmdroid.util.Bin2MslConverter;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class TestBin2Msl extends AndroidTestCase {
+@RunWith(JUnit4.class)
+public class TestBin2Msl{
 
+	@Test
 	public void testConversion() throws IOException {
 		ByteArrayInputStream bin = new ByteArrayInputStream(TestUtils.readBinaryLog());
 		ByteArrayOutputStream msl = new ByteArrayOutputStream(1024 * 1024 * 10);

@@ -27,10 +27,13 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.provider.DocumentFile;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,8 +42,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,18 +51,15 @@ import org.ecmdroid.Constants.Variables;
 import org.ecmdroid.ECM;
 import org.ecmdroid.EcmDroidService;
 import org.ecmdroid.R;
-import org.ecmdroid.Utils;
 import org.ecmdroid.Variable;
 import org.ecmdroid.activities.MainActivity;
+import org.ecmdroid.activities.PrefsActivity;
 import org.ecmdroid.task.ProgressDialogTask;
 import org.ecmdroid.util.Bin2MslConverter;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -69,11 +69,13 @@ public class LogFragment extends Fragment implements OnClickListener {
 	private static final String PREFS_KEEP_SCREEN_ON = "keep_screen_on";
 	private static final String TAG = "LogFragment";
 	private Button recordButton;
-	private TextView logFile;
 	private TextView logStatus;
 	private TextView tpsValue, rpmValue, cltValue;
 	private ECM ecm = ECM.getInstance(getActivity());
 	private EcmDroidService ecmDroidService;
+	private static DocumentFile docRoot;
+	private static ParcelFileDescriptor logFile;
+	private static CharSequence logTimestamp;
 
 	private static class Interval {
 		int delay;
@@ -131,7 +133,6 @@ public class LogFragment extends Fragment implements OnClickListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.log, container, false);
-		logFile = (TextView) view.findViewById(R.id.logFileValue);
 		logStatus = (TextView) view.findViewById(R.id.logStatusValue);
 		tpsValue = (TextView) view.findViewById(R.id.tpsValue);
 		rpmValue = (TextView) view.findViewById(R.id.rpmValue);
@@ -158,18 +159,14 @@ public class LogFragment extends Fragment implements OnClickListener {
 		MainActivity activity = (MainActivity) getActivity();
 		activity.updateConnectButton();
 		activity.setTitle(getString(R.string.log_recorder));
-		activity.registerReceiver(receiver, new IntentFilter(EcmDroidService.RECORDING_STARTED));
-		activity.registerReceiver(receiver, new IntentFilter(EcmDroidService.RECORDING_STOPPED));
-		activity.registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA));
-		Spinner spinner = (Spinner) getView().findViewById(R.id.logInterval);
-		if (ecmDroidService != null && ecm.isRecording()) {
-			spinner.setEnabled(false);
-		} else {
-			spinner.setEnabled(true);
-		}
+		activity.registerReceiver(receiver, new IntentFilter(EcmDroidService.RECORDING_STARTED), Context.RECEIVER_NOT_EXPORTED);
+		activity.registerReceiver(receiver, new IntentFilter(EcmDroidService.RECORDING_STOPPED), Context.RECEIVER_NOT_EXPORTED);
+		activity.registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA), Context.RECEIVER_NOT_EXPORTED);
+		Spinner spinner = getView().findViewById(R.id.logInterval);
+		spinner.setEnabled(ecmDroidService == null || !ecm.isRecording());
 		SharedPreferences prefs = activity.getPreferences(Activity.MODE_PRIVATE);
 		spinner.setSelection(prefs.getInt(PREFS_DELAY, 0));
-		CheckBox convert = (CheckBox) getView().findViewById(R.id.logConvertCheckbox);
+		Switch convert = getView().findViewById(R.id.logConvertCheckbox);
 		convert.setChecked(prefs.getBoolean(PREFS_CONVERTLOG, false));
 	}
 
@@ -178,7 +175,7 @@ public class LogFragment extends Fragment implements OnClickListener {
 		super.onPause();
 		SharedPreferences prefs = getActivity().getPreferences(Activity.MODE_PRIVATE);
 		Spinner spinner = (Spinner) getView().findViewById(R.id.logInterval);
-		CheckBox convert = (CheckBox) getView().findViewById(R.id.logConvertCheckbox);
+		Switch convert = (Switch) getView().findViewById(R.id.logConvertCheckbox);
 		Editor editor = prefs.edit();
 		editor.putInt(PREFS_DELAY, spinner.getSelectedItemPosition());
 		editor.putBoolean(PREFS_CONVERTLOG, convert.isChecked());
@@ -205,7 +202,7 @@ public class LogFragment extends Fragment implements OnClickListener {
 					Toast.makeText(getActivity(), "I/O error. " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
 				}
 			} else {
-				boolean convert = ((CheckBox) getView().findViewById(R.id.logConvertCheckbox)).isChecked();
+				boolean convert = ((Switch) getView().findViewById(R.id.logConvertCheckbox)).isChecked();
 				recordButton.setEnabled(false);
 				new StopTask(getActivity(), convert).execute();
 				recordButton.setEnabled(true);
@@ -216,31 +213,34 @@ public class LogFragment extends Fragment implements OnClickListener {
 	}
 
 	private void startRecording() throws IOException {
-		if (!Utils.isExternalStorageAvailable()) {
-			Toast.makeText(getActivity(), R.string.no_ext_storage, Toast.LENGTH_LONG).show();
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		String uri = prefs.getString("storage.location", null);
+		if (uri == null) {
+			Toast.makeText(getActivity(), R.string.choose_storage_location, Toast.LENGTH_LONG).show();
+			Intent intent = new Intent(this.getActivity(), PrefsActivity.class);
+			startActivity(intent);
 			return;
 		}
-		Spinner spinner = (Spinner) getView().findViewById(R.id.logInterval);
+		Spinner spinner = getView().findViewById(R.id.logInterval);
 		Interval interval = (Interval) spinner.getSelectedItem();
-
-		CharSequence fn = DateFormat.format("yyyyMMdd_kkmmss", System.currentTimeMillis());
-		File dir = getActivity().getApplication().getExternalFilesDir(getString(R.string.log_dir));
-		if (!dir.exists() && !dir.mkdirs()) {
-			Log.w(TAG, "Unable to create directories " + dir.getAbsolutePath());
-		}
 		recordButton.setText(R.string.stop_recording);
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+		docRoot = DocumentFile.fromTreeUri(getContext(), Uri.parse(uri));
+		logTimestamp = DateFormat.format("yyyyMMdd_kkmmss", System.currentTimeMillis());
+		DocumentFile f = docRoot.createFile("application/x-ecmdroid-binlog", logTimestamp.toString() + ".log");
+		logFile = getContext().getContentResolver().openFileDescriptor(f.getUri(), "rw");
+		FileOutputStream out = new FileOutputStream(logFile.getFileDescriptor());
+
 		if (prefs.getBoolean(PREFS_KEEP_SCREEN_ON, false)) {
 			Log.i(TAG, "Keeping Screen on while recording...");
 			getView().setKeepScreenOn(true);
 		}
-		ecmDroidService.startRecording(new File(dir, fn + ".bin"), interval == null ? 0 : interval.delay, ecm);
+		ecmDroidService.startRecording(out, interval.delay, ecm);
 	}
 
 	protected void updateUI() {
 		if (ecmDroidService != null) {
 			if (ecm.isRecording()) {
-				logFile.setText(ecmDroidService.getLogfile());
 				logStatus.setText(String.format(getString(R.string.log_status), ecmDroidService.getRecords(), ecmDroidService.getBytes() / 1024));
 				Variable tps = ecm.getRuntimeValue(Variables.TPD);
 				Variable rpm = ecm.getRuntimeValue(Variables.RPM);
@@ -255,7 +255,6 @@ public class LogFragment extends Fragment implements OnClickListener {
 					cltValue.setText(clt.getFormattedValue());
 				}
 			} else {
-				logFile.setText(R.string.dash);
 				logStatus.setText(R.string.status_idle);
 				tpsValue.setText(R.string.dash);
 				rpmValue.setText(R.string.dash);
@@ -278,43 +277,67 @@ public class LogFragment extends Fragment implements OnClickListener {
 		@Override
 		protected Exception doInBackground(Void... params) {
 			Exception ret = null;
-			File log = ecmDroidService.getCurrentFile();
 			publishProgress(context.getString(R.string.stopping_logfile_recorder));
 			ecmDroidService.stopRecording();
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
 			}
-			if (convert) {
-				setCancelable(true);
-				publishProgress(context.getString(R.string.converting_to_msl));
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
+			try {
+				if (convert) {
+					ret = convertToMSL();
 				}
-				InputStream in = null;
-				OutputStream out = null;
+			} finally {
 				try {
-					in = new FileInputStream(log);
-					out = new FileOutputStream(new File(log.getAbsolutePath().replaceAll("bin$", "msl")));
-					converter.addObserver(this);
-					converter.convert(in, out);
-				} catch (Exception e) {
-					Log.w(TAG, "Conversion failed.", e);
-					ret = new Exception(context.getString(R.string.conversion_failed) + " " + e.getMessage());
-				} finally {
-					try {
-						if (in != null)
-							in.close();
-
-						if (out != null) {
-							out.flush();
-							out.close();
-						}
-					} catch (Exception e) {
-						Log.w(TAG, "Unable to close Input/Output stream.", e);
-						ret = e;
+					if (logFile != null) {
+						logFile.close();
 					}
+				} catch (IOException e) {
+					ret = e;
+				}
+				logFile = null;
+			}
+			return ret;
+		}
+
+		private Exception convertToMSL() {
+			Exception ret = null;
+			setCancelable(true);
+			publishProgress(context.getString(R.string.converting_to_msl));
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				Log.d(TAG, "Sleep interrupted");
+			}
+			FileInputStream in = null;
+			FileOutputStream out = null;
+			ParcelFileDescriptor mslFile = null;
+			try {
+				DocumentFile f = docRoot.createFile("text/plain", logTimestamp.toString() + ".msl");
+				mslFile = getContext().getContentResolver().openFileDescriptor(f.getUri(), "rw");
+				in = new FileInputStream(logFile.getFileDescriptor());
+				in.getChannel().position(0);
+				out = new FileOutputStream(mslFile.getFileDescriptor());
+				converter.addObserver(this);
+				converter.convert(in, out);
+			} catch (Exception e) {
+				Log.w(TAG, "Conversion failed.", e);
+				ret = new Exception(context.getString(R.string.conversion_failed) + " " + e.getMessage());
+			} finally {
+				try {
+					if (in != null)
+						in.close();
+
+					if (out != null) {
+						out.flush();
+						out.close();
+					}
+					if (mslFile != null) {
+						mslFile.close();
+					}
+				} catch (Exception e) {
+					Log.w(TAG, "Unable to close Input/Output stream.", e);
+					ret = e;
 				}
 			}
 			return ret;

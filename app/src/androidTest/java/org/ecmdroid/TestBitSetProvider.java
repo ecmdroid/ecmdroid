@@ -17,23 +17,31 @@
  */
 package org.ecmdroid;
 
-import android.test.AndroidTestCase;
+import android.support.test.runner.AndroidJUnit4;
 
 import org.ecmdroid.Constants.DataSource;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
+import static android.support.test.InstrumentationRegistry.getContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-public class TestBitSetProvider extends AndroidTestCase {
+
+@RunWith(AndroidJUnit4.class)
+public class TestBitSetProvider {
 	private BitSetProvider p;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		p = BitSetProvider.getInstance(this.getContext());
+	@Before
+	public void setUp() {
+		p = BitSetProvider.getInstance(getContext());
 	}
 
-	public void testBitSetConstructor() {
+	 @Test
+	 public void testBitSetConstructor() {
 		BitSet bits = p.getBitSet("BUEIB", "CDiag0", DataSource.RUNTIME_DATA);
 		assertNotNull(bits);
 		assertEquals("CDiag0", bits.getName());
@@ -45,6 +53,7 @@ public class TestBitSetProvider extends AndroidTestCase {
 		}
 	}
 
+	@Test
 	public void testFlags1() throws IOException {
 		byte[] data = TestUtils.readRTData();
 		BitSet bitset = p.getBitSet("BUEIB", "Flags1", DataSource.RUNTIME_DATA);

@@ -595,10 +595,9 @@ public class ECM {
 	}
 
 
-	public void getRuntimeData(byte[] data) {
+	public void setRuntimeData(byte[] data) {
 		rtData = data;
 	}
-
 
 	public byte[] getRuntimeData() {
 		return rtData;
