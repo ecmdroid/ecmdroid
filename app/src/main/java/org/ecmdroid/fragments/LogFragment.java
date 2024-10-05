@@ -313,7 +313,8 @@ public class LogFragment extends Fragment implements OnClickListener {
 			FileOutputStream out = null;
 			ParcelFileDescriptor mslFile = null;
 			try {
-				DocumentFile f = docRoot.createFile("text/plain", logTimestamp.toString() + ".msl");
+				Log.d(TAG, "Writing MSL file...");
+				DocumentFile f = docRoot.createFile("application/x-ecmdroid-msl-log", logTimestamp.toString() + ".msl");
 				mslFile = getContext().getContentResolver().openFileDescriptor(f.getUri(), "rw");
 				in = new FileInputStream(logFile.getFileDescriptor());
 				in.getChannel().position(0);
