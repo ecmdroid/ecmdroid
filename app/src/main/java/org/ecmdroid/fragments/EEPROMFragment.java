@@ -304,7 +304,7 @@ public class EEPROMFragment extends Fragment implements CellEditorDialogListener
 	private void loadFile() {
 		Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
 		intent.addCategory(Intent.CATEGORY_OPENABLE);
-		intent.setType("application/octet-stream");
+		intent.setType("*/*"); // required for opening XPR files :-/
 		startActivityForResult(intent, LOAD_FILE);
 	}
 
