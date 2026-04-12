@@ -41,7 +41,7 @@ public abstract class Utils {
 
 	public static String hexdump(byte[] data, int offset, int len) {
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; (i + offset) < Math.min(data.length, len); i++) {
+		for (int i = 0; i < len && (i + offset) < data.length; i++) {
 			sb.append(":").append(String.format("%02X", data[i + offset] & 0xFF));
 		}
 		return sb.length() > 0 ? sb.substring(1) : "<empty>";
