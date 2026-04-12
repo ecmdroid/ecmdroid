@@ -115,7 +115,13 @@ public class ECM {
 	private static final String TAG = "ECM";
 	private static final UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private static final String UNKNOWN = "N/A";
+	private static final int PAGE_ZERO_OFFSET = 0xFF; // Page 0 always starts at 0xFF
 
+	// List of EEPROM values that will be written to page 0
+	private static final String[] PAGE_ZERO_VARS_TO_WRITE = new String[]{
+			Variables.LFuel1,
+			Variables.KBaro
+	};
 
 	@SuppressLint("StaticFieldLeak")
 	private static ECM singleton;
@@ -493,7 +499,7 @@ public class ECM {
 			int dtr = Math.min(page.length() - i, 16);
 			int offset = i;
 			if (page.nr() == 0) { // Page zero is special
-				offset = 0xFF - page.length() + i + 1;
+				offset = PAGE_ZERO_OFFSET - page.length() + i + 1;
 				dtr = 1;
 			}
 			if (D)
@@ -514,18 +520,25 @@ public class ECM {
 	 * @throws IOException if an I/O error occurs during programming
 	 */
 	public void writeEEPromPage(Page page) throws IOException {
-		byte[] buffer = page.getParent().getBytes();
-		for (int i = 0; i < page.length(); ) {
-			int dtr = Math.min(page.length() - i, 16);
-			int offset = i;
-			if (page.nr() == 0) { // Page zero is special
-				offset = 0xFF - page.length() + i + 1;
-				dtr = 1;
+		if (page.nr() == 0) { // Selectively write page zero
+			byte[] buffer = page.getBytes(0, page.length(), new byte[page.length()], 0);
+			for (String varName : PAGE_ZERO_VARS_TO_WRITE) {
+				Variable var = this.getEEPROMValue(varName);
+				if (var != null) {
+					Log.d(TAG, "Writing page 0 " + varName);
+					sendPDU(PDU.setRequest(page.nr(), PAGE_ZERO_OFFSET + var.getOffset() + 1, buffer, buffer.length + var.getOffset(), var.getSize()));
+				}
 			}
-			sendPDU(PDU.setRequest(page.nr(), offset, buffer, page.start() + offset, dtr));
-			page.saved();
-			i += dtr;
+		} else {
+			byte[] buffer = page.getParent().getBytes();
+			for (int i = 0; i < page.length(); ) {
+				int dtr = Math.min(page.length() - i, 16);
+				int offset = i;
+				sendPDU(PDU.setRequest(page.nr(), offset, buffer, page.start() + offset, dtr));
+				i += dtr;
+			}
 		}
+		page.saved();
 	}
 
 

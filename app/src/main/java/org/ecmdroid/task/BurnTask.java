@@ -90,11 +90,6 @@ public class BurnTask extends ProgressDialogTask {
 				boolean fast_burn = prefs.getBoolean("enable_fast_burning", false);
 				int count = eeprom.getPageCount();
 				for (Page pg : ecm.getEEPROM().getPages()) {
-					if (pg.nr() == 0) {
-						// TODO: We don't handle page 0 for now...
-						count--;
-						continue;
-					}
 					// Either write all pages (if no local modifications exist) or only the ones that are touched
 					if (!fast_burn || pg.isTouched()) {
 						publishProgress(context.getString(R.string.burn_progress, ++i, count));
