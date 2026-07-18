@@ -16,8 +16,14 @@ adapters are also offered by various vendors, e.g.
 
 Initial pairing of your Android device and the Bluetooth serial adapter
 must be done using the Android Settings application (Wireless & Network).
-Also, make sure that the Bluetooth serial adapter is set to 9600, 8N1,
+Also,
+* For Standard and P&A ECMs make sure that the Bluetooth serial adapter is set to 9600, 8N1,
+No handshake.  This will be the vast majority of ECMs.
+* For Factory Race ECMs make sure that the Bluetooth serial adapter is set to 19200, 8N1,
 No handshake.
+
+P&A Race ECMs can usually be identified by the ***printed*** RACE USE ONLY marking on the casing.  
+Factory race ECMs can usually be identified by the ***engraved*** RACE USE ONLY marking on the casing.
 
 Pairing is not required for BLE serial adapters.
 
