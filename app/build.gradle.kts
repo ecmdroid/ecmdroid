@@ -34,15 +34,13 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android.txt"),
+                getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
             if (signingEnabled) {
                 signingConfig = signingConfigs.getByName("config")
             }
         }
-    }
-    productFlavors {
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
