@@ -321,7 +321,8 @@ public class MainActivity extends AppCompatActivity
 		//Toast.makeText(MainActivity.this, String.format(Locale.US, "Found %s",port.getDevice().getProductName()), Toast.LENGTH_SHORT).show();
 		try {
 			port.open(connection);
-			port.setParameters(9600, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+			int baud = ECM.Protocol.FACTORY_RACE.equals(getProtocol()) ? 19200 : 9600;
+			port.setParameters(baud, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
 			connect(port);
         } catch (IOException e) {
 			Toast.makeText(MainActivity.this, "Could not open COM port.", Toast.LENGTH_LONG).show();
