@@ -238,6 +238,7 @@ public class EEPROM {
 		}
 
 		public void touch() {
+			Log.d(TAG, "Page " + nr + " marked dirty");
 			touched = true;
 		}
 
@@ -284,11 +285,12 @@ public class EEPROM {
 	}
 
 	public void touch(int offset, int length) {
+		Log.d(TAG, "touch (" + offset + "," + length + ")");
 		// Mark page dirty
 		for (Page pg : pages) {
-			if (offset >= pg.start && offset < pg.start + pg.length) {
+			// Log.d(TAG, "Check page " + pg);
+			if ((pg.nr() == 0 && offset < 0) || (offset >= pg.start && offset < pg.start + pg.length)) {
 				pg.touch();
-				// Log.d(TAG, pg + " dirty");
 			}
 		}
 		touched = true;

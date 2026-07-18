@@ -20,3 +20,6 @@ Also, make sure that the Bluetooth serial adapter is set to 9600, 8N1,
 No handshake.
 
 Pairing is not required for BLE serial adapters.
+
+Also checkout [ecmsim](https://github.com/ecmdroid/ecmsim) which can
+be used for testing/debugging ecmdroid without a real ECM.
