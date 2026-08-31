@@ -230,6 +230,7 @@
 	<string name="no_changes_to_burn">No changes to burn</string>
 	<string name="ecm_information">ECM Information</string>
 	<string name="disconnected">Disconnected from ECM</string>
+	<string name="connection_lost">Connection to ECM lost</string>
 	<string name="live_data_off">Live Data Off</string>
 	<string name="live_data_on">Live Data On</string>
 	<string name="ecmdroid">EcmDroid</string>

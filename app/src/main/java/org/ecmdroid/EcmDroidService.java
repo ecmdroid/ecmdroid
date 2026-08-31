@@ -42,6 +42,7 @@ public class EcmDroidService extends Service {
 	public static final String REALTIME_DATA = "org.ecmdroid.Service.realtimedataevent";
 	public static final String RECORDING_STARTED = "org.ecmdroid.Service.recording_started";
 	public static final String RECORDING_STOPPED = "org.ecmdroid.Service.recording_stopped";
+	public static final String CONNECTION_LOST = "org.ecmdroid.Service.connectionlost";
 	public static final String TAG = "EcmDroidService";
 
 	private static final int RECORDING_ID = 1;
@@ -219,6 +220,14 @@ public class EcmDroidService extends Service {
 					readFailures++;
 					if (i < DEFAULT_INTERVAL) {
 						i = DEFAULT_INTERVAL;
+					}
+					if (!ecm.isConnected()) {
+						Log.w(TAG, "ECM connection lost, stopping reading/recording.");
+						reading = false;
+						if (recording) {
+							stopRecording();
+						}
+						sendBroadcast(new Intent(CONNECTION_LOST));
 					}
 				}
 				if (running) {

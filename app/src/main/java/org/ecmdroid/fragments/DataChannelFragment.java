@@ -90,6 +90,21 @@ public class DataChannelFragment extends Fragment {
 		}
 	};
 
+	private BroadcastReceiver connectionLostReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			toggleButton.setChecked(false);
+			toggleButton.setEnabled(false);
+			dataChannelAdapter.setAutoRefresh(false);
+			try {
+				getActivity().unregisterReceiver(receiver);
+			} catch (IllegalArgumentException iae) {
+				// receiver not (yet) registered.
+			}
+			((MainActivity) getActivity()).updateConnectButton();
+		}
+	};
+
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -154,12 +169,18 @@ public class DataChannelFragment extends Fragment {
 			dataChannelAdapter.setAutoRefresh(true);
 			getActivity().registerReceiver(receiver, new IntentFilter(EcmDroidService.REALTIME_DATA), Context.RECEIVER_NOT_EXPORTED);
 		}
+		getActivity().registerReceiver(connectionLostReceiver, new IntentFilter(EcmDroidService.CONNECTION_LOST), Context.RECEIVER_NOT_EXPORTED);
 	}
 
 	@Override
 	public void onPause() {
 		try {
 			getActivity().unregisterReceiver(receiver);
+		} catch (IllegalArgumentException iae) {
+			// receiver not (yet) registered.
+		}
+		try {
+			getActivity().unregisterReceiver(connectionLostReceiver);
 		} catch (IllegalArgumentException iae) {
 			// receiver not (yet) registered.
 		}
