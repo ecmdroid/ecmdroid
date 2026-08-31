@@ -29,3 +29,10 @@ Pairing is not required for BLE serial adapters.
 
 Also checkout [ecmsim](https://github.com/ecmdroid/ecmsim) which can
 be used for testing/debugging ecmdroid without a real ECM.
+
+## Documentation
+
+* [User Guide](docs/USER_GUIDE.md) — installing, connecting, and using every
+  screen in the app.
+* [Developer Guide](docs/DEVELOPER_GUIDE.md) — architecture, wire protocol,
+  data model, build/test instructions.
