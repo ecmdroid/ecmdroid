@@ -24,10 +24,12 @@ import android.app.FragmentManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -118,6 +120,15 @@ public class MainActivity extends AppCompatActivity
 		}
 	};
 
+	private BroadcastReceiver connectionLostReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Log.w(TAG, "Connection to ECM lost.");
+			updateConnectButton();
+			Toast.makeText(MainActivity.this, R.string.connection_lost, Toast.LENGTH_LONG).show();
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.d(TAG, "onCreate(" + savedInstanceState + "," + getIntent().getExtras() + ")");
@@ -169,6 +180,7 @@ public class MainActivity extends AppCompatActivity
 	protected void onResume() {
 		super.onResume();
 		updateConnectButton();
+		registerReceiver(connectionLostReceiver, new IntentFilter(EcmDroidService.CONNECTION_LOST), Context.RECEIVER_NOT_EXPORTED);
 	}
 
 	@Override
@@ -184,6 +196,7 @@ public class MainActivity extends AppCompatActivity
 	protected void onPause() {
 		super.onPause();
 		isTransactionSafe = false;
+		unregisterReceiver(connectionLostReceiver);
 	}
 
 	@Override

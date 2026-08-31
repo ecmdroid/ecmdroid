@@ -262,7 +262,13 @@ public class ECM {
 
 			@Override
 			public void onSerialIoError(Exception e) {
-				Log.e(TAG, "On Serial IO Error");
+				Log.e(TAG, "On Serial IO Error", e);
+				try {
+					out.close();
+				} catch (IOException ioe) {
+					Log.w(TAG, "Error closing BLE pipe", ioe);
+				}
+				handleConnectionLost(e);
 			}
 		});
 		synchronized (monitor) {
@@ -316,7 +322,7 @@ public class ECM {
 	 *
 	 * @throws IOException
 	 */
-	public void disconnect() throws IOException {
+	public synchronized void disconnect() throws IOException {
 		if (connected) {
 			try {
 				if (socket != null) {
@@ -351,6 +357,24 @@ public class ECM {
 	}
 
 	/**
+	 * Marks the connection as lost and releases any underlying transport
+	 * resources. Invoked internally when I/O to the ECM fails unexpectedly
+	 * (e.g. the Bluetooth link is dropped or goes out of range), as opposed
+	 * to a user-initiated {@link #disconnect()}.
+	 */
+	private synchronized void handleConnectionLost(Exception cause) {
+		if (!connected) {
+			return;
+		}
+		Log.w(TAG, "Connection to ECM lost: " + cause, cause);
+		try {
+			disconnect();
+		} catch (IOException ioe) {
+			Log.w(TAG, "Error releasing broken connection", ioe);
+		}
+	}
+
+	/**
 	 * Send a protocol data unit (PDU) to the ECM and return the ECMs response
 	 */
 	synchronized PDU sendPDU(PDU pdu) throws IOException {
@@ -372,6 +396,7 @@ public class ECM {
 			return ret;
 		} catch (IOException ioe) {
 			Log.e(TAG, "IO Exception sending PDU", ioe);
+			handleConnectionLost(ioe);
 			throw ioe;
 		} catch (RuntimeException rte) {
 			Log.e(TAG, "Runtime Exception sending PDU", rte);
